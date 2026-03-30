@@ -1,0 +1,4306 @@
+{
+    "records": {
+        "/books/OL4416779M": {
+            "isbns": [
+                "0393045145",
+                "0393090183"
+            ],
+            "issns": [],
+            "lccns": [
+                "79020762"
+            ],
+            "oclcs": [
+                "5353058"
+            ],
+            "olids": [
+                "OL4416779M"
+            ],
+            "publishDates": [
+                "1981"
+            ],
+            "recordURL": "http://openlibrary.org/books/OL4416779M/Don_Quixote",
+            "data": {
+                "url": "http://openlibrary.org/books/OL4416779M/Don_Quixote",
+                "key": "/books/OL4416779M",
+                "title": "Don Quixote",
+                "subtitle": "the Ormsby translation, revised, backgrounds and sources, criticism",
+                "authors": [
+                    {
+                        "url": "http://openlibrary.org/authors/OL66452A/Miguel_de_Cervantes_Saavedra",
+                        "name": "Miguel de Cervantes Saavedra"
+                    }
+                ],
+                "number_of_pages": 1003,
+                "pagination": "xiii, 1003 p. ;",
+                "by_statement": "Miguel de Cervantes ; edited by Joseph R. Jones and Kenneth Douglas.",
+                "identifiers": {
+                    "goodreads": [
+                        "422843",
+                        "17158"
+                    ],
+                    "librarything": [
+                        "7707621"
+                    ],
+                    "isbn_10": [
+                        "0393045145",
+                        "0393090183"
+                    ],
+                    "lccn": [
+                        "79020762"
+                    ],
+                    "oclc": [
+                        "5353058"
+                    ],
+                    "openlibrary": [
+                        "OL4416779M"
+                    ]
+                },
+                "classifications": {
+                    "lc_classifications": [
+                        "PQ6329 .A2 1981",
+                        "PQ6329 .A2 1980"
+                    ],
+                    "dewey_decimal_class": [
+                        "863/.3"
+                    ]
+                },
+                "publishers": [
+                    {
+                        "name": "Norton"
+                    },
+                    {
+                        "name": "W W Norton & Co Inc"
+                    }
+                ],
+                "publish_places": [
+                    {
+                        "name": "New York"
+                    }
+                ],
+                "publish_date": "1981",
+                "subjects": [
+                    {
+                        "name": "Don Quixote (Cervantes Saavedra, Miguel de)",
+                        "url": "https://openlibrary.org/subjects/don_quixote_(cervantes_saavedra,_miguel_de)"
+                    },
+                    {
+                        "name": "Quotations",
+                        "url": "https://openlibrary.org/subjects/quotations"
+                    },
+                    {
+                        "name": "Knights and knighthood",
+                        "url": "https://openlibrary.org/subjects/knights_and_knighthood"
+                    },
+                    {
+                        "name": "Social life and customs",
+                        "url": "https://openlibrary.org/subjects/social_life_and_customs"
+                    },
+                    {
+                        "name": "Fiction",
+                        "url": "https://openlibrary.org/subjects/fiction"
+                    },
+                    {
+                        "name": "Classic Literature",
+                        "url": "https://openlibrary.org/subjects/classic_literature"
+                    },
+                    {
+                        "name": "Don Quixote (Fictitious character)",
+                        "url": "https://openlibrary.org/subjects/don_quixote_(fictitious_character)"
+                    },
+                    {
+                        "name": "Early works to 1800",
+                        "url": "https://openlibrary.org/subjects/early_works_to_1800"
+                    },
+                    {
+                        "name": "Dictionaries",
+                        "url": "https://openlibrary.org/subjects/dictionaries"
+                    },
+                    {
+                        "name": "Literatura picaresca",
+                        "url": "https://openlibrary.org/subjects/literatura_picaresca"
+                    },
+                    {
+                        "name": "Espa\u00f1a",
+                        "url": "https://openlibrary.org/subjects/espa\u00f1a"
+                    },
+                    {
+                        "name": "Readers",
+                        "url": "https://openlibrary.org/subjects/readers"
+                    },
+                    {
+                        "name": "Caballeros y caballer\u00eda",
+                        "url": "https://openlibrary.org/subjects/caballeros_y_caballer\u00eda"
+                    },
+                    {
+                        "name": "great_books_of_the_western_world",
+                        "url": "https://openlibrary.org/subjects/great_books_of_the_western_world"
+                    },
+                    {
+                        "name": "Squires",
+                        "url": "https://openlibrary.org/subjects/squires"
+                    },
+                    {
+                        "name": "Spanish fiction",
+                        "url": "https://openlibrary.org/subjects/spanish_fiction"
+                    },
+                    {
+                        "name": "Illustrations",
+                        "url": "https://openlibrary.org/subjects/illustrations"
+                    },
+                    {
+                        "name": "Relatos de aventura",
+                        "url": "https://openlibrary.org/subjects/relatos_de_aventura"
+                    },
+                    {
+                        "name": "Criticism and interpretation",
+                        "url": "https://openlibrary.org/subjects/criticism_and_interpretation"
+                    },
+                    {
+                        "name": "Spanish Adventure fiction",
+                        "url": "https://openlibrary.org/subjects/spanish_adventure_fiction"
+                    },
+                    {
+                        "name": "Dulcinea",
+                        "url": "https://openlibrary.org/subjects/dulcinea"
+                    },
+                    {
+                        "name": "Real Academia Espa\u00f1ola,",
+                        "url": "https://openlibrary.org/subjects/real_academia_espa\u00f1ola,"
+                    },
+                    {
+                        "name": "Characters",
+                        "url": "https://openlibrary.org/subjects/characters"
+                    },
+                    {
+                        "name": "Dulcinea (Fictitious character)",
+                        "url": "https://openlibrary.org/subjects/dulcinea_(fictitious_character)"
+                    },
+                    {
+                        "name": "Rhetoric",
+                        "url": "https://openlibrary.org/subjects/rhetoric"
+                    },
+                    {
+                        "name": "Spanish Proverbs",
+                        "url": "https://openlibrary.org/subjects/spanish_proverbs"
+                    },
+                    {
+                        "name": "Spanish literature",
+                        "url": "https://openlibrary.org/subjects/spanish_literature"
+                    },
+                    {
+                        "name": "Quests",
+                        "url": "https://openlibrary.org/subjects/quests"
+                    },
+                    {
+                        "name": "History",
+                        "url": "https://openlibrary.org/subjects/history"
+                    },
+                    {
+                        "name": "Study and teaching (Secondary)",
+                        "url": "https://openlibrary.org/subjects/study_and_teaching_(secondary)"
+                    },
+                    {
+                        "name": "Chivalry",
+                        "url": "https://openlibrary.org/subjects/chivalry"
+                    },
+                    {
+                        "name": "Vida social y costumbres",
+                        "url": "https://openlibrary.org/subjects/vida_social_y_costumbres"
+                    },
+                    {
+                        "name": "Spanish language",
+                        "url": "https://openlibrary.org/subjects/spanish_language"
+                    },
+                    {
+                        "name": "Composition and exercises",
+                        "url": "https://openlibrary.org/subjects/composition_and_exercises"
+                    },
+                    {
+                        "name": "Ficci\u00f3n",
+                        "url": "https://openlibrary.org/subjects/ficci\u00f3n"
+                    },
+                    {
+                        "name": "Long Now Manual for Civilization",
+                        "url": "https://openlibrary.org/subjects/long_now_manual_for_civilization"
+                    },
+                    {
+                        "name": "Sancho Panza (Fictitious character)",
+                        "url": "https://openlibrary.org/subjects/sancho_panza_(fictitious_character)"
+                    },
+                    {
+                        "name": "Manners and customs",
+                        "url": "https://openlibrary.org/subjects/manners_and_customs"
+                    },
+                    {
+                        "name": "Spanish language materials",
+                        "url": "https://openlibrary.org/subjects/spanish_language_materials"
+                    },
+                    {
+                        "name": "Spanish: Adult Fiction",
+                        "url": "https://openlibrary.org/subjects/spanish:_adult_fiction"
+                    },
+                    {
+                        "name": "Classics",
+                        "url": "https://openlibrary.org/subjects/classics"
+                    },
+                    {
+                        "name": "General",
+                        "url": "https://openlibrary.org/subjects/general"
+                    },
+                    {
+                        "name": "Literature - Classics / Criticism",
+                        "url": "https://openlibrary.org/subjects/literature_-_classics_/_criticism"
+                    },
+                    {
+                        "name": "Continental european fiction (fictional works by one author)",
+                        "url": "https://openlibrary.org/subjects/continental_european_fiction_(fictional_works_by_one_author)"
+                    },
+                    {
+                        "name": "Spain, fiction",
+                        "url": "https://openlibrary.org/subjects/spain,_fiction"
+                    },
+                    {
+                        "name": "Don quixote (fictitious character), fiction",
+                        "url": "https://openlibrary.org/subjects/don_quixote_(fictitious_character),_fiction"
+                    },
+                    {
+                        "name": "Fiction, action & adventure",
+                        "url": "https://openlibrary.org/subjects/fiction,_action_&_adventure"
+                    },
+                    {
+                        "name": "Fiction, historical",
+                        "url": "https://openlibrary.org/subjects/fiction,_historical"
+                    },
+                    {
+                        "name": "Dulcinea (fictitious character), fiction",
+                        "url": "https://openlibrary.org/subjects/dulcinea_(fictitious_character),_fiction"
+                    },
+                    {
+                        "name": "Romance literature",
+                        "url": "https://openlibrary.org/subjects/romance_literature"
+                    },
+                    {
+                        "name": "Cide Hamete Benengeli (Fictitious character)",
+                        "url": "https://openlibrary.org/subjects/cide_hamete_benengeli_(fictitious_character)"
+                    },
+                    {
+                        "name": "Open Library Staff Picks",
+                        "url": "https://openlibrary.org/subjects/open_library_staff_picks"
+                    },
+                    {
+                        "name": "Humor",
+                        "url": "https://openlibrary.org/subjects/humor"
+                    },
+                    {
+                        "name": "Pictorial works",
+                        "url": "https://openlibrary.org/subjects/pictorial_works"
+                    },
+                    {
+                        "name": "Literature",
+                        "url": "https://openlibrary.org/subjects/literature"
+                    },
+                    {
+                        "name": "Comic books, strips",
+                        "url": "https://openlibrary.org/subjects/comic_books,_strips"
+                    },
+                    {
+                        "name": "Comics & graphic novels, general",
+                        "url": "https://openlibrary.org/subjects/comics_&_graphic_novels,_general"
+                    },
+                    {
+                        "name": "Modern Literature",
+                        "url": "https://openlibrary.org/subjects/modern_literature"
+                    },
+                    {
+                        "name": "Spanish",
+                        "url": "https://openlibrary.org/subjects/spanish"
+                    },
+                    {
+                        "name": "Knights and knighthood, fiction",
+                        "url": "https://openlibrary.org/subjects/knights_and_knighthood,_fiction"
+                    },
+                    {
+                        "name": "Wishbone (fictitious character), fiction",
+                        "url": "https://openlibrary.org/subjects/wishbone_(fictitious_character),_fiction"
+                    },
+                    {
+                        "name": "Dogs, fiction",
+                        "url": "https://openlibrary.org/subjects/dogs,_fiction"
+                    },
+                    {
+                        "name": "Chivalry, fiction",
+                        "url": "https://openlibrary.org/subjects/chivalry,_fiction"
+                    },
+                    {
+                        "name": "Fiction, general",
+                        "url": "https://openlibrary.org/subjects/fiction,_general"
+                    },
+                    {
+                        "name": "NOVELAS ESPA\u00d1OLAS",
+                        "url": "https://openlibrary.org/subjects/novelas_espa\u00f1olas"
+                    },
+                    {
+                        "name": "Novela espa\u00f1ola",
+                        "url": "https://openlibrary.org/subjects/novela_espa\u00f1ola"
+                    },
+                    {
+                        "name": "Translations into English",
+                        "url": "https://openlibrary.org/subjects/translations_into_english"
+                    },
+                    {
+                        "name": "Bibliography",
+                        "url": "https://openlibrary.org/subjects/bibliography"
+                    },
+                    {
+                        "name": "Adventure stories",
+                        "url": "https://openlibrary.org/subjects/adventure_stories"
+                    },
+                    {
+                        "name": "Literary",
+                        "url": "https://openlibrary.org/subjects/literary"
+                    },
+                    {
+                        "name": "Sh\u014dsetsu-Sh\u014dsetsush\u016b",
+                        "url": "https://openlibrary.org/subjects/sh\u014dsetsu-sh\u014dsetsush\u016b"
+                    },
+                    {
+                        "name": "Biography",
+                        "url": "https://openlibrary.org/subjects/biography"
+                    },
+                    {
+                        "name": "Literatura espa\u00f1ola",
+                        "url": "https://openlibrary.org/subjects/literatura_espa\u00f1ola"
+                    },
+                    {
+                        "name": "Appreciation",
+                        "url": "https://openlibrary.org/subjects/appreciation"
+                    },
+                    {
+                        "name": "NOVELISTAS ESPA\u00d1OLES",
+                        "url": "https://openlibrary.org/subjects/novelistas_espa\u00f1oles"
+                    },
+                    {
+                        "name": "BIOGRAFIA",
+                        "url": "https://openlibrary.org/subjects/biografia"
+                    },
+                    {
+                        "name": "Cr\u00edtica e Interpretaci\u00f3n",
+                        "url": "https://openlibrary.org/subjects/cr\u00edtica_e_interpretaci\u00f3n"
+                    },
+                    {
+                        "name": "Fiction, romance, general",
+                        "url": "https://openlibrary.org/subjects/fiction,_romance,_general"
+                    },
+                    {
+                        "name": "Dalziel Brothers",
+                        "url": "https://openlibrary.org/subjects/dalziel_brothers"
+                    },
+                    {
+                        "name": "Spanish Authors",
+                        "url": "https://openlibrary.org/subjects/spanish_authors"
+                    },
+                    {
+                        "name": "Quixote",
+                        "url": "https://openlibrary.org/subjects/quixote"
+                    },
+                    {
+                        "name": "Don quixote (fictitious character)--fiction",
+                        "url": "https://openlibrary.org/subjects/don_quixote_(fictitious_character)--fiction"
+                    },
+                    {
+                        "name": "Knights and knighthood--spain--fiction",
+                        "url": "https://openlibrary.org/subjects/knights_and_knighthood--spain--fiction"
+                    },
+                    {
+                        "name": "World literature",
+                        "url": "https://openlibrary.org/subjects/world_literature"
+                    },
+                    {
+                        "name": "Fiction subjects",
+                        "url": "https://openlibrary.org/subjects/fiction_subjects"
+                    },
+                    {
+                        "name": "Peoples & cultures - fiction",
+                        "url": "https://openlibrary.org/subjects/peoples_&_cultures_-_fiction"
+                    },
+                    {
+                        "name": "Literature, collections",
+                        "url": "https://openlibrary.org/subjects/literature,_collections"
+                    },
+                    {
+                        "name": "Politics and government",
+                        "url": "https://openlibrary.org/subjects/politics_and_government"
+                    },
+                    {
+                        "name": "Children: Grades 4-6",
+                        "url": "https://openlibrary.org/subjects/children:_grades_4-6"
+                    },
+                    {
+                        "name": "Children's fiction",
+                        "url": "https://openlibrary.org/subjects/children's_fiction"
+                    },
+                    {
+                        "name": "Spain -- Social life and customs -- 16th century -- Fiction",
+                        "url": "https://openlibrary.org/subjects/spain_--_social_life_and_customs_--_16th_century_--_fiction"
+                    },
+                    {
+                        "name": "Knights and knighthood -- Spain -- Fiction",
+                        "url": "https://openlibrary.org/subjects/knights_and_knighthood_--_spain_--_fiction"
+                    },
+                    {
+                        "name": "Picaresque literature",
+                        "url": "https://openlibrary.org/subjects/picaresque_literature"
+                    },
+                    {
+                        "name": "Romances",
+                        "url": "https://openlibrary.org/subjects/romances"
+                    },
+                    {
+                        "name": "Library",
+                        "url": "https://openlibrary.org/subjects/library"
+                    },
+                    {
+                        "name": "Personal copy",
+                        "url": "https://openlibrary.org/subjects/personal_copy"
+                    },
+                    {
+                        "name": "Sabine Hall (Richmond County, Va.). Library",
+                        "url": "https://openlibrary.org/subjects/sabine_hall_(richmond_county,_va.)._library"
+                    },
+                    {
+                        "name": "Real Academia Espa\u00f1ola",
+                        "url": "https://openlibrary.org/subjects/real_academia_espa\u00f1ola"
+                    },
+                    {
+                        "name": "FICTION / Classics",
+                        "url": "https://openlibrary.org/subjects/fiction_/_classics"
+                    },
+                    {
+                        "name": "FICTION / Historical",
+                        "url": "https://openlibrary.org/subjects/fiction_/_historical"
+                    },
+                    {
+                        "name": "FICTION / Action & Adventure",
+                        "url": "https://openlibrary.org/subjects/fiction_/_action_&_adventure"
+                    },
+                    {
+                        "name": "Islam",
+                        "url": "https://openlibrary.org/subjects/islam"
+                    },
+                    {
+                        "name": "Quests (Expeditions)",
+                        "url": "https://openlibrary.org/subjects/quests_(expeditions)"
+                    },
+                    {
+                        "name": "Juvenile fiction",
+                        "url": "https://openlibrary.org/subjects/juvenile_fiction"
+                    },
+                    {
+                        "name": "Fine books",
+                        "url": "https://openlibrary.org/subjects/fine_books"
+                    },
+                    {
+                        "name": "Specimens",
+                        "url": "https://openlibrary.org/subjects/specimens"
+                    },
+                    {
+                        "name": "Textbooks for foreign speakers",
+                        "url": "https://openlibrary.org/subjects/textbooks_for_foreign_speakers"
+                    },
+                    {
+                        "name": "Gentry",
+                        "url": "https://openlibrary.org/subjects/gentry"
+                    },
+                    {
+                        "name": "Painting",
+                        "url": "https://openlibrary.org/subjects/painting"
+                    },
+                    {
+                        "name": "Art",
+                        "url": "https://openlibrary.org/subjects/art"
+                    },
+                    {
+                        "name": "Philosophy",
+                        "url": "https://openlibrary.org/subjects/philosophy"
+                    },
+                    {
+                        "name": "Aesthetics",
+                        "url": "https://openlibrary.org/subjects/aesthetics"
+                    },
+                    {
+                        "name": "Dictionaries, indexes",
+                        "url": "https://openlibrary.org/subjects/dictionaries,_indexes"
+                    }
+                ],
+                "subject_places": [
+                    {
+                        "name": "Spain",
+                        "url": "https://openlibrary.org/subjects/place:spain"
+                    },
+                    {
+                        "name": "Espa\u00f1a",
+                        "url": "https://openlibrary.org/subjects/place:espa\u00f1a"
+                    }
+                ],
+                "subject_people": [
+                    {
+                        "name": "Miguel de Cervantes Saavedra (1547-1616)",
+                        "url": "https://openlibrary.org/subjects/person:miguel_de_cervantes_saavedra_(1547-1616)"
+                    },
+                    {
+                        "name": "Edy Legrand (1893-)",
+                        "url": "https://openlibrary.org/subjects/person:edy_legrand_(1893-)"
+                    },
+                    {
+                        "name": "Am\u00e9rico Castro (1885-)",
+                        "url": "https://openlibrary.org/subjects/person:am\u00e9rico_castro_(1885-)"
+                    },
+                    {
+                        "name": "Juan Antonio Pellicer y Pilares (1738-1806,)",
+                        "url": "https://openlibrary.org/subjects/person:juan_antonio_pellicer_y_pilares_(1738-1806,)"
+                    },
+                    {
+                        "name": "Don Quixote",
+                        "url": "https://openlibrary.org/subjects/person:don_quixote"
+                    },
+                    {
+                        "name": "Quixote Don (Fictitious character)",
+                        "url": "https://openlibrary.org/subjects/person:quixote_don_(fictitious_character)"
+                    }
+                ],
+                "subject_times": [
+                    {
+                        "name": "16th century",
+                        "url": "https://openlibrary.org/subjects/time:16th_century"
+                    },
+                    {
+                        "name": "Siglo XVI",
+                        "url": "https://openlibrary.org/subjects/time:siglo_xvi"
+                    },
+                    {
+                        "name": "15th and 16th centuries",
+                        "url": "https://openlibrary.org/subjects/time:15th_and_16th_centuries"
+                    },
+                    {
+                        "name": "17 century",
+                        "url": "https://openlibrary.org/subjects/time:17_century"
+                    },
+                    {
+                        "name": "Classical period, 1500-1700",
+                        "url": "https://openlibrary.org/subjects/time:classical_period,_1500-1700"
+                    },
+                    {
+                        "name": "17th century",
+                        "url": "https://openlibrary.org/subjects/time:17th_century"
+                    }
+                ],
+                "notes": "Bibliography: p. 1003.",
+                "links": [
+                    {
+                        "title": "Wikipedia in English",
+                        "url": "https://en.wikipedia.org/wiki/Don_Quixote"
+                    },
+                    {
+                        "title": "Don Quixote-Ebookzy",
+                        "url": "https://ebookzy.com/don-quixote/"
+                    }
+                ],
+                "cover": {
+                    "small": "https://covers.openlibrary.org/b/id/248201-S.jpg",
+                    "medium": "https://covers.openlibrary.org/b/id/248201-M.jpg",
+                    "large": "https://covers.openlibrary.org/b/id/248201-L.jpg"
+                }
+            },
+            "details": {
+                "bib_key": "isbn:9780393045147",
+                "info_url": "http://openlibrary.org/books/OL4416779M/Don_Quixote",
+                "preview": "noview",
+                "preview_url": "http://openlibrary.org/books/OL4416779M/Don_Quixote",
+                "thumbnail_url": "https://covers.openlibrary.org/b/id/248201-S.jpg",
+                "details": {
+                    "notes": {
+                        "type": "/type/text",
+                        "value": "Bibliography: p. 1003."
+                    },
+                    "identifiers": {
+                        "goodreads": [
+                            "422843",
+                            "17158"
+                        ],
+                        "librarything": [
+                            "7707621"
+                        ]
+                    },
+                    "title": "Don Quixote",
+                    "subtitle": "the Ormsby translation, revised, backgrounds and sources, criticism",
+                    "authors": [
+                        {
+                            "key": "/authors/OL33442A",
+                            "name": "Miguel de Unamuno"
+                        }
+                    ],
+                    "publish_date": "1981",
+                    "publishers": [
+                        "Norton",
+                        "W W Norton & Co Inc"
+                    ],
+                    "isbn_10": [
+                        "0393045145",
+                        "0393090183"
+                    ],
+                    "series": [
+                        "A Norton critical edition"
+                    ],
+                    "covers": [
+                        248201
+                    ],
+                    "lc_classifications": [
+                        "PQ6329 .A2 1981",
+                        "PQ6329 .A2 1980"
+                    ],
+                    "publish_places": [
+                        "New York"
+                    ],
+                    "contributions": [
+                        "Ormsby, John, 1829-1895.",
+                        "Jones, Joseph Ramon, 1935-",
+                        "Douglas, Kenneth."
+                    ],
+                    "languages": [
+                        {
+                            "key": "/languages/eng"
+                        }
+                    ],
+                    "pagination": "xiii, 1003 p. ;",
+                    "source_records": [
+                        "promise:bwb_daily_pallets_2022-06-30:O8-AVQ-297",
+                        "marc:marc_records_scriblio_net/part11.dat:111290582:1010",
+                        "marc:marc_ithaca_college/ic_marc.mrc:20718396:1031",
+                        "ia:donquixoteormsby00saav",
+                        "amazon:0393045145",
+                        "amazon:0393090183",
+                        "bwb:9780393045147",
+                        "bwb:9780393090185",
+                        "marc:marc_loc_2016/BooksAll.2016.part12.utf8:8951720:1004",
+                        "ia:donquixoteormsby0000cerv",
+                        "marc:marc_columbia/Columbia-extract-20221130-001.mrc:106625585:1742",
+                        "promise:bwb_daily_pallets_2022-03-17:P7-EJM-114",
+                        "marc:harvard_bibliographic_metadata/ab.bib.00.20150123.full.mrc:777219674:999"
+                    ],
+                    "dewey_decimal_class": [
+                        "863/.3"
+                    ],
+                    "edition_name": "1st ed.",
+                    "lccn": [
+                        "79020762"
+                    ],
+                    "subjects": [
+                        "Cervantes Saavedra, Miguel de, 1547-1616"
+                    ],
+                    "publish_country": "nyu",
+                    "by_statement": "Miguel de Cervantes ; edited by Joseph R. Jones and Kenneth Douglas.",
+                    "work_title": [
+                        "Don Quixote."
+                    ],
+                    "type": {
+                        "key": "/type/edition"
+                    },
+                    "local_id": [
+                        "urn:bwbsku:O8-AVQ-297",
+                        "urn:bwbsku:P7-EJM-114"
+                    ],
+                    "oclc_numbers": [
+                        "5353058"
+                    ],
+                    "key": "/books/OL4416779M",
+                    "number_of_pages": 1003,
+                    "works": [
+                        {
+                            "key": "/works/OL503666W"
+                        }
+                    ],
+                    "latest_revision": 31,
+                    "revision": 31,
+                    "created": {
+                        "type": "/type/datetime",
+                        "value": "2008-04-01T03:28:50.625462"
+                    },
+                    "last_modified": {
+                        "type": "/type/datetime",
+                        "value": "2025-09-03T08:50:00.364168"
+                    }
+                }
+            }
+        }
+    },
+    "items": [
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL24367320M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1605",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/elingeniosohi00cerv",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/7189176-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/7189176-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/7189176-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL24398119M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1608",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/elingenioso01cerv",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/6654228-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/6654228-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/6654228-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL20605597M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1610",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/elingeniosohida01saavgoog",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/9856307-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/9856307-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/9856307-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL25953200M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1657",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/denverstandigenv00cerv",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/11777748-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/11777748-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/11777748-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL23501471M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1713",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/histoiredeladmi00saavgoog",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/15096282-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/15096282-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/15096282-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL23496012M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1713",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/histoiredeladir00mancgoog",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/11776933-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/11776933-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/11776933-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL23467972M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1713",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/histoiredeladmi00mancgoog",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/11875612-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/11875612-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/11875612-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL6469521M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1742",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/lifeexploitsofin01cerv",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/5807693-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/5807693-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/5807693-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL5899960M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1747",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/lifeandexploits01johgoog",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/9949542-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/9949542-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/9949542-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL20502439M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1749",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/lifeandexploits01jarvgoog",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/9525218-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/9525218-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/9525218-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL20470293M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1750",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/vidayhechosdeli00siscgoog",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/7061248-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/7061248-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/7061248-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL13502307M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1755",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/vidayhechosdelin03cervuoft",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/5747491-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/5747491-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/5747491-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL5899959M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1755",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/vidayhechosdeli01siscgoog",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/5815210-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/5815210-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/5815210-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL25615102M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1765",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/vidayhechosdeli04cerv",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/7287466-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/7287466-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/7287466-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL23303547M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1768",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/histoiredeladmir01cerv",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/6074741-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/6074741-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/6074741-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL23356452M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1777",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/vidayhechosdelin01cerv",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/6074713-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/6074713-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/6074713-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL25389820M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1780",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/hidalgodonquix01cerv",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/7163862-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/7163862-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/7163862-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL6971227M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1782",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/historyadventure00cerv",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/6284423-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/6284423-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/6284423-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL6584639M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1787",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/elingeniosohida00quixgoog",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/5833837-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/5833837-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/5833837-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL19579936M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1788",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/lifeexploitsofi03cervuoft",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/7287381-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/7287381-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/7287381-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL5899928M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1792",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/historyandadven00unkngoog",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/5815208-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/5815208-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/5815208-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL5899957M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1796",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/historyandadven01smolgoog",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/5815209-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/5815209-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/5815209-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL6629744M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1797",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/elingeniosohida00navagoog",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/5844844-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/5844844-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/5844844-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL24140036M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1798",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/elingeniosohidal11cerv",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/6319584-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/6319584-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/6319584-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL24137592M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1798",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/c2elingeniosohid02cerv",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/6318997-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/6318997-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/6318997-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL24348183M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1799",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/elingeniosohidal07cerv",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/6496106-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/6496106-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/6496106-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL24160224M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1799",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/p1elingeniosohid03cerv",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/6338528-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/6338528-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/6338528-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL24196040M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1799",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/p2elingeniosohid05cerv",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/6375133-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/6375133-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/6375133-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL24347558M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1800",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/adventuresofdo00cerv",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/11873737-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/11873737-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/11873737-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL24432854M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1801",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/lifeexploitsofin04cerv",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/7203177-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/7203177-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/7203177-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL7068584M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1801",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/lifeexploitsofin01cervuoft",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/5592325-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/5592325-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/5592325-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL5670153M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1803",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/adventuresrenow00smolgoog",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/9714666-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/9714666-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/9714666-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL25091286M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1808",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/donquichottedela06cerv",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/6965886-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/6965886-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/6965886-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL7242805M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1809",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/lifeexploitsofin02cerviala",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/5559912-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/5559912-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/5559912-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL5670165M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1809",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/lifeandexploits00jarvgoog",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/9877424-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/9877424-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/9877424-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL20487497M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1819",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/elingeniosohida12saavgoog",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/11778207-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/11778207-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/11778207-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL20611179M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1819",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/elingeniosohida00rogoog",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/11775373-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/11775373-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/11775373-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL19885194M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1820",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/donquichottedela00cerv",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/7422700-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/7422700-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/7422700-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL18073135M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1820",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/donquichottedela01cervuoft",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/5749049-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/5749049-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/5749049-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL5670156M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1825",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/lifeandexploits01saavgoog",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/7052632-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/7052632-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/7052632-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL20484661M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1826",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/histoirededonqu00mrgoog",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/6052497-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/6052497-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/6052497-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL5900029M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1827",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/elingeniosohidal00cerv",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/5806026-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/5806026-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/5806026-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL20456371M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1827",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/histoirededonqu00gebhgoog",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/6009427-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/6009427-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/6009427-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL24348338M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1829",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/densindrigeadels03cerv",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/6486499-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/6486499-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/6486499-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL24327317M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1830",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/densindrigeadels01cerv",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/6486483-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/6486483-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/6486483-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL20607385M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1830",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/donquichottedel02florgoog",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/10259008-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/10259008-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/10259008-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL6630114M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1833",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/elingeniosohidal02cerv_0",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/11865920-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/11865920-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/11865920-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL7229368M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1837",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/donquixotedelama02cervuoft",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/5697757-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/5697757-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/5697757-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL7133627M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1837",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/donquixotedelama01cervuoft",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/5646513-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/5646513-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/5646513-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL13502669M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1837",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/donquixotedelama03cervuoft",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/5775696-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/5775696-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/5775696-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL23387069M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1837",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/dersinnreicheju01saavgoog",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/11779781-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/11779781-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/11779781-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL20479428M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1838",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/dersinnreicheju00saavgoog",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/6044008-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/6044008-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/6044008-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL25596613M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1842",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/donquixotedelama02cerv_0",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/9769705-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/9769705-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/9769705-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL24785178M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1842",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/donquixotedelama02cerv",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/6839319-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/6839319-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/6839319-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL24785178M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1842",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/donquixotedelama02cerv",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/6839319-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/6839319-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/6839319-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL20450867M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1842",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/elingeniosohida21saavgoog",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/6005858-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/6005858-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/6005858-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL23564576M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1842",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/elingeniosohida30saavgoog",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/10000631-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/10000631-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/10000631-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL23564757M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1842",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/elingeniosohida29saavgoog",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/7047585-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/7047585-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/7047585-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL24820919M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1844",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/histoirededonqui02cerv",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/6850889-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/6850889-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/6850889-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL24820919M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1844",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/histoirededonqui02cerv",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/6850889-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/6850889-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/6850889-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL24820919M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1844",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/histoirededonqui02cerv",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/6850889-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/6850889-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/6850889-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL5670145M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1847",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/donquixotedelam03saavgoog",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/5814651-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/5814651-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/5814651-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL5670152M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1848",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/historydonquixo00cogoog",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/9566556-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/9566556-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/9566556-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL20587030M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1850",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/elingeniosohida04saavgoog",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/11778461-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/11778461-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/11778461-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL5670147M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1853",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/donquixotedelam02saavgoog",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/9725445-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/9725445-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/9725445-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL20432617M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1854",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/elingeniosohida00ochogoog",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/9817504-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/9817504-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/9817504-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL20542030M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1855",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/elingeniosohida28saavgoog",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/9708500-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/9708500-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/9708500-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL23377617M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1858",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/adventuresdonqu00gilbgoog",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/7104098-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/7104098-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/7104098-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL20609417M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1861",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/elingeniosohida19saavgoog",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/9563161-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/9563161-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/9563161-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL7040353M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1864",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/historyofingenio01cerviala",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/5739846-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/5739846-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/5739846-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL20549911M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1864",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/elingeniosohida00castgoog",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/10058852-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/10058852-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/10058852-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL1226744M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1864",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/historyingeniou00lockgoog",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/5811644-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/5811644-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/5811644-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL24243726M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1866",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/lingnieuxcheva00cerv",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/6531504-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/6531504-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/6531504-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL5670150M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1866",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/adventuresdonqu00jarvgoog",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/9875016-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/9875016-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/9875016-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL5899961M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1866",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/lingnieuxcheval00rouxgoog",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/7047357-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/7047357-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/7047357-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL20465023M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1866",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/elingeniosohida27saavgoog",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/7035442-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/7035442-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/7035442-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL5670640M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1867",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/historydonquixo04saavgoog",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/9582816-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/9582816-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/9582816-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL24171989M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1869",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/cu31924008863924",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/6350162-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/6350162-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/6350162-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL25498447M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1870",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/donquixotevonlam00cerv",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/9621622-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/9621622-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/9621622-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL24150204M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1871",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/cu31924027656978",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/6328404-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/6328404-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/6328404-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL24150024M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1871",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/cu31924096224518",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/6328225-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/6328225-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/6328225-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL24156394M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1875",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/cu31924027657075",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/6334658-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/6334658-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/6334658-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL24607408M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1876",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/elingeniosohidal1876cerv",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/7189179-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/7189179-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/7189179-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL24992013M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1876",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/elingeni02cerv",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/6927616-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/6927616-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/6927616-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL25577934M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1876",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/lebenundthatende01cerv",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/9956094-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/9956094-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/9956094-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL14005174M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1876",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/donquijote00cervuoft",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/9971748-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/9971748-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/9971748-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL22000952M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1879",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/historyofingenio00cerv",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/7408818-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/7408818-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/7408818-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL24786017M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1880",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/adventuresofinge00cerv",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/6840166-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/6840166-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/6840166-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL6370216M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1880",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/elingeniosohid00cervuoft",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/8234348-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/8234348-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/8234348-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL26521156M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1880",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/elingeniosohidal02cerv_4",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/8266103-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/8266103-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/8266103-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL24156468M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1880",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/cu31924027657174",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/6334732-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/6334732-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/6334732-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL6921443M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1881",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/ingeniousknight00saavgoog",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/5860742-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/5860742-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/5860742-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL20608082M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1881",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/elingeniosohida00dorgoog",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/8604288-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/8604288-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/8604288-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL5787600M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1882",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/elingeniosohida00puiggoog",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/9529638-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/9529638-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/9529638-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL24992051M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1883",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/elingenio01cerv",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/6927800-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/6927800-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/6927800-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL7248581M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1885",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/ingeniousgentlem01cervuoft",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/5564785-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/5564785-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/5564785-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL14014778M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1885",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/ingeniousgentlem04cervuoft",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/5784006-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/5784006-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/5784006-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL24433138M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1885",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/ingeniousgentle02cerv",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/7196458-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/7196458-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/7196458-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL24432864M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1885",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/ingeniosohidalgo01cerv",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/7196462-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/7196462-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/7196462-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL24396350M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1885",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/ingeniousgentle03cerv",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/6651058-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/6651058-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/6651058-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL5899795M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1885",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/ingeniousgentle00conggoog",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/6907128-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/6907128-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/6907128-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL6664018M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1888",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/ingeniousgentlem03cerv",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/5850462-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/5850462-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/5850462-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL24991426M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1888",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/elquijotedelajuv00cerv",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/8234351-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/8234351-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/8234351-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL24366101M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1890",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/elingeniosohid00cerv",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/7189177-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/7189177-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/7189177-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL5931165M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1890",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/romancerodeelin00albogoog",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/6929000-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/6929000-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/6929000-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL26230284M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1891",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/ingeniousgentlem01cerv_0",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/7901580-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/7901580-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/7901580-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL26231794M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1892",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/historyofdonquix00cerv_1",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/7902685-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/7902685-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/7902685-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL18074852M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1892",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/elingeniosohidal01cervuoft",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/5749153-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/5749153-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/5749153-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL2900665M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1892",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/historyingeniou03unkngoog",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/9896294-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/9896294-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/9896294-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL20475661M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1893",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/elingeniosohida10saavgoog",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/6034658-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/6034658-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/6034658-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL23306400M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1895",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/ingeniousgentlem0195cerv",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/6517198-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/6517198-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/6517198-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL852042M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1895",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/historyvalorous00brangoog",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/9671665-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/9671665-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/9671665-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL20434631M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1895",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/elingeniosohida01castgoog",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/10028811-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/10028811-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/10028811-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL24992120M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1896",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/elingeniosohida03cerv",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/8234349-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/8234349-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/8234349-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL23306401M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1896",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/ingeniousgentlem01cerv",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/6040203-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/6040203-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/6040203-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL7234054M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1896",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/historyofdonquix00cervuoft",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/5552563-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/5552563-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/5552563-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL24139661M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1896",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/1896elingeniosohid02cerv",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/8234345-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/8234345-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/8234345-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL6632619M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1896",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/ingeniousgentle11saavgoog",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/9676385-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/9676385-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/9676385-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL20466335M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1896",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/historydonquixo02saavgoog",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/6018832-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/6018832-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/6018832-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL24992067M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1897",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/elingeniosoh00cerv",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/6927872-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/6927872-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/6927872-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL6629733M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1898",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/elingeniosodon02cerv",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/8234347-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/8234347-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/8234347-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL528453M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1898",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/donquixotedelama00cerv",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/7201449-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/7201449-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/7201449-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL20552760M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1898",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/elingeniosohida00barrgoog",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/8604287-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/8604287-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/8604287-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL528888M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1899",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/ingeniousgentlem00cerv",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/9750215-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/9750215-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/9750215-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL20588624M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1899",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/elingeniosohida00ormsgoog",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/11829912-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/11829912-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/11829912-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL24343614M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1900",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/elingeniosohidal00cervrs",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/14569170-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/14569170-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/14569170-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL7073200M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1900",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/donquixotedelama00cerviala",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/5596135-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/5596135-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/5596135-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL7172553M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1900",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/historyofvalorou03cerviala",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/5653386-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/5653386-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/5653386-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL7077460M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1900",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/historyofvalorou02cerviala",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/6754665-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/6754665-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/6754665-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL24786108M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1900",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/historyofvalorou02cerv",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/6840257-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/6840257-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/6840257-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL24786081M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1900",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/historyofdonquix00cerv",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/6840230-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/6840230-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/6840230-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL23360693M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1900",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/geshikhefundonik01cervuoft",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/11877335-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/11877335-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/11877335-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL24992738M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1902",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/historyofingeni04cerv",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/6929449-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/6929449-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/6929449-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL24364114M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1902",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/historyofingeni02cerv",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/6595416-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/6595416-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/6595416-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL22885201M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1902",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/lifeachievements00cervuoft",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/6043485-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/6043485-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/6043485-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL1149460M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1902",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/historyingeniou00lalagoog",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/5811634-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/5811634-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/5811634-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL6002369M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1902",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/lifeandachievem00saavgoog",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/5815450-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/5815450-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/5815450-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL24992054M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1904",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/ingeniousgentle01cerv",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/6927807-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/6927807-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/6927807-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL14006174M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1904",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/elingeniosohidal00cervuoft",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/8234350-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/8234350-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/8234350-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL24993080M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1905",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/elingeniosohidal26cerv",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/6931220-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/6931220-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/6931220-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL24137600M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1905",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/p4elingeniosohid02cerv",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/6317904-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/6317904-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/6317904-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL14036885M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1905",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/quijotedelcenten01cervuoft",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/5962761-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/5962761-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/5962761-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL24992690M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1905",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/dersinnreichejun02cerv",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/6929362-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/6929362-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/6929362-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL24181986M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1905",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/elingeniosoh01cerv",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/6360261-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/6360261-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/6360261-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL23544325M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1905",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/dersinnreicheju00saargoog",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/6237601-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/6237601-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/6237601-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL25525318M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1907",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/cihm_80333",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/14569169-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/14569169-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/14569169-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL20479717M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1907",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/historyvalorous01goog",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/6044443-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/6044443-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/6044443-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL14012867M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1908",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/historyofingenio01cerv",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/5955975-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/5955975-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/5955975-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL7245561M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1909",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/firstpartofdelig00cervuoft",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/5925596-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/5925596-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/5925596-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL7015993M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1909",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/firstpartdeligh00shelgoog",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/14612692-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/14612692-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/14612692-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL24474203M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1910",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/elingenios01cerv",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/7189174-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/7189174-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/7189174-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL22870515M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1910",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/nybc203136",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/9730202-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/9730202-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/9730202-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL24157222M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1910",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/cu31924027658172",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/6335490-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/6335490-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/6335490-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL23400942M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1910",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/historyingeniou08mottgoog",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/6131082-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/6131082-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/6131082-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL23742694M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1910",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/historyingeniou02saavgoog",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/9797889-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/9797889-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/9797889-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL22872033M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1911",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/nybc205230",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/9746726-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/9746726-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/9746726-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL24136995M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1911",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/donquijotedelama04cerv",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/6493130-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/6493130-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/6493130-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL6537711M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1911",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/donquijote02cerv",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/6928939-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/6928939-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/6928939-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL24367536M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1912",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/desscharfsinnige00cerv",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/7186412-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/7186412-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/7186412-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL24179015M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1912",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/aventurasdedonqu00cerv",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/8234346-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/8234346-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/8234346-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL17862769M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1912",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/adventuresofdonq00cerv",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/5975275-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/5975275-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/5975275-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL26500930M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1915",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/elingeniosohidal00cerv_3",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/8257258-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/8257258-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/8257258-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL24137697M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1916",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/elingeniosedcrit04cerv",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/6317992-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/6317992-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/6317992-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL5931270M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1916",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/donquijotedelama0000unse",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/9406417-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/9406417-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/9406417-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL5960351M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1916",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/estudiohistricot01madr",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/6929460-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/6929460-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/6929460-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL26885557M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1917",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/elingeniosohidal0000cerv_j6r5",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/11875792-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/11875792-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/11875792-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL15313911M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1919",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/donquixoteofmanc0000migu_n6c3",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/14947864-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/14947864-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/14947864-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL6000654M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1920",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/donquixoteoflama00cerv_0",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/7985018-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/7985018-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/7985018-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL25667091M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1920",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/donquixoteofmanc00cerv_0",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/7338648-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/7338648-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/7338648-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL6664935M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1921",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/historyofdonquix00cerv_0",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/7977593-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/7977593-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/7977593-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL24785986M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1921",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/adventuresofdonq1921cerv",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/6840135-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/6840135-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/6840135-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL6637464M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1921",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/adventuresofdonq00cerv_5",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/7991225-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/7991225-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/7991225-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL24991969M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1922",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/donquijotedelam00cerv",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/6927532-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/6927532-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/6927532-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL24348734M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1922",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/doncocht00cerv",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/6492509-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/6492509-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/6492509-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL6706553M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1927",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/lifeofdonquixote0000unse_1927",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/9307245-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/9307245-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/9307245-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL6288569M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1927",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/elingeniosohida00selmgoog",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/9771398-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/9771398-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/9771398-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL25498043M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1937",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/elingeniosohida02cerv",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/9581026-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/9581026-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/9581026-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL25479190M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1937",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/elingeniosohida01cerv",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/10019203-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/10019203-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/10019203-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL22874522M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1950",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/nybc209000",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/9952331-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/9952331-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/9952331-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL23388163M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1957",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/elingeniosohida01goog",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/6129708-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/6129708-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/6129708-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL25625565M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1985",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/elingeniosohida14saavgoog",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/7299770-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/7299770-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/7299770-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL13277200M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "2001",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/elingeniosohida00goog",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/15096296-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/15096296-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/15096296-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL20943459M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "2003",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/historyingeniou00mottgoog",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/15096290-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/15096290-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/15096290-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "full access",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL20611363M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "",
+            "contributor": "",
+            "itemURL": "http://www.archive.org/stream/elingeniosohida00amergoog",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/11780214-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/11780214-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/11780214-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "lendable",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL27059428M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "",
+            "contributor": "",
+            "itemURL": "http://openlibrary.org/books/OL27059428M/Don_Quijote_De_La_Mancha_I/borrow",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/8674541-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/8674541-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/8674541-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "lendable",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL9047036M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "",
+            "contributor": "",
+            "itemURL": "http://openlibrary.org/books/OL9047036M/Don_Quijote./borrow",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/15096285-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/15096285-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/15096285-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "lendable",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL9460693M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "",
+            "contributor": "",
+            "itemURL": "http://openlibrary.org/books/OL9460693M/L'Ing\u00e9nieux_Hidalgo_Don_Quichotte_de_la_Manche/borrow",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/2140454-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/2140454-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/2140454-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "lendable",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL7355438M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "",
+            "contributor": "",
+            "itemURL": "http://openlibrary.org/books/OL7355438M/Don_Quixote_(Wonders_of_the_World)/borrow",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/104316-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/104316-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/104316-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "lendable",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL11149084M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "",
+            "contributor": "",
+            "itemURL": "http://openlibrary.org/books/OL11149084M/Don_Quixote_(Modern_Critical_Interpretations)/borrow",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/2633223-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/2633223-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/2633223-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "lendable",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL12366700M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "",
+            "contributor": "",
+            "itemURL": "http://openlibrary.org/books/OL12366700M/Don_Quixote_Fourth_Centenary_Translation_Tom_Lathrop/borrow",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/12583423-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/12583423-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/12583423-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "lendable",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL27740458M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "2015",
+            "contributor": "",
+            "itemURL": "http://openlibrary.org/books/OL27740458M/Tang_Jihede/borrow",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/9159957-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/9159957-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/9159957-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "lendable",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL36293902M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "2000",
+            "contributor": "",
+            "itemURL": "http://openlibrary.org/books/OL36293902M/Don_Quixote/borrow",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/13055459-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/13055459-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/13055459-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "lendable",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL22273417M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "2000",
+            "contributor": "",
+            "itemURL": "http://openlibrary.org/books/OL22273417M/untitled/borrow",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/11621701-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/11621701-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/11621701-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "lendable",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL9329018M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "2000",
+            "contributor": "",
+            "itemURL": "http://openlibrary.org/books/OL9329018M/Don_Quijote_De_La_Mancha_Don_Quixote_Man_of_La_Mancha_(Coleccion_Libros_de_Bolsillo)/borrow",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/2269850-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/2269850-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/2269850-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "lendable",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL8714713M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1999",
+            "contributor": "",
+            "itemURL": "http://openlibrary.org/books/OL8714713M/Don_Quixote/borrow",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/9655663-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/9655663-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/9655663-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "lendable",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL11505566M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1999",
+            "contributor": "",
+            "itemURL": "http://openlibrary.org/books/OL11505566M/El_Ingenioso_Hidalgo_Don_Quijote_de_la_Mancha/borrow",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/2689685-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/2689685-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/2689685-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "lendable",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL348852M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1999",
+            "contributor": "",
+            "itemURL": "http://openlibrary.org/books/OL348852M/Don_Quijote/borrow",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/7890978-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/7890978-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/7890978-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "lendable",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL120240M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1999",
+            "contributor": "",
+            "itemURL": "http://openlibrary.org/books/OL120240M/El_ingenioso_hidalgo_Don_Quijote_de_la_Mancha/borrow",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/3711941-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/3711941-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/3711941-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "lendable",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL22591622M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1998",
+            "contributor": "",
+            "itemURL": "http://openlibrary.org/books/OL22591622M/Don_Quixote/borrow",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/11644799-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/11644799-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/11644799-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "lendable",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL9112390M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1996",
+            "contributor": "",
+            "itemURL": "http://openlibrary.org/books/OL9112390M/Don_Quixote_De_LA_Mancha/borrow",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/4901439-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/4901439-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/4901439-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "lendable",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL1093018M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1995",
+            "contributor": "",
+            "itemURL": "http://openlibrary.org/books/OL1093018M/The_history_of_that_ingenious_gentleman_Don_Quijote_de_la_Mancha/borrow",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/12191650-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/12191650-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/12191650-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "lendable",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL36184634M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1993",
+            "contributor": "",
+            "itemURL": "http://openlibrary.org/books/OL36184634M/Don_Quixote/borrow",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/14589778-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/14589778-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/14589778-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "lendable",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL13221050M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1992",
+            "contributor": "",
+            "itemURL": "http://openlibrary.org/books/OL13221050M/Aventuras_De_Don_Quijote/borrow",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/12189681-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/12189681-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/12189681-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "lendable",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL26643705M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1991",
+            "contributor": "",
+            "itemURL": "http://openlibrary.org/books/OL26643705M/Don_Quijote_de_la_Mancha/borrow",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/14589809-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/14589809-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/14589809-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "lendable",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL32094457M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1989",
+            "contributor": "",
+            "itemURL": "http://openlibrary.org/books/OL32094457M/Don_Quichotte_de_la_manche/borrow",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/10749645-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/10749645-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/10749645-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "lendable",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL2539451M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1986",
+            "contributor": "",
+            "itemURL": "http://openlibrary.org/books/OL2539451M/The_adventures_of_Don_Quixote_de_la_Mancha/borrow",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/9518771-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/9518771-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/9518771-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "lendable",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL26332614M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1984",
+            "contributor": "",
+            "itemURL": "http://openlibrary.org/books/OL26332614M/Don_Quixote/borrow",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/8011000-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/8011000-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/8011000-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "lendable",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL24372514M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1975",
+            "contributor": "",
+            "itemURL": "http://openlibrary.org/books/OL24372514M/Don_Quijote_de_la_Mancha/borrow",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/6611159-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/6611159-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/6611159-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "lendable",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL7465633M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1973",
+            "contributor": "",
+            "itemURL": "http://openlibrary.org/books/OL7465633M/El_hidalgo_de_La_Mancha/borrow",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/7002513-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/7002513-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/7002513-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "lendable",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL24205503M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1973",
+            "contributor": "",
+            "itemURL": "http://openlibrary.org/books/OL24205503M/Don_Quixote/borrow",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/6493167-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/6493167-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/6493167-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "lendable",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL5934615M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1964",
+            "contributor": "",
+            "itemURL": "http://openlibrary.org/books/OL5934615M/Don_Quixote_of_La_Mancha./borrow",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/10749647-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/10749647-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/10749647-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "lendable",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL26578933M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1964",
+            "contributor": "",
+            "itemURL": "http://openlibrary.org/books/OL26578933M/El_ingenioso_hidalgo_Don_Quijote_de_la_Mancha/borrow",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/10041259-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/10041259-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/10041259-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "lendable",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL5877267M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1962",
+            "contributor": "",
+            "itemURL": "http://openlibrary.org/books/OL5877267M/Adventures_of_Don_Quixote_de_la_Mancha./borrow",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/6619591-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/6619591-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/6619591-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "lendable",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL5797129M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1960",
+            "contributor": "",
+            "itemURL": "http://openlibrary.org/books/OL5797129M/The_adventures_of_Don_Quixote_de_la_Mancha/borrow",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/7958693-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/7958693-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/7958693-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "lendable",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL24951761M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1957",
+            "contributor": "",
+            "itemURL": "http://openlibrary.org/books/OL24951761M/Don_Quixote_of_La_Mancha/borrow",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/6981077-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/6981077-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/6981077-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "lendable",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL21142957M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1955",
+            "contributor": "",
+            "itemURL": "http://openlibrary.org/books/OL21142957M/The_history_of_Don_Quixote_de_la_Mancha/borrow",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/14394552-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/14394552-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/14394552-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "lendable",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL24774615M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1950",
+            "contributor": "",
+            "itemURL": "http://openlibrary.org/books/OL24774615M/The_adventures_of_Don_Quixote/borrow",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/6828541-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/6828541-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/6828541-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "lendable",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL24774615M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1950",
+            "contributor": "",
+            "itemURL": "http://openlibrary.org/books/OL24774615M/The_adventures_of_Don_Quixote/borrow",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/6828541-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/6828541-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/6828541-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "lendable",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL24774615M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1950",
+            "contributor": "",
+            "itemURL": "http://openlibrary.org/books/OL24774615M/The_adventures_of_Don_Quixote/borrow",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/6828541-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/6828541-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/6828541-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "lendable",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL24774615M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1950",
+            "contributor": "",
+            "itemURL": "http://openlibrary.org/books/OL24774615M/The_adventures_of_Don_Quixote/borrow",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/6828541-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/6828541-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/6828541-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "lendable",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL27002387M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1949",
+            "contributor": "",
+            "itemURL": "http://openlibrary.org/books/OL27002387M/The_ingenious_gentleman_Don_Quixote_de_la_Mancha/borrow",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/10666135-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/10666135-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/10666135-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "lendable",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL24226534M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1937",
+            "contributor": "",
+            "itemURL": "http://openlibrary.org/books/OL24226534M/The_first_part_of_the_delightful_history_of_the_most_ingenious_knight_Don_Quixote_of_the_Mancha/borrow",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/14840823-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/14840823-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/14840823-L.jpg"
+            }
+        },
+        {
+            "enumcron": false,
+            "match": "similar",
+            "status": "lendable",
+            "fromRecord": "/books/OL4416779M",
+            "ol-edition-id": "OL24207174M",
+            "ol-work-id": "OL503666W",
+            "publishDate": "1937",
+            "contributor": "",
+            "itemURL": "http://openlibrary.org/books/OL24207174M/The_first_part_of_the_delightful_history_of_the_most_ingenious_knight_Don_Quixote_of_the_Mancha/borrow",
+            "cover": {
+                "small": "https://covers.openlibrary.org/b/id/6501281-S.jpg",
+                "medium": "https://covers.openlibrary.org/b/id/6501281-M.jpg",
+                "large": "https://covers.openlibrary.org/b/id/6501281-L.jpg"
+            }
+        }
+    ]
+}

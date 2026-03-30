@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Open Bookie</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            margin: 0;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: 350px;
+            border-right: 1px solid #ccc;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .sidebar-header {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .sidebar-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        .main {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: #fff;
+        }
+
+        /* Book Sidebar List */
+        .book-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .book-card {
+            display: flex;
+            gap: 10px;
+            padding: 10px;
+            border: 1px solid #eee;
+            text-decoration: none;
+            color: inherit;
+            border-radius: 4px;
+        }
+
+        .book-card:hover {
+            background: #f0f0f0;
+        }
+
+        .book-card.active {
+            border-color: #007bff;
+            background: #f0f7ff;
+        }
+
+        .book-card img {
+            width: 40px;
+            height: 60px;
+            object-fit: cover;
+            background: #eee;
+        }
+
+        .book-card-info h4 {
+            margin: 0;
+            font-size: 0.9em;
+        }
+
+        .book-card-info p {
+            margin: 2px 0 0;
+            font-size: 0.8em;
+            color: #666;
+        }
+
+        /* Subjects Horizontal Scroll */
+        .subjects-container {
+            display: flex;
+            overflow-x: auto;
+            gap: 8px;
+            padding: 10px 0;
+            scrollbar-width: thin;
+        }
+
+        .subject-pill {
+            background: #e9ecef;
+            padding: 4px 12px;
+            border-radius: 20px;
+            white-space: nowrap;
+            font-size: 0.85em;
+            color: #495057;
+        }
+
+        /* Utils */
+        .error {
+            color: red;
+            padding: 10px;
+            border: 1px solid red;
+            margin-bottom: 15px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <!-- Sidebar: Book List -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h1>Open Bookie</h1>
+                <form id="search-form">
+                    <input type="text" id="isbn" name="isbn" placeholder="Search ISBN..." value="{{ isbn or '' }}"
+                        style="width: calc(100% - 70px);" />
+                    <button type="submit">Go</button>
+                </form>
+                <div style="margin-top: 10px;">
+                    <button id="scan-btn" type="button" style="width: 100%;">📷 Scan Barcode</button>
+                    <button id="stop-btn" type="button" style="display:none; width: 100%;">Stop Scanner</button>
+                </div>
+                <div id="scanner" style="width: 100%; margin-top: 10px;"></div>
+            </div>
+
+            <div class="sidebar-content">
+                <div class="book-grid">
+                    {% for book in all_books %}
+                    <a href="/?isbn={{ book.isbns[0] if book.isbns else '' }}"
+                        class="book-card {% if selected_book and selected_book.id == book.id %}active{% endif %}">
+                        {% if book.covers %}
+                        <img src="{{ book.covers[0].small }}" alt="cover">
+                        {% else %}
+                        <div style="width:40px;height:60px;background:#eee;"></div>
+                        {% endif %}
+                        <div class="book-card-info">
+                            <h4>{{ book.title }}</h4>
+                            <p>{{ book.authors | map(attribute='name') | join(', ') if book.authors else 'Unknown
+                                Author' }}</p>
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content: Book Details -->
+        <div class="main">
+            {% if error %}
+            <div class="error">{{ error }}</div>
+            {% endif %}
+
+            {% if selected_book %}
+            <div class="book-details">
+                <div style="display: flex; gap: 30px; align-items: flex-start;">
+                    {% if selected_book.covers %}
+                    <img src="{{ selected_book.covers[0].large or selected_book.covers[0].medium }}" alt="cover"
+                        style="max-width: 300px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);" />
+                    {% endif %}
+                    <div>
+                        <h1 style="margin-top: 0;">{{ selected_book.title }}</h1>
+                        {% if selected_book.subtitle %}<h2 style="color: #555;">{{ selected_book.subtitle }}</h2>{%
+                        endif %}
+                        <p><strong>By:</strong> {{ selected_book.authors | map(attribute='name') | join(', ') }}</p>
+
+                        <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+                            <tr style="border-bottom: 1px solid #eee;">
+                                <td style="padding: 8px 0; width: 150px;"><strong>Pages</strong></td>
+                                <td>{{ selected_book.number_of_pages or '—' }}</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #eee;">
+                                <td style="padding: 8px 0;"><strong>Publish Date</strong></td>
+                                <td>{{ selected_book.publish_date or '—' }}</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #eee;">
+                                <td style="padding: 8px 0;"><strong>Publisher</strong></td>
+                                <td>{{ selected_book.publishers | map(attribute='name') | join(', ') }}</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #eee;">
+                                <td style="padding: 8px 0;"><strong>ISBNs</strong></td>
+                                <td>{{ selected_book.isbns | join(', ') }}</td>
+                            </tr>
+                        </table>
+
+                        {% if selected_book.subjects %}
+                        <h3 style="margin-top: 30px;">Subjects</h3>
+                        <div class="subjects-container">
+                            {% for s in selected_book.subjects %}
+                            <div class="subject-pill">{{ s.name }}</div>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                {% if selected_book.identifiers %}
+                <div style="margin-top: 40px;">
+                    <h3>Detailed Identifiers</h3>
+                    <ul>
+                        {% for key, vals in selected_book.identifiers.items() %}
+                        <li>
+                            <strong>{{ key }}:</strong>
+                            {% for val in vals %}
+                            {% if key == 'goodreads' %}
+                            <a href="https://www.goodreads.com/book/show/{{ val }}" target="_blank">{{ val }}</a>
+                            {% elif key == 'librarything' %}
+                            <a href="https://www.librarything.com/work/{{ val }}" target="_blank">{{ val }}</a>
+                            {% elif key == 'oclc' %}
+                            <a href="https://www.worldcat.org/oclc/{{ val }}" target="_blank">{{ val }}</a>
+                            {% elif key == 'lccn' %}
+                            <a href="https://lccn.loc.gov/{{ val }}" target="_blank">{{ val }}</a>
+                            {% elif key == 'openlibrary' %}
+                            <a href="https://openlibrary.org/books/{{ val }}" target="_blank">{{ val }}</a>
+                            {% else %}
+                            {{ val }}
+                            {% endif %}
+                            {% if not loop.last %}, {% endif %}
+                            {% endfor %}
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+            </div>
+            {% else %}
+            <div style="display:flex; height:100%; align-items:center; justify-content:center; color:#999;">
+                <h2>Select a book from the sidebar or search for a new one.</h2>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- html5-qrcode for barcode scanning -->
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    <script>
+        const searchForm = document.getElementById('search-form');
+        const isbnInput = document.getElementById('isbn');
+        const scanBtn = document.getElementById('scan-btn');
+        const stopBtn = document.getElementById('stop-btn');
+        let scanner = null;
+
+        searchForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const isbn = isbnInput.value.trim();
+            if (isbn) {
+                window.location.href = `/?isbn=${encodeURIComponent(isbn)}`;
+            }
+        });
+
+        scanBtn.addEventListener('click', () => {
+            scanner = new Html5Qrcode("scanner");
+            scanner.start(
+                { facingMode: "environment" },
+                {
+                    fps: 10, qrbox: 250, formatsToSupport: [
+                        Html5QrcodeSupportedFormats.EAN_13,
+                        Html5QrcodeSupportedFormats.EAN_8,
+                        Html5QrcodeSupportedFormats.CODE_128,
+                    ]
+                },
+                (decodedText) => {
+                    scanner.stop().then(() => {
+                        window.location.href = `/?isbn=${encodeURIComponent(decodedText)}`;
+                    });
+                },
+                (_errorMessage) => { }
+            ).then(() => {
+                scanBtn.style.display = 'none';
+                stopBtn.style.display = 'inline';
+            }).catch(err => {
+                alert('Could not start camera: ' + err);
+            });
+        });
+
+        stopBtn.addEventListener('click', () => {
+            if (scanner) {
+                scanner.stop().then(() => {
+                    scanBtn.style.display = 'inline';
+                    stopBtn.style.display = 'none';
+                });
+            }
+        });
+    </script>
+</body>
+
+</html>
