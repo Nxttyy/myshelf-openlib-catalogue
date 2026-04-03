@@ -33,3 +33,24 @@ class User(SQLModel, table=True):
             onupdate=sa.func.now(),
         ),
     )
+
+
+class UserCreate(SQLModel):
+    firstname: str
+    lastname: str
+    email: str
+    password: str
+
+
+class UserLogin(SQLModel):
+    email: str
+    password: str
+
+
+class Token(SQLModel):
+    access_token: str
+    token_type: str
+
+
+class TokenData(SQLModel):
+    email: str | None = None

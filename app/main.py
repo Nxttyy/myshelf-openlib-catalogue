@@ -6,8 +6,12 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
+from contextlib import asynccontextmanager
+
+from starlette.middleware.sessions import SessionMiddleware
+
 from app.config import settings
-from app.routers import book, pages
+from app.routers import auth, book, pages
 
 # Import models so SQLModel metadata registers all tables
 import app.models  # noqa: F401
@@ -16,7 +20,6 @@ import app.models  # noqa: F401
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Startup / shutdown lifecycle."""
-    # Could add table creation here for dev, but we use Alembic for migrations
     yield
 
 
@@ -27,8 +30,11 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+app.add_middleware(SessionMiddleware, secret_key=settings.SECRET_KEY)
+
 app.include_router(pages.router)
 app.include_router(book.router)
+app.include_router(auth.router)
 
 
 @app.get("/health", tags=["Health"])

@@ -121,7 +121,24 @@
         <!-- Sidebar: Book List -->
         <div class="sidebar">
             <div class="sidebar-header">
-                <h1>Open Bookie</h1>
+                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 10px;">
+                    <h1 style="margin:0;">Open Bookie</h1>
+                    {% if user %}
+                    <div style="text-align: right;">
+                        <div style="font-size: 0.8rem; font-weight: bold; color: #333;">{{ user.firstname }} {{
+                            user.lastname }}</div>
+                        <a href="/auth/logout"
+                            style="font-size: 0.7rem; color: #ff4d4d; text-decoration: none;">Logout</a>
+                    </div>
+                    {% else %}
+                    <div>
+                        <a href="/auth/google"
+                            style="padding: 4px 8px; background: #4285F4; color: white; text-decoration: none; border-radius: 4px; font-size: 0.7rem;">Login
+                            with Google</a>
+                    </div>
+                    {% endif %}
+                </div>
+
                 <form id="search-form">
                     <input type="text" id="isbn" name="isbn" placeholder="Search ISBN..." value="{{ isbn or '' }}"
                         style="width: calc(100% - 70px);" />

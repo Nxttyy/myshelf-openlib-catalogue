@@ -2,12 +2,14 @@
 Page routes — serves Jinja2 HTML templates.
 """
 
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Depends, Request
 from fastapi.templating import Jinja2Templates
 from httpx import HTTPStatusError, RequestError
 
+from app.auth import get_current_user
 from app.db import SessionDep
 from app.models.book import Book
+from app.models.user import User
 from app.services.openlibrary import get_or_create_book
 from sqlmodel import select
 
@@ -16,7 +18,12 @@ templates = Jinja2Templates(directory="app/templates")
 
 
 @router.get("/")
-async def index(request: Request, session: SessionDep, isbn: str | None = None):
+async def index(
+    request: Request,
+    session: SessionDep,
+    isbn: str | None = None,
+    current_user: User = Depends(get_current_user),
+):
     """
     Home page:
     - Lists all books in the database on the left.
@@ -47,6 +54,7 @@ async def index(request: Request, session: SessionDep, isbn: str | None = None):
         "all_books": all_books,
         "selected_book": selected_book,
         "error": error,
+        "user": current_user,
     }
 
     return templates.TemplateResponse(
