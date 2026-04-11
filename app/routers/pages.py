@@ -60,3 +60,31 @@ async def index(
     return templates.TemplateResponse(
         name="index.html", request=request, context=context
     )
+
+
+@router.get("/login")
+async def login_page(request: Request, error: str | None = None):
+    return templates.TemplateResponse(
+        name="login.html", request=request, context={"error": error}
+    )
+
+
+@router.get("/register")
+async def register_page(request: Request, error: str | None = None):
+    return templates.TemplateResponse(
+        name="register.html", request=request, context={"error": error}
+    )
+
+
+@router.get("/forgot-password")
+async def forgot_password_page(request: Request, error: str | None = None):
+    return templates.TemplateResponse(
+        name="forgot-password.html", request=request, context={"error": error}
+    )
+
+
+@router.get("/reset-password")
+async def reset_password_page(request: Request, token: str, error: str | None = None):
+    return templates.TemplateResponse(
+        name="reset-password.html", request=request, context={"token": token, "error": error}
+    )

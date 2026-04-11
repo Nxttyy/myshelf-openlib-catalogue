@@ -18,6 +18,16 @@ class Settings(BaseSettings):
     GOOGLE_CLIENT_SECRET: str | None = None
     GOOGLE_REDIRECT_URI: str = "http://localhost:8000/auth/google/callback"
 
+    # SMTP / Email
+    SMTP_TLS: bool = True
+    SMTP_SSL: bool = False
+    SMTP_PORT: int = 587
+    SMTP_HOST: str | None = None
+    SMTP_USER: str | None = None
+    SMTP_PASSWORD: str | None = None
+    EMAILS_FROM_EMAIL: str | None = "noreply@openbookie.com"
+    EMAILS_FROM_NAME: str | None = "Open Bookie"
+
     model_config = {"env_file": ".env", "env_file_encoding": "utf-8"}
 
 
