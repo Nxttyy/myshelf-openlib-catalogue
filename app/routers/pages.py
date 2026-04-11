@@ -44,14 +44,27 @@ async def index(
         except RequestError as exc:
             error = f"Could not reach Open Library: {exc}"
 
-    # 2. Fetch all books for the sidebar *after* any potential commit
-    # This prevents 'MissingGreenlet' errors when the commit expires previous fetches
+    # 2. Fetch all books for the home page (community)
     all_books_result = await session.exec(select(Book).order_by(Book.title))
     all_books = all_books_result.all()
+    
+    # 3. Fetch user's books if logged in
+    user_books = []
+    if current_user:
+        from app.models.user_book import UserBook
+        stmt = (
+            select(UserBook, Book)
+            .join(Book, UserBook.book_id == Book.id)
+            .where(UserBook.user_id == current_user.id)
+        )
+        user_books_result = await session.exec(stmt)
+        # Store dicts containing {user_book, book}
+        user_books = [{"user_book": ub, "book": b} for ub, b in user_books_result.all()]
 
     context: dict = {
         "isbn": isbn,
         "all_books": all_books,
+        "user_books": user_books,
         "selected_book": selected_book,
         "error": error,
         "user": current_user,

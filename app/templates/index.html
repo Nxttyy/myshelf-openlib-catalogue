@@ -4,306 +4,1195 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Open Bookie</title>
+    <title>Folio</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/html5-qrcode"></script>
     <style>
+        :root {
+            --bg-color: #f4f4f5;
+            --text-primary: #18181b;
+            --text-secondary: #71717a;
+            --white: #ffffff;
+            --border-color: #e4e4e7;
+            --accent-radius: 16px;
+        }
+
         body {
-            font-family: sans-serif;
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        /* Typography */
+        h1,
+        h2,
+        h3,
+        h4 {
             margin: 0;
         }
 
-        .container {
+        /* Nav */
+        header {
             display: flex;
-            height: 100vh;
-            overflow: hidden;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background: rgba(244, 244, 245, 0.7);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
         }
 
-        .sidebar {
-            width: 350px;
-            border-right: 1px solid #ccc;
+        .logo {
+            font-weight: 700;
+            font-size: 1.5rem;
             display: flex;
-            flex-direction: column;
-            height: 100%;
+            align-items: center;
+            gap: 8px;
         }
 
-        .sidebar-header {
-            padding: 15px;
-            border-bottom: 1px solid #eee;
-        }
-
-        .sidebar-content {
-            flex: 1;
-            overflow-y: auto;
-            padding: 10px;
-        }
-
-        .main {
-            flex: 1;
-            padding: 20px;
-            overflow-y: auto;
-            background: #fff;
-        }
-
-        /* Book Sidebar List */
-        .book-grid {
+        .nav-links {
             display: flex;
-            flex-direction: column;
-            gap: 10px;
+            gap: 12px;
+            align-items: center;
+            font-weight: 500;
         }
 
-        .book-card {
-            display: flex;
-            gap: 10px;
-            padding: 10px;
-            border: 1px solid #eee;
+        .nav-link {
+            color: var(--text-secondary);
             text-decoration: none;
-            color: inherit;
-            border-radius: 4px;
+            cursor: pointer;
+            transition: color 0.2s;
         }
 
-        .book-card:hover {
-            background: #f0f0f0;
+        .nav-link.active,
+        .nav-link:hover {
+            color: var(--text-primary);
         }
 
-        .book-card.active {
-            border-color: #007bff;
-            background: #f0f7ff;
+        .btn-primary {
+            background-color: var(--text-primary);
+            color: var(--white);
+            border: none;
+            border-radius: 30px;
+            padding: 10px 20px;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 500;
+            cursor: pointer;
+            transition: opacity 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        .book-card img {
-            width: 40px;
-            height: 60px;
+        .btn-primary:hover {
+            opacity: 0.9;
+        }
+
+        /* Bottom Nav */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-around;
+            padding: 12px 0;
+            z-index: 100;
+        }
+
+        .bottom-nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.75rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .bottom-nav-item.active,
+        .bottom-nav-item:hover {
+            color: var(--text-primary);
+        }
+
+        /* Container */
+        main {
+            padding: 1rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding-bottom: 80px;
+            /* Space for bottom nav */
+        }
+
+        /* View: Home */
+        #view-home {
+            display: block;
+        }
+
+        .hero {
+            margin: 40px 0;
+            max-width: 600px;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            line-height: 1.1;
+            margin-bottom: 16px;
+            letter-spacing: -0.02em;
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+        }
+
+        .section-title {
+            margin: 30px 0 20px;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .book-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 16px;
+        }
+
+        .book-grid-card {
+            background: var(--white);
+            border-radius: var(--accent-radius);
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .book-grid-card img {
+            width: 100%;
+            aspect-ratio: 2/3;
             object-fit: cover;
+            display: block;
+        }
+
+        .book-grid-card .info {
+            padding: 12px;
+        }
+
+        .book-grid-card .title {
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* View: Profile */
+        #view-profile {
+            display: none;
+        }
+
+        .profile-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 2rem;
+        }
+
+        .profile-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .avatar {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: #ff7675;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .profile-name {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .profile-stats {
+            color: var(--text-secondary);
+        }
+
+        .profile-filters {
+            display: flex;
+            gap: 10px;
+        }
+
+        .filter-pill {
+            background: #e4e4e7;
+            padding: 8px 16px;
+            border-radius: 20px;
+            color: var(--text-primary);
+            font-weight: 500;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+        .filter-pill.active {
+            background: var(--text-primary);
+            color: var(--white);
+        }
+
+        .profile-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .profile-book-item {
+            background: var(--white);
+            border-radius: var(--accent-radius);
+            padding: 16px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s ease;
+        }
+
+        .profile-book-core {
+            display: flex;
+            gap: 24px;
+            cursor: pointer;
+        }
+
+        .profile-book-cover {
+            width: 90px;
+            height: 135px;
+            border-radius: 8px;
+            object-fit: cover;
+            flex-shrink: 0;
             background: #eee;
         }
 
-        .book-card-info h4 {
-            margin: 0;
-            font-size: 0.9em;
-        }
-
-        .book-card-info p {
-            margin: 2px 0 0;
-            font-size: 0.8em;
-            color: #666;
-        }
-
-        /* Subjects Horizontal Scroll */
-        .subjects-container {
+        .profile-book-details {
+            flex: 1;
             display: flex;
-            overflow-x: auto;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .badge {
+            background: #bbf7d0;
+            color: #166534;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            align-self: flex-start;
+            margin-bottom: 8px;
+        }
+
+        .book-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+            overflow-wrap: anywhere;
+        }
+
+        .book-author {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        .book-expand-btn {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-top: auto;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding-top: 10px;
+        }
+
+        .profile-book-expanded {
+            display: none;
+            margin-top: 20px;
+            border-top: 1px solid var(--border-color);
+            padding-top: 20px;
+        }
+
+        .profile-book-item.expanded .profile-book-expanded {
+            display: block;
+        }
+
+        .profile-book-item.expanded .book-expand-btn svg {
+            transform: rotate(180deg);
+        }
+
+        .metadata-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+            align-items: start;
+        }
+
+        .metadata-item {
+            word-break: break-word;
+        }
+
+        .metadata-item h4 {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+
+        .metadata-pills {
+            display: flex;
+            flex-wrap: wrap;
             gap: 8px;
-            padding: 10px 0;
-            scrollbar-width: thin;
+            margin-bottom: 24px;
         }
 
-        .subject-pill {
-            background: #e9ecef;
-            padding: 4px 12px;
+        .metadata-pill {
+            border: 1px solid var(--border-color);
             border-radius: 20px;
-            white-space: nowrap;
-            font-size: 0.85em;
-            color: #495057;
+            padding: 4px 12px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
         }
 
-        /* Utils */
-        .error {
-            color: red;
+        .edit-form-group {
+            margin-bottom: 16px;
+        }
+
+        .edit-form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .edit-form-row {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        @media(min-width: 600px) {
+            .edit-form-row {
+                flex-direction: row;
+            }
+        }
+
+        .edit-form-row>div {
+            flex: 1;
+        }
+
+        .form-select,
+        .form-textarea,
+        .form-input {
+            width: 100%;
             padding: 10px;
-            border: 1px solid red;
-            margin-bottom: 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.95rem;
+            background: #fafafa;
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .btn-full {
+            width: 100%;
+            justify-content: center;
+            padding: 14px;
+            font-size: 1rem;
+            border-radius: 8px;
+        }
+
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            z-index: 100;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--white);
+            border-radius: var(--accent-radius);
+            width: 100%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .modal-header {
+            padding: 20px;
+            padding-bottom: 0;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #f4f4f5;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .modal-tabs {
+            display: flex;
+            gap: 20px;
+            border-bottom: 1px solid var(--border-color);
+            padding: 0 20px;
+        }
+
+        .modal-tab {
+            padding: 10px 0;
+            font-weight: 500;
+            color: var(--text-secondary);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+        }
+
+        .modal-tab.active {
+            color: var(--text-primary);
+            border-bottom-color: var(--text-primary);
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Scanner */
+        .scanner-container {
+            background: #000;
+            border-radius: 12px;
+            height: 200px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            flex-direction: column;
+            margin-bottom: 10px;
+        }
+
+        .scanner-line {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: red;
+            box-shadow: 0 0 10px red;
+            animation: scan 2s infinite linear;
+        }
+
+        @keyframes scan {
+            0% {
+                top: 0;
+            }
+
+            50% {
+                top: 100%;
+            }
+
+            100% {
+                top: 0;
+            }
+        }
+
+        .queue-container {
+            background: #fafafa;
+            border: 1px dashed var(--border-color);
+            border-radius: 12px;
+            padding: 16px;
+            min-height: 80px;
+            margin-top: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .queue-item {
+            display: flex;
+            gap: 12px;
+            padding: 8px;
+            background: var(--white);
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            align-items: center;
+        }
+
+        .queue-item img {
+            width: 32px;
+            height: 48px;
+            object-fit: cover;
             border-radius: 4px;
         }
     </style>
 </head>
 
 <body>
-    <div class="container">
-        <!-- Sidebar: Book List -->
-        <div class="sidebar">
-            <div class="sidebar-header">
-                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 20px;">
-                    <h1 style="margin:0; font-size: 1.5rem;">Open Bookie</h1>
-                </div>
 
-                <form id="search-form">
-                    <input type="text" id="isbn" name="isbn" placeholder="Search ISBN..." value="{{ isbn or '' }}"
-                        style="width: calc(100% - 70px);" />
-                    <button type="submit">Go</button>
-                </form>
-                <div style="margin-top: 10px;">
-                    <button id="scan-btn" type="button" style="width: 100%;">📷 Scan Barcode</button>
-                    <button id="stop-btn" type="button" style="display:none; width: 100%;">Stop Scanner</button>
-                </div>
-                <div id="scanner" style="width: 100%; margin-top: 10px;"></div>
-            </div>
+    <header>
+        <div class="logo">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"></path>
+            </svg>
+            Folio
+        </div>
+        <div class="nav-links">
+            {% if user %}
+            <button class="btn-primary" onclick="openAddModal()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 5v14M5 12h14" />
+                </svg>
+                Add Book
+            </button>
+            {% else %}
+            <button class="btn-primary" onclick="openAddModal()" style="background:#e4e4e7; color:var(--text-primary);">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 5v14M5 12h14" />
+                </svg>
+                Scan
+            </button>
+            <a class="btn-primary" href="/login" style="text-decoration:none;">Login</a>
+            {% endif %}
+        </div>
+    </header>
 
-            <div class="sidebar-content">
-                <div class="book-grid">
-                    {% for book in all_books %}
-                    <a href="/?isbn={{ book.isbns[0] if book.isbns else '' }}"
-                        class="book-card {% if selected_book and selected_book.id == book.id %}active{% endif %}">
-                        {% if book.covers %}
-                        <img src="{{ book.covers[0].small }}" alt="cover">
-                        {% else %}
-                        <div style="width:40px;height:60px;background:#eee;"></div>
-                        {% endif %}
-                        <div class="book-card-info">
-                            <h4>{{ book.title }}</h4>
-                            <p>{{ book.authors | map(attribute='name') | join(', ') if book.authors else 'Unknown
-                                Author' }}</p>
-                        </div>
-                    </a>
-                    {% endfor %}
-                </div>
+    <main>
+        <!-- HOME VIEW -->
+        <div id="view-home">
+            <div class="hero">
+                <h1 style="font-size:2.5rem;">Your physical library, beautifully digitized.</h1>
+                <p>Scan, organize, and track the books on your shelf. A minimalist home for your maximalist collection.
+                </p>
             </div>
         </div>
 
-        <!-- Main Content: Book Details -->
-        <div class="main">
-            <div
-                style="display: flex; justify-content: flex-end; align-items: center; margin-bottom: 20px; font-size: 0.9rem;">
-                {% if user %}
-                <span style="margin-right: 15px; color: #555;">{{ user.firstname }} {{ user.lastname }}</span>
-                <a href="/auth/logout" style="color: #ff4d4d; text-decoration: none;">Logout</a>
-                {% else %}
-                <a href="/login" style="color: #007bff; text-decoration: none;">Login</a>
-                {% endif %}
-            </div>
-
-            {% if error %}
-            <div class="error">{{ error }}</div>
-            {% endif %}
-
-            {% if selected_book %}
-            <div class="book-details">
-                <div style="display: flex; gap: 30px; align-items: flex-start;">
-                    {% if selected_book.covers %}
-                    <img src="{{ selected_book.covers[0].large or selected_book.covers[0].medium }}" alt="cover"
-                        style="max-width: 300px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);" />
-                    {% endif %}
-                    <div>
-                        <h1 style="margin-top: 0;">{{ selected_book.title }}</h1>
-                        {% if selected_book.subtitle %}<h2 style="color: #555;">{{ selected_book.subtitle }}</h2>{%
-                        endif %}
-                        <p><strong>By:</strong> {{ selected_book.authors | map(attribute='name') | join(', ') }}</p>
-
-                        <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
-                            <tr style="border-bottom: 1px solid #eee;">
-                                <td style="padding: 8px 0; width: 150px;"><strong>Pages</strong></td>
-                                <td>{{ selected_book.number_of_pages or '—' }}</td>
-                            </tr>
-                            <tr style="border-bottom: 1px solid #eee;">
-                                <td style="padding: 8px 0;"><strong>Publish Date</strong></td>
-                                <td>{{ selected_book.publish_date or '—' }}</td>
-                            </tr>
-                            <tr style="border-bottom: 1px solid #eee;">
-                                <td style="padding: 8px 0;"><strong>Publisher</strong></td>
-                                <td>{{ selected_book.publishers | map(attribute='name') | join(', ') }}</td>
-                            </tr>
-                            <tr style="border-bottom: 1px solid #eee;">
-                                <td style="padding: 8px 0;"><strong>ISBNs</strong></td>
-                                <td>{{ selected_book.isbns | join(', ') }}</td>
-                            </tr>
-                        </table>
-
-                        {% if selected_book.subjects %}
-                        <h3 style="margin-top: 30px;">Subjects</h3>
-                        <div class="subjects-container">
-                            {% for s in selected_book.subjects %}
-                            <div class="subject-pill">{{ s.name }}</div>
+        <!-- BOOKS VIEW (Global browsing) -->
+        <div id="view-books" style="display:none;">
+            <h2 class="section-title">Recently Added Community Books</h2>
+            <div class="profile-list">
+                {% for b in all_books[:50] %}
+                <div class="profile-book-item" id="explore-item-{{ b.id }}">
+                    <div class="profile-book-core"
+                        onclick="document.getElementById('explore-item-{{ b.id }}').classList.toggle('expanded')">
+                        {% if b.covers %}
+                        <img src="{{ b.covers[0].large or b.covers[0].medium or b.covers[0].small }}"
+                            class="profile-book-cover" alt="cover">
+                        {% else %}
+                        <div class="profile-book-cover"></div>
+                        {% endif %}
+                        <div class="profile-book-details">
+                            <div class="book-title">{{ b.title }}</div>
+                            {% if b.subtitle %}
+                            <div style="font-size:0.9rem; color:var(--text-secondary); margin-bottom:4px;">{{ b.subtitle
+                                }}</div>
+                            {% endif %}
+                            <div class="book-author">{{ b.authors | map(attribute='name') | join(', ') if b.authors else
+                                'Unknown Author' }}</div>
+                            <div class="book-expand-btn">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="m6 9 6 6 6-6" />
+                                </svg>
+                                More Details
+                            </div>
+                        </div>
+                    </div>
+                    <div class="profile-book-expanded">
+                        <div class="metadata-pills">
+                            <div
+                                style="font-weight:600;font-size:0.85rem;color:#71717a;align-self:center;margin-right:10px;">
+                                SUBJECTS</div>
+                            {% for s in (b.subjects[:5] if b.subjects else []) %}
+                            <div class="metadata-pill">{{ s.name }}</div>
                             {% endfor %}
                         </div>
+                        <div class="metadata-grid">
+                            <div class="metadata-item">
+                                <h4>Published</h4>
+                                <div>{{ b.publish_date or '—' }}</div>
+                            </div>
+                            <div class="metadata-item">
+                                <h4>Pages</h4>
+                                <div>{{ b.number_of_pages or '—' }} p.</div>
+                            </div>
+                            <div class="metadata-item">
+                                <h4>Publisher</h4>
+                                <div>{{ b.publishers | map(attribute='name') | join(', ') if b.publishers else '—' }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- PROFILE VIEW -->
+        <div id="view-profile">
+            {% if user %}
+            <div class="profile-header">
+                <div class="profile-info" style="width:100%; justify-content:space-between;">
+                    <div style="display:flex; align-items:center; gap:16px;">
+                        <div class="avatar">{{ user.firstname[0] }}{{ user.lastname[0] if user.lastname else '' }}</div>
+                        <div>
+                            <div class="profile-name" style="font-size:1.5rem;">{{ user.firstname }} {{ user.lastname
+                                }}'s Library</div>
+                            <div class="profile-stats">{{ user_books|length }} Books Saved</div>
+                        </div>
+                        <a href="/auth/logout" class="btn-primary"
+                            style="background:#ff7675;color:#fff;text-decoration:none;font-size:0.8rem;padding:6px 12px;">Logout</a>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="profile-list">
+                {% for item in user_books %}
+                {% set b = item.book %}
+                {% set ub = item.user_book %}
+                <div class="profile-book-item" id="book-item-{{ b.id }}">
+                    <div class="profile-book-core" onclick="toggleProfileBook('{{ b.id }}')">
+                        {% if b.covers %}
+                        <img src="{{ b.covers[0].large or b.covers[0].medium or b.covers[0].small }}"
+                            class="profile-book-cover" alt="cover">
+                        {% else %}
+                        <div class="profile-book-cover"></div>
                         {% endif %}
+                        <div class="profile-book-details">
+                            <div class="badge">READ</div> <!-- Placeholder -->
+                            <div class="book-title">{{ b.title }}</div>
+                            {% if b.subtitle %}
+                            <div style="font-size:0.9rem; color:var(--text-secondary); margin-bottom:4px;">{{ b.subtitle
+                                }}</div>
+                            {% endif %}
+                            <div class="book-author">{{ b.authors | map(attribute='name') | join(', ') if b.authors
+                                else 'Unknown Author' }}</div>
+                            <div class="book-expand-btn">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="m6 9 6 6 6-6" />
+                                </svg>
+                                Details & Edit
+                            </div>
+                        </div>
+                    </div>
+                    <div class="profile-book-expanded">
+                        <div class="metadata-pills">
+                            <div
+                                style="font-weight:600;font-size:0.85rem;color:#71717a;align-self:center;margin-right:10px;">
+                                SUBJECTS</div>
+                            {% for s in (b.subjects[:5] if b.subjects else []) %}
+                            <div class="metadata-pill">{{ s.name }}</div>
+                            {% endfor %}
+                        </div>
+                        <div class="metadata-grid">
+                            <div class="metadata-item">
+                                <h4>Published</h4>
+                                <div>{{ b.publish_date or '—' }}</div>
+                            </div>
+                            <div class="metadata-item">
+                                <h4>Pages</h4>
+                                <div>{{ b.number_of_pages or '—' }} p.</div>
+                            </div>
+                            <div class="metadata-item">
+                                <h4>Publisher</h4>
+                                <div>{{ b.publishers | map(attribute='name') | join(', ') if b.publishers else '—'
+                                    }}</div>
+                            </div>
+                        </div>
+
+                        {% if b.identifiers or b.openbook_url %}
+                        <div class="metadata-grid" style="grid-template-columns: 1fr; margin-bottom: 24px;">
+                            <div class="metadata-item">
+                                <h4>Links & Identifiers</h4>
+                                <div
+                                    style="display:flex; flex-wrap:wrap; gap:10px; font-size: 0.85rem; margin-top:5px;">
+                                    {% if b.openbook_url %}
+                                    <a href="{{ b.openbook_url }}" target="_blank"
+                                        style="color:var(--text-primary);">Open Library</a>
+                                    {% endif %}
+                                    {% for k, v in b.identifiers.items() %}
+                                    {% for item in v %}
+                                    <a href="{% if k == 'amazon' %}https://www.amazon.com/dp/{{item}}{% elif k == 'goodreads' %}https://www.goodreads.com/book/show/{{item}}{% elif k == 'google' %}https://books.google.com/books?id={{item}}{% else %}https://www.google.com/search?q={{k}}+{{item}}{% endif %}"
+                                        target="_blank"
+                                        style="background:#eee; padding:2px 6px; border-radius:4px; text-decoration:none; color:var(--text-primary); transition:background 0.2s;"
+                                        onmouseover="this.style.background='#e4e4e7'"
+                                        onmouseout="this.style.background='#eee'">
+                                        {{ k }}: {{ item }}
+                                    </a>
+                                    {% endfor %}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <div class="edit-form-group"
+                            style="display:flex;align-items:center;gap:8px;margin-bottom:16px;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+                            </svg>
+                            <strong>Notes & Status</strong>
+                        </div>
+
+                        <div class="edit-form-row">
+                            <div>
+                                <label>Reading Status</label>
+                                <select class="form-select">
+                                    <option>Read</option>
+                                    <option>Reading</option>
+                                    <option>Unread</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label>Visibility</label>
+                                <select class="form-select">
+                                    <option {% if ub.is_public %}selected{% endif %}>Public</option>
+                                    <option {% if not ub.is_public %}selected{% endif %}>Private</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="edit-form-group">
+                            <label>Private Comments</label>
+                            <textarea class="form-textarea"
+                                placeholder="Add your thoughts...">{{ ub.comment or '' }}</textarea>
+                        </div>
+
+                        <button class="btn-primary btn-full" style="background:#18181b;color:#fff;"
+                            onclick="saveBookChanges('{{ b.id }}')">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M20 6 9 17l-5-5" />
+                            </svg>
+                            Save Profile Changes
+                        </button>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+    </main>
+
+    <!-- Bottom Nav -->
+    <nav class="bottom-nav">
+        <a class="bottom-nav-item active" onclick="switchView('home')">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                <polyline points="9 22 9 12 15 12 15 22" />
+            </svg>
+            Home
+        </a>
+        <a class="bottom-nav-item" onclick="switchView('books')">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+                <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+            </svg>
+            Explore
+        </a>
+        {% if user %}
+        <a class="bottom-nav-item" onclick="switchView('profile')">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+                <circle cx="12" cy="7" r="4" />
+            </svg>
+            Profile
+        </a>
+        {% endif %}
+    </nav>
+
+    <!-- Modal: Add to Library -->
+    <div class="modal-overlay" id="add-modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeAddModal()"><svg width="16" height="16" viewBox="0 0 24 24"
+                    fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M18 6 6 18M6 6l12 12" />
+                </svg></button>
+            <div class="modal-header">
+                <h2 class="modal-title">Add to Library</h2>
+                <div class="modal-tabs">
+                    <div class="modal-tab active" onclick="switchModalTab('scan')">Scan Barcode</div>
+                    <div class="modal-tab" onclick="switchModalTab('manual')">Enter ISBN</div>
+                </div>
+            </div>
+            <div class="modal-body">
+
+                <div id="tab-scan" class="tab-content active">
+                    <div id="reader"
+                        style="width:100%; border-radius:12px; overflow:hidden; background:#000; min-height:200px;">
+                    </div>
+                    <p style="font-size:0.85rem;color:var(--text-secondary);text-align:center;margin-top:10px;">Position
+                        the barcode to scan. It will automatically add to the queue below.</p>
+                </div>
+
+                <div id="tab-manual" class="tab-content">
+                    <div class="edit-form-group">
+                        <label>ISBN Number</label>
+                        <div style="display:flex;gap:10px;">
+                            <input type="text" id="manual-isbn" class="form-input" placeholder="e.g. 9780143127550">
+                            <button class="btn-primary" style="border-radius:8px;"
+                                onclick="addManualIsbn()">Add</button>
+                        </div>
                     </div>
                 </div>
 
-                {% if selected_book.identifiers %}
-                <div style="margin-top: 40px;">
-                    <h3>Detailed Identifiers</h3>
-                    <ul>
-                        {% for key, vals in selected_book.identifiers.items() %}
-                        <li>
-                            <strong>{{ key }}:</strong>
-                            {% for val in vals %}
-                            {% if key == 'goodreads' %}
-                            <a href="https://www.goodreads.com/book/show/{{ val }}" target="_blank">{{ val }}</a>
-                            {% elif key == 'librarything' %}
-                            <a href="https://www.librarything.com/work/{{ val }}" target="_blank">{{ val }}</a>
-                            {% elif key == 'oclc' %}
-                            <a href="https://www.worldcat.org/oclc/{{ val }}" target="_blank">{{ val }}</a>
-                            {% elif key == 'lccn' %}
-                            <a href="https://lccn.loc.gov/{{ val }}" target="_blank">{{ val }}</a>
-                            {% elif key == 'openlibrary' %}
-                            <a href="https://openlibrary.org/books/{{ val }}" target="_blank">{{ val }}</a>
-                            {% else %}
-                            {{ val }}
-                            {% endif %}
-                            {% if not loop.last %}, {% endif %}
-                            {% endfor %}
-                        </li>
-                        {% endfor %}
-                    </ul>
+                <!-- Shared Queue controls -->
+                <div class="queue-section" style="margin-top:20px;">
+                    <div
+                        style="background:#fafafa; border:1px solid #eee; padding:16px; border-radius:12px; margin-bottom:16px;">
+                        <h4
+                            style="font-size:0.75rem; color:var(--text-secondary); margin-bottom:12px; text-transform:uppercase;">
+                            Batch Save Settings</h4>
+                        <div class="edit-form-row" style="margin:0;">
+                            <div>
+                                <select class="form-select" id="batch-status" style="padding:8px;">
+                                    <option>Status: Unread</option>
+                                    <option>Status: Reading</option>
+                                    <option>Status: Read</option>
+                                </select>
+                            </div>
+                            <div>
+                                <select class="form-select" id="batch-visibility" style="padding:8px;">
+                                    <option>Visibility: Public</option>
+                                    <option>Visibility: Private</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                        <strong>Scan Queue</strong>
+                        <div style="background:#18181b; color:#fff; border-radius:50%; width:24px; height:24px; display:flex; align-items:center; justify-content:center; font-size:0.8rem; font-weight:700;"
+                            id="queue-count">0</div>
+                    </div>
+
+                    <div class="queue-container" id="scan-queue">
+                        <div style="text-align:center; color:var(--text-secondary); font-size:0.85rem; padding:20px 0;"
+                            id="queue-empty">Start scanning or entering ISBNs to build your queue.</div>
+                    </div>
+
                 </div>
-                {% endif %}
+
             </div>
-            {% else %}
-            <div style="display:flex; height:100%; align-items:center; justify-content:center; color:#999;">
-                <h2>Select a book from the sidebar or search for a new one.</h2>
+
+            <div style="padding:20px; border-top:1px solid var(--border-color);">
+                <button class="btn-primary btn-full" onclick="saveBatchLibrary()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20 6 9 17l-5-5" />
+                    </svg>
+                    Done & Save Library
+                </button>
             </div>
-            {% endif %}
         </div>
     </div>
 
-    <!-- html5-qrcode for barcode scanning -->
-    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
     <script>
-        const searchForm = document.getElementById('search-form');
-        const isbnInput = document.getElementById('isbn');
-        const scanBtn = document.getElementById('scan-btn');
-        const stopBtn = document.getElementById('stop-btn');
-        let scanner = null;
+        const isLoggedIn = {{ 'true' if user else 'false' }};
 
-        searchForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const isbn = isbnInput.value.trim();
-            if (isbn) {
-                window.location.href = `/?isbn=${encodeURIComponent(isbn)}`;
+        // Tab switching
+        function switchView(view) {
+            document.getElementById('view-home').style.display = view === 'home' ? 'block' : 'none';
+            document.getElementById('view-books').style.display = view === 'books' ? 'block' : 'none';
+            document.getElementById('view-profile').style.display = view === 'profile' ? 'block' : 'none';
+
+            document.querySelectorAll('.bottom-nav-item').forEach(l => l.classList.remove('active'));
+            if (event && event.currentTarget && event.currentTarget.classList) {
+                event.currentTarget.classList.add('active');
             }
-        });
+        }
 
-        scanBtn.addEventListener('click', () => {
-            scanner = new Html5Qrcode("scanner");
-            scanner.start(
-                { facingMode: "environment" },
-                {
-                    fps: 10, qrbox: 250, formatsToSupport: [
+        // Expanded book details
+        function toggleProfileBook(id) {
+            const el = document.getElementById('book-item-' + id);
+            el.classList.toggle('expanded');
+        }
+
+        // Modal Logic
+        function switchModalTab(tab) {
+            document.querySelectorAll('.modal-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
+            document.getElementById('tab-' + tab).classList.add('active');
+            event.target.classList.add('active');
+
+            if (tab === 'scan') {
+                startScanner();
+            } else {
+                stopScanner();
+            }
+        }
+
+        let scanQueue = [];
+        let html5QrCode = null;
+
+        function startScanner() {
+            if (!html5QrCode) {
+                // Pre-configure the engine specifically for standard books (EAN-13, UPC)
+                html5QrCode = new Html5Qrcode("reader", {
+                    formatsToSupport: [
                         Html5QrcodeSupportedFormats.EAN_13,
                         Html5QrcodeSupportedFormats.EAN_8,
-                        Html5QrcodeSupportedFormats.CODE_128,
+                        Html5QrcodeSupportedFormats.UPC_A,
+                        Html5QrcodeSupportedFormats.ISBN_10
                     ]
-                },
-                (decodedText) => {
-                    scanner.stop().then(() => {
-                        window.location.href = `/?isbn=${encodeURIComponent(decodedText)}`;
-                    });
-                },
-                (_errorMessage) => { }
-            ).then(() => {
-                scanBtn.style.display = 'none';
-                stopBtn.style.display = 'inline';
-            }).catch(err => {
-                alert('Could not start camera: ' + err);
-            });
-        });
-
-        stopBtn.addEventListener('click', () => {
-            if (scanner) {
-                scanner.stop().then(() => {
-                    scanBtn.style.display = 'inline';
-                    stopBtn.style.display = 'none';
                 });
             }
-        });
+            // Increase FPS and widen the scanning bounding box for 1D barcodes
+            html5QrCode.start(
+                { facingMode: "environment" },
+                { fps: 20, qrbox: { width: 300, height: 150 } },
+                (decodedText, decodedResult) => {
+                    const isbn = decodedText.replace(/[^0-9X]/g, '');
+                    if (isbn && !scanQueue.includes(isbn)) {
+                        appendQueue(isbn);
+                        // Optional: trigger a brief confirmation toast or sound
+                    }
+                },
+                (errorMessage) => {
+                    // parse error ignoring usually
+                }
+            ).catch(err => {
+                console.warn(`Camera init failed: ${err}`);
+                document.getElementById('reader').innerHTML = `<div style="padding:20px; text-align:center; color:#fff;">Camera access denied or unavailable.</div>`;
+            });
+        }
+
+        function stopScanner() {
+            if (html5QrCode && html5QrCode.isScanning) {
+                html5QrCode.stop().then(() => {
+                    html5QrCode.clear();
+                }).catch(err => {
+                    console.error("Failed to stop scanner", err);
+                });
+            }
+        }
+
+        function openAddModal() {
+            document.getElementById('add-modal').classList.add('active');
+            // If scan tab is active, start camera
+            if (document.getElementById('tab-scan').classList.contains('active')) {
+                startScanner();
+            }
+        }
+        function closeAddModal() {
+            document.getElementById('add-modal').classList.remove('active');
+            stopScanner();
+        }
+
+        function addManualIsbn() {
+            const val = document.getElementById('manual-isbn').value.trim();
+            if (val) {
+                appendQueue(val);
+                document.getElementById('manual-isbn').value = "";
+            }
+        }
+
+        async function appendQueue(isbn) {
+            // Guard against duplicates that bypassed the startScanner check rapidly
+            if (scanQueue.includes(isbn)) return;
+
+            document.getElementById('queue-empty').style.display = 'none';
+            const queueDiv = document.getElementById('scan-queue');
+
+            const li = document.createElement('div');
+            li.className = 'queue-item';
+            li.innerHTML = `
+                <div style="background:#eee; width:32px; height:48px; border-radius:4px; flex-shrink:0;"></div>
+                <div style="flex:1;">
+                    <div style="font-weight:600; font-size:0.9rem;">Looking up...</div>
+                    <div style="font-size:0.8rem; color:#71717a;">${isbn}</div>
+                </div>
+            `;
+            queueDiv.prepend(li);
+
+            // Queue state update
+            scanQueue.push(isbn);
+            document.getElementById('queue-count').innerText = scanQueue.length;
+
+            try {
+                const res = await fetch(`/books/lookup/${isbn}`);
+                if (res.ok) {
+                    const book = await res.json();
+                    li.innerHTML = `
+                        <img src="${(book.covers && book.covers[0]) ? (book.covers[0].small || book.covers[0].medium) : ''}" onerror="this.style.display='none'">
+                        <div style="flex:1; overflow:hidden;">
+                            <div style="font-weight:600; font-size:0.9rem; white-space:nowrap; text-overflow:ellipsis; overflow:hidden;">${book.title}</div>
+                            <div style="font-size:0.8rem; color:#71717a;">${book.authors?.[0]?.name || 'Unknown Author'}</div>
+                        </div>
+                    `;
+                } else {
+                    li.innerHTML = `
+                        <div style="background:#ffcccb; width:32px; height:48px; border-radius:4px;"></div>
+                        <div style="flex:1;">
+                            <div style="font-weight:600; font-size:0.9rem; color:red;">Not found</div>
+                            <div style="font-size:0.8rem; color:#71717a;">${isbn}</div>
+                        </div>
+                    `;
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        async function saveBatchLibrary() {
+            if (scanQueue.length === 0) {
+                closeAddModal();
+                return;
+            }
+
+            if (!isLoggedIn) {
+                // If not logged in, ask them to login and stash queue
+                sessionStorage.setItem('pendingScanQueue', JSON.stringify(scanQueue));
+                window.location.href = '/login';
+                return;
+            }
+
+            const is_public = document.getElementById('batch-visibility').value.includes('Public');
+            const statusStr = document.getElementById('batch-status').value; // place holder
+
+            const btn = event.currentTarget;
+            const origHtml = btn.innerHTML;
+            btn.innerHTML = 'Saving...';
+
+            const entries = scanQueue.map(isbn => ({
+                isbn: isbn,
+                is_public: is_public,
+                status: statusStr,
+                comment: ''
+            }));
+
+            try {
+                const response = await fetch('/books/user_books/batch', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ entries: entries })
+                });
+
+                if (response.ok) {
+                    window.location.hash = '#profile';
+                    window.location.reload(); // Reload to show populated profile!
+                } else {
+                    alert('Error saving books');
+                }
+            } catch (e) {
+                alert('Connection error');
+            } finally {
+                btn.innerHTML = origHtml;
+            }
+        }
+
+        function saveBookChanges(bookId) {
+            // Stub for inline save
+            const btn = event.currentTarget;
+            const origHtml = btn.innerHTML;
+            btn.innerHTML = 'Saved!';
+            setTimeout(() => { btn.innerHTML = origHtml; }, 2000);
+        }
+
+        // By default show profile if specifically looking for their lib OR if returning from login with pending scans
+        const pendingScansStr = sessionStorage.getItem('pendingScanQueue');
+        if (isLoggedIn && window.location.hash !== '#profile' && pendingScansStr) {
+            scanQueue = JSON.parse(pendingScansStr);
+            sessionStorage.removeItem('pendingScanQueue');
+            switchView('profile');
+            openAddModal();
+            // Optionally, automatically trigger saveBatchLibrary() here if desired:
+            // saveBatchLibrary().then(() => window.location.reload());
+            alert('Your scanned books are restored in the queue! Review your settings and hit "Done & Save Library" to confirm.');
+            // We'll populate the UI of the modal
+            document.getElementById('queue-empty').style.display = 'none';
+            document.getElementById('queue-count').innerText = scanQueue.length;
+            const queueDiv = document.getElementById('scan-queue');
+            scanQueue.forEach(isbn => {
+                const li = document.createElement('div');
+                li.className = 'queue-item';
+                li.innerHTML = `
+                    <div style="background:#eee; width:32px; height:48px; border-radius:4px; flex-shrink:0;"></div>
+                    <div style="flex:1;">
+                        <div style="font-weight:600; font-size:0.9rem;">Ready to save</div>
+                        <div style="font-size:0.8rem; color:#71717a;">${isbn}</div>
+                    </div>
+                `;
+                queueDiv.appendChild(li);
+            });
+        } else if (window.location.hash === '#profile') {
+            switchView('profile');
+        } else if (window.location.pathname === '/' && !window.location.hash) {
+            switchView('home');
+            // Ensures active tag doesn't break if no event occurs on initial page load
+            const hLink = document.querySelector('.bottom-nav-item:first-child');
+            if (hLink) hLink.classList.add('active');
+        }
     </script>
 </body>
 
