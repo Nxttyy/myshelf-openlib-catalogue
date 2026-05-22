@@ -8,7 +8,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/html5-qrcode"></script>
+    <script src="https://unpkg.com/@ericblade/quagga2/dist/quagga.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
     <style>
         :root {
             --bg-color: #f4f4f5;
@@ -302,8 +303,6 @@
         }
 
         .badge {
-            background: #bbf7d0;
-            color: #166534;
             padding: 4px 8px;
             border-radius: 4px;
             font-size: 0.75rem;
@@ -312,6 +311,9 @@
             align-self: flex-start;
             margin-bottom: 8px;
         }
+        .badge-read    { background: #bbf7d0; color: #166534; }
+        .badge-reading { background: #fed7aa; color: #9a3412; }
+        .badge-unread  { background: #f4f4f5; color: #52525b; }
 
         .book-title {
             font-size: 1.15rem;
@@ -625,6 +627,34 @@
         </div>
     </header>
 
+{% macro identifier_links(b) %}
+{% if b.identifiers or b.openbook_url or b.isbns %}
+<div class="metadata-grid" style="grid-template-columns:1fr;margin-bottom:24px;">
+    <div class="metadata-item">
+        <h4>Links & Identifiers</h4>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;font-size:0.85rem;margin-top:5px;">
+            {# Open Library page — comes from openbook_url, not identifiers #}
+            {% if b.openbook_url %}
+            <a href="{{ b.openbook_url }}" target="_blank" style="background:#eee;padding:2px 6px;border-radius:4px;text-decoration:none;color:var(--text-primary);">Open Library ↗</a>
+            {% endif %}
+            {# ISBNs from the record-level isbns list — skip isbn_10/isbn_13 in identifiers to avoid duplicates #}
+            {% for isbn in b.isbns %}
+            <a href="https://openlibrary.org/isbn/{{ isbn }}" target="_blank"
+               style="background:#dbeafe;padding:2px 6px;border-radius:4px;text-decoration:none;color:#1e40af;font-variant-numeric:tabular-nums;">{% if isbn|length == 13 %}ISBN-13{% elif isbn|length == 10 %}ISBN-10{% else %}ISBN{% endif %}: {{ isbn }}</a>
+            {% endfor %}
+            {# External links — skip openlibrary (covered above) and isbn_* (covered by b.isbns) #}
+            {% for k, vals in b.identifiers.items() %}{% if k not in ('openlibrary', 'isbn_10', 'isbn_13') %}{% for v in vals %}
+            <a href="{% if k=='amazon' %}https://www.amazon.com/dp/{{ v }}{% elif k=='goodreads' %}https://www.goodreads.com/book/show/{{ v }}{% elif k=='google' %}https://books.google.com/books?id={{ v }}{% elif k=='librarything' %}https://www.librarything.com/work/{{ v }}{% elif k=='wikidata' %}https://www.wikidata.org/wiki/{{ v }}{% elif k=='oclc' %}https://www.worldcat.org/oclc/{{ v }}{% elif k=='lccn' %}https://lccn.loc.gov/{{ v }}{% elif k=='project_gutenberg' %}https://www.gutenberg.org/ebooks/{{ v }}{% else %}https://www.worldcat.org/search?q={{ k }}%3A{{ v }}{% endif %}"
+               target="_blank"
+               style="background:#eee;padding:2px 6px;border-radius:4px;text-decoration:none;color:var(--text-primary);transition:background 0.2s;"
+               onmouseover="this.style.background='#e4e4e7'" onmouseout="this.style.background='#eee'">{% if k=='amazon' %}Amazon{% elif k=='goodreads' %}Goodreads{% elif k=='google' %}Google Books{% elif k=='librarything' %}LibraryThing{% elif k=='wikidata' %}Wikidata{% elif k=='oclc' %}WorldCat{% elif k=='lccn' %}Library of Congress{% elif k=='project_gutenberg' %}Project Gutenberg{% else %}{{ k|replace('_',' ')|title }}{% endif %}</a>
+            {% endfor %}{% endif %}{% endfor %}
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endmacro %}
+
     <main>
         <!-- HOME VIEW -->
         <div id="view-home">
@@ -689,7 +719,14 @@
                                 <div>{{ b.publishers | map(attribute='name') | join(', ') if b.publishers else '—' }}
                                 </div>
                             </div>
+                            {% if b.authors %}
+                            <div class="metadata-item">
+                                <h4>Authors</h4>
+                                <div>{{ b.authors | map(attribute='name') | join(', ') }}</div>
+                            </div>
+                            {% endif %}
                         </div>
+                        {{ identifier_links(b) }}
                     </div>
                 </div>
                 {% endfor %}
@@ -701,16 +738,23 @@
             {% if user %}
             <div class="profile-header">
                 <div class="profile-info" style="width:100%; justify-content:space-between;">
-                    <div style="display:flex; align-items:center; gap:16px;">
+                    <div style="display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
                         <div class="avatar">{{ user.firstname[0] }}{{ user.lastname[0] if user.lastname else '' }}</div>
                         <div>
                             <div class="profile-name" style="font-size:1.5rem;">{{ user.firstname }} {{ user.lastname
                                 }}'s Library</div>
                             <div class="profile-stats">{{ user_books|length }} Books Saved</div>
                         </div>
-                        <a href="/auth/logout" class="btn-primary"
-                            style="background:#ff7675;color:#fff;text-decoration:none;font-size:0.8rem;padding:6px 12px;">Logout</a>
-
+                        <div style="display:flex; align-items:center; gap:8px; margin-left:auto;">
+                            <span style="font-size:0.8rem; color:var(--text-secondary); white-space:nowrap;">Profile visibility</span>
+                            <select class="form-select" style="padding:5px 10px; font-size:0.8rem;"
+                                onchange="updateProfileVisibility(this.value)">
+                                <option value="true" {% if user.is_profile_public %}selected{% endif %}>Public</option>
+                                <option value="false" {% if not user.is_profile_public %}selected{% endif %}>Private</option>
+                            </select>
+                            <a href="/auth/logout" class="btn-primary"
+                                style="background:#ff7675;color:#fff;text-decoration:none;font-size:0.8rem;padding:6px 12px;white-space:nowrap;">Logout</a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -728,7 +772,7 @@
                         <div class="profile-book-cover"></div>
                         {% endif %}
                         <div class="profile-book-details">
-                            <div class="badge">READ</div> <!-- Placeholder -->
+                            <div class="badge badge-{{ ub.status or 'unread' }}">{{ (ub.status or 'unread')|upper }}</div>
                             <div class="book-title">{{ b.title }}</div>
                             {% if b.subtitle %}
                             <div style="font-size:0.9rem; color:var(--text-secondary); margin-bottom:4px;">{{ b.subtitle
@@ -770,31 +814,7 @@
                             </div>
                         </div>
 
-                        {% if b.identifiers or b.openbook_url %}
-                        <div class="metadata-grid" style="grid-template-columns: 1fr; margin-bottom: 24px;">
-                            <div class="metadata-item">
-                                <h4>Links & Identifiers</h4>
-                                <div
-                                    style="display:flex; flex-wrap:wrap; gap:10px; font-size: 0.85rem; margin-top:5px;">
-                                    {% if b.openbook_url %}
-                                    <a href="{{ b.openbook_url }}" target="_blank"
-                                        style="color:var(--text-primary);">Open Library</a>
-                                    {% endif %}
-                                    {% for k, v in b.identifiers.items() %}
-                                    {% for item in v %}
-                                    <a href="{% if k == 'amazon' %}https://www.amazon.com/dp/{{item}}{% elif k == 'goodreads' %}https://www.goodreads.com/book/show/{{item}}{% elif k == 'google' %}https://books.google.com/books?id={{item}}{% else %}https://www.google.com/search?q={{k}}+{{item}}{% endif %}"
-                                        target="_blank"
-                                        style="background:#eee; padding:2px 6px; border-radius:4px; text-decoration:none; color:var(--text-primary); transition:background 0.2s;"
-                                        onmouseover="this.style.background='#e4e4e7'"
-                                        onmouseout="this.style.background='#eee'">
-                                        {{ k }}: {{ item }}
-                                    </a>
-                                    {% endfor %}
-                                    {% endfor %}
-                                </div>
-                            </div>
-                        </div>
-                        {% endif %}
+                        {{ identifier_links(b) }}
 
                         <div class="edit-form-group"
                             style="display:flex;align-items:center;gap:8px;margin-bottom:16px;">
@@ -808,28 +828,28 @@
                         <div class="edit-form-row">
                             <div>
                                 <label>Reading Status</label>
-                                <select class="form-select">
-                                    <option>Read</option>
-                                    <option>Reading</option>
-                                    <option>Unread</option>
+                                <select class="form-select status-select">
+                                    <option value="read"    {% if ub.status == 'read'    %}selected{% endif %}>Read</option>
+                                    <option value="reading" {% if ub.status == 'reading' %}selected{% endif %}>Reading</option>
+                                    <option value="unread"  {% if ub.status == 'unread' or not ub.status %}selected{% endif %}>Unread</option>
                                 </select>
                             </div>
                             <div>
                                 <label>Visibility</label>
-                                <select class="form-select">
-                                    <option {% if ub.is_public %}selected{% endif %}>Public</option>
-                                    <option {% if not ub.is_public %}selected{% endif %}>Private</option>
+                                <select class="form-select visibility-select">
+                                    <option value="true"  {% if ub.is_public  %}selected{% endif %}>Public</option>
+                                    <option value="false" {% if not ub.is_public %}selected{% endif %}>Private</option>
                                 </select>
                             </div>
                         </div>
                         <div class="edit-form-group">
                             <label>Private Comments</label>
-                            <textarea class="form-textarea"
+                            <textarea class="form-textarea comment-textarea"
                                 placeholder="Add your thoughts...">{{ ub.comment or '' }}</textarea>
                         </div>
 
                         <button class="btn-primary btn-full" style="background:#18181b;color:#fff;"
-                            onclick="saveBookChanges('{{ b.id }}')">
+                            onclick="saveBookChanges(this, '{{ ub.id }}')">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                 stroke-width="2">
                                 <path d="M20 6 9 17l-5-5" />
@@ -846,14 +866,14 @@
 
     <!-- Bottom Nav -->
     <nav class="bottom-nav">
-        <a class="bottom-nav-item active" onclick="switchView('home')">
+        <a class="bottom-nav-item" data-view="home" onclick="switchView('home')">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
                 <polyline points="9 22 9 12 15 12 15 22" />
             </svg>
             Home
         </a>
-        <a class="bottom-nav-item" onclick="switchView('books')">
+        <a class="bottom-nav-item" data-view="books" onclick="switchView('books')">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
                 <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
@@ -861,7 +881,7 @@
             Explore
         </a>
         {% if user %}
-        <a class="bottom-nav-item" onclick="switchView('profile')">
+        <a class="bottom-nav-item" data-view="profile" onclick="switchView('profile')">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
                 <circle cx="12" cy="7" r="4" />
@@ -888,11 +908,31 @@
             <div class="modal-body">
 
                 <div id="tab-scan" class="tab-content active">
-                    <div id="reader"
-                        style="width:100%; border-radius:12px; overflow:hidden; background:#000; min-height:200px;">
+                    <!-- Desktop: QR code to scan with phone -->
+                    <div id="scan-desktop" style="display:none; text-align:center;">
+                        <p style="font-size:0.88rem; color:var(--text-secondary); margin-bottom:14px;">
+                            Scan this QR code with your phone to use your phone camera
+                        </p>
+                        <div id="qr-code-wrap" style="display:inline-block; padding:14px; background:#fff; border-radius:12px; border:1px solid var(--border-color);">
+                            <div id="qr-code"></div>
+                        </div>
+                        <p id="scan-url-text" style="font-size:0.72rem; color:var(--text-secondary); margin-top:8px; word-break:break-all; padding:0 10px;"></p>
+                        <p id="desktop-scan-status" style="font-size:0.85rem; color:var(--text-secondary); margin-top:6px;">
+                            Waiting for phone to scan books…
+                        </p>
+                        <button onclick="switchToCamera()" style="margin-top:14px; width:100%; padding:10px 14px; background:transparent; border:1px solid var(--border-color); border-radius:8px; cursor:pointer; font-size:0.85rem; color:var(--text-secondary); font-family:inherit;">
+                            Use PC Camera Instead
+                        </button>
                     </div>
-                    <p style="font-size:0.85rem;color:var(--text-secondary);text-align:center;margin-top:10px;">Position
-                        the barcode to scan. It will automatically add to the queue below.</p>
+                    <!-- Camera: mobile default or desktop bypass -->
+                    <div id="scan-camera">
+                        <div id="reader"
+                            style="width:100%; border-radius:12px; overflow:hidden; background:#000; min-height:200px;">
+                        </div>
+                        <p style="font-size:0.85rem;color:var(--text-secondary);text-align:center;margin-top:10px;">
+                            Position the barcode to scan. It will automatically add to the queue below.
+                        </p>
+                    </div>
                 </div>
 
                 <div id="tab-manual" class="tab-content">
@@ -916,15 +956,15 @@
                         <div class="edit-form-row" style="margin:0;">
                             <div>
                                 <select class="form-select" id="batch-status" style="padding:8px;">
-                                    <option>Status: Unread</option>
-                                    <option>Status: Reading</option>
-                                    <option>Status: Read</option>
+                                    <option value="unread">Unread</option>
+                                    <option value="reading">Reading</option>
+                                    <option value="read">Read</option>
                                 </select>
                             </div>
                             <div>
                                 <select class="form-select" id="batch-visibility" style="padding:8px;">
-                                    <option>Visibility: Public</option>
-                                    <option>Visibility: Private</option>
+                                    <option value="public">Public</option>
+                                    <option value="private">Private</option>
                                 </select>
                             </div>
                         </div>
@@ -946,12 +986,21 @@
             </div>
 
             <div style="padding:20px; border-top:1px solid var(--border-color);">
-                <button class="btn-primary btn-full" onclick="saveBatchLibrary()">
+                <button class="btn-primary btn-full" id="save-btn" onclick="saveBatchLibrary(this)">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M20 6 9 17l-5-5" />
                     </svg>
                     Done & Save Library
                 </button>
+                <div id="auth-prompt" style="display:none; margin-top:14px; background:#fafafa; border:1px solid var(--border-color); border-radius:10px; padding:14px 16px; text-align:center;">
+                    <p style="font-size:0.88rem; color:var(--text-secondary); margin-bottom:12px;">
+                        Sign in to save <strong id="auth-prompt-count">0</strong> book<span id="auth-prompt-plural">s</span> to your library
+                    </p>
+                    <div style="display:flex; gap:10px; justify-content:center;">
+                        <a href="/login" onclick="stashQueueAndGo()" class="btn-primary" style="text-decoration:none; padding:8px 20px; border-radius:8px; font-size:0.88rem;">Log In</a>
+                        <a href="/register" onclick="stashQueueAndGo()" style="text-decoration:none; padding:8px 20px; border-radius:8px; font-size:0.88rem; border:1px solid var(--border-color); color:var(--text-primary); background:#fff;">Create Account</a>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -961,14 +1010,13 @@
 
         // Tab switching
         function switchView(view) {
-            document.getElementById('view-home').style.display = view === 'home' ? 'block' : 'none';
-            document.getElementById('view-books').style.display = view === 'books' ? 'block' : 'none';
+            document.getElementById('view-home').style.display    = view === 'home'    ? 'block' : 'none';
+            document.getElementById('view-books').style.display   = view === 'books'   ? 'block' : 'none';
             document.getElementById('view-profile').style.display = view === 'profile' ? 'block' : 'none';
-
             document.querySelectorAll('.bottom-nav-item').forEach(l => l.classList.remove('active'));
-            if (event && event.currentTarget && event.currentTarget.classList) {
-                event.currentTarget.classList.add('active');
-            }
+            const navEl = document.querySelector(`.bottom-nav-item[data-view="${view}"]`);
+            if (navEl) navEl.classList.add('active');
+            history.replaceState(null, '', '#' + view);
         }
 
         // Expanded book details
@@ -986,66 +1034,191 @@
             event.target.classList.add('active');
 
             if (tab === 'scan') {
-                startScanner();
+                if (isDesktop) { initDesktopScan(); } else { startScanner(); }
             } else {
+                stopDesktopPolling();
                 stopScanner();
             }
         }
 
-        let scanQueue = [];
-        let html5QrCode = null;
+        const isDesktop = !('ontouchstart' in window) && window.innerWidth > 768;
 
-        function startScanner() {
-            if (!html5QrCode) {
-                // Pre-configure the engine specifically for standard books (EAN-13, UPC)
-                html5QrCode = new Html5Qrcode("reader", {
-                    formatsToSupport: [
-                        Html5QrcodeSupportedFormats.EAN_13,
-                        Html5QrcodeSupportedFormats.EAN_8,
-                        Html5QrcodeSupportedFormats.UPC_A,
-                        Html5QrcodeSupportedFormats.ISBN_10
-                    ]
-                });
+        let scanQueue = [];
+        let scanSessionToken = null;
+        let scanPollingInterval = null;
+        let scanSeenCount = 0;
+        let qrCodeInstance = null;
+
+        // --- ISBN extraction ---
+        function extractISBN(raw) {
+            if (!raw) return null;
+            const digits = raw.replace(/[^0-9X]/gi, '').toUpperCase();
+            // ISBN-13: must be exactly 13 digits starting with 978 or 979
+            if (digits.length >= 13 && /^97[89]/.test(digits)) return digits.slice(0, 13);
+            // ISBN-10: 9 digits + digit or X
+            if (/^[0-9]{9}[0-9X]$/.test(digits)) return digits;
+            return null;
+        }
+
+        // --- Scanner state ---
+        let nativeStream = null;
+        let nativeScanLoop = null;
+        let quaggaRunning = false;
+
+        const _quaggaHandler = (result) => {
+            const errs = result.codeResult.decodedCodes
+                .filter(c => c.error !== undefined).map(c => c.error);
+            if (errs.length && errs.reduce((a, b) => a + b, 0) / errs.length > 0.15) return;
+            const isbn = extractISBN(result.codeResult.code);
+            if (isbn && !scanQueue.includes(isbn)) appendQueue(isbn);
+        };
+
+        async function startScanner() {
+            if ('BarcodeDetector' in window) {
+                try {
+                    const formats = await BarcodeDetector.getSupportedFormats();
+                    if (formats.includes('ean_13')) { startNativeScanner(); return; }
+                } catch {}
             }
-            // Increase FPS and widen the scanning bounding box for 1D barcodes
-            html5QrCode.start(
-                { facingMode: "environment" },
-                { fps: 20, qrbox: { width: 300, height: 150 } },
-                (decodedText, decodedResult) => {
-                    const isbn = decodedText.replace(/[^0-9X]/g, '');
-                    if (isbn && !scanQueue.includes(isbn)) {
-                        appendQueue(isbn);
-                        // Optional: trigger a brief confirmation toast or sound
-                    }
+            startQuaggaScanner();
+        }
+
+        async function startNativeScanner() {
+            const reader = document.getElementById('reader');
+            try {
+                nativeStream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } }
+                });
+                const video = document.createElement('video');
+                video.srcObject = nativeStream;
+                video.setAttribute('playsinline', '');
+                video.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:12px;display:block;';
+                reader.innerHTML = '';
+                reader.appendChild(video);
+                await video.play();
+                const detector = new BarcodeDetector({ formats: ['ean_13', 'ean_8', 'upc_a', 'upc_e'] });
+                const detect = async () => {
+                    if (!nativeStream) return;
+                    try {
+                        for (const { rawValue } of await detector.detect(video)) {
+                            const isbn = extractISBN(rawValue);
+                            if (isbn && !scanQueue.includes(isbn)) appendQueue(isbn);
+                        }
+                    } catch {}
+                    nativeScanLoop = requestAnimationFrame(detect);
+                };
+                nativeScanLoop = requestAnimationFrame(detect);
+            } catch (err) {
+                console.warn('Native scanner failed, falling back to Quagga:', err);
+                stopNativeScanner();
+                startQuaggaScanner();
+            }
+        }
+
+        function startQuaggaScanner() {
+            const reader = document.getElementById('reader');
+            reader.innerHTML = '';
+            Quagga.init({
+                inputStream: {
+                    type: 'LiveStream',
+                    target: reader,
+                    constraints: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } },
                 },
-                (errorMessage) => {
-                    // parse error ignoring usually
+                decoder: { readers: ['ean_reader', 'ean_8_reader', 'upc_reader', 'upc_e_reader'] },
+                locate: true,
+            }, (err) => {
+                if (err) {
+                    reader.innerHTML = `<div style="padding:20px;text-align:center;color:#fff;">Camera access denied or unavailable.</div>`;
+                    return;
                 }
-            ).catch(err => {
-                console.warn(`Camera init failed: ${err}`);
-                document.getElementById('reader').innerHTML = `<div style="padding:20px; text-align:center; color:#fff;">Camera access denied or unavailable.</div>`;
+                quaggaRunning = true;
+                Quagga.start();
+                Quagga.onDetected(_quaggaHandler);
             });
         }
 
-        function stopScanner() {
-            if (html5QrCode && html5QrCode.isScanning) {
-                html5QrCode.stop().then(() => {
-                    html5QrCode.clear();
-                }).catch(err => {
-                    console.error("Failed to stop scanner", err);
-                });
+        function stopNativeScanner() {
+            if (nativeScanLoop) { cancelAnimationFrame(nativeScanLoop); nativeScanLoop = null; }
+            if (nativeStream) { nativeStream.getTracks().forEach(t => t.stop()); nativeStream = null; }
+        }
+
+        function stopQuaggaScanner() {
+            if (quaggaRunning) {
+                Quagga.offDetected(_quaggaHandler);
+                Quagga.stop();
+                quaggaRunning = false;
             }
+        }
+
+        function stopScanner() {
+            stopNativeScanner();
+            stopQuaggaScanner();
+        }
+
+        async function initDesktopScan() {
+            document.getElementById('scan-desktop').style.display = 'block';
+            document.getElementById('scan-camera').style.display = 'none';
+            document.getElementById('qr-code').innerHTML = '';
+            document.getElementById('desktop-scan-status').textContent = 'Creating scan session…';
+            try {
+                const res = await fetch('/scan/session', { method: 'POST' });
+                const data = await res.json();
+                scanSessionToken = data.token;
+                document.getElementById('scan-url-text').textContent = data.scan_url;
+                document.getElementById('desktop-scan-status').textContent = 'Waiting for phone to scan books…';
+                qrCodeInstance = new QRCode(document.getElementById('qr-code'), {
+                    text: data.scan_url,
+                    width: 200,
+                    height: 200,
+                    colorDark: '#18181b',
+                    colorLight: '#ffffff',
+                    correctLevel: QRCode.CorrectLevel.M,
+                });
+                scanSeenCount = 0;
+                scanPollingInterval = setInterval(pollScanSession, 2000);
+            } catch (err) {
+                console.error('Failed to create scan session:', err);
+                switchToCamera();
+            }
+        }
+
+        async function pollScanSession() {
+            if (!scanSessionToken) return;
+            try {
+                const res = await fetch(`/scan/session/${scanSessionToken}/items?after=${scanSeenCount}`);
+                if (!res.ok) { clearInterval(scanPollingInterval); return; }
+                const data = await res.json();
+                if (data.isbns.length > 0) {
+                    for (const isbn of data.isbns) appendQueue(isbn);
+                    scanSeenCount += data.isbns.length;
+                    document.getElementById('desktop-scan-status').textContent =
+                        `${scanSeenCount} book${scanSeenCount !== 1 ? 's' : ''} scanned from phone`;
+                }
+            } catch { /* ignore */ }
+        }
+
+        function switchToCamera() {
+            stopDesktopPolling();
+            document.getElementById('scan-desktop').style.display = 'none';
+            document.getElementById('scan-camera').style.display = 'block';
+            startScanner();
+        }
+
+        function stopDesktopPolling() {
+            if (scanPollingInterval) { clearInterval(scanPollingInterval); scanPollingInterval = null; }
+            scanSessionToken = null;
         }
 
         function openAddModal() {
             document.getElementById('add-modal').classList.add('active');
-            // If scan tab is active, start camera
             if (document.getElementById('tab-scan').classList.contains('active')) {
-                startScanner();
+                if (isDesktop) { initDesktopScan(); } else { startScanner(); }
             }
         }
+
         function closeAddModal() {
             document.getElementById('add-modal').classList.remove('active');
+            stopDesktopPolling();
             stopScanner();
         }
 
@@ -1104,25 +1277,32 @@
             }
         }
 
-        async function saveBatchLibrary() {
+        function stashQueueAndGo() {
+            sessionStorage.setItem('pendingScanQueue', JSON.stringify(scanQueue));
+        }
+
+        async function saveBatchLibrary(btn) {
             if (scanQueue.length === 0) {
                 closeAddModal();
                 return;
             }
 
             if (!isLoggedIn) {
-                // If not logged in, ask them to login and stash queue
-                sessionStorage.setItem('pendingScanQueue', JSON.stringify(scanQueue));
-                window.location.href = '/login';
+                const prompt = document.getElementById('auth-prompt');
+                document.getElementById('auth-prompt-count').textContent = scanQueue.length;
+                document.getElementById('auth-prompt-plural').textContent = scanQueue.length !== 1 ? 's' : '';
+                prompt.style.display = 'block';
+                prompt.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                 return;
             }
 
-            const is_public = document.getElementById('batch-visibility').value.includes('Public');
-            const statusStr = document.getElementById('batch-status').value; // place holder
+            document.getElementById('auth-prompt').style.display = 'none';
 
-            const btn = event.currentTarget;
-            const origHtml = btn.innerHTML;
-            btn.innerHTML = 'Saving...';
+            const is_public = document.getElementById('batch-visibility').value === 'public';
+            const statusStr = document.getElementById('batch-status').value;
+
+            const origHtml = btn ? btn.innerHTML : '';
+            if (btn) btn.innerHTML = 'Saving...';
 
             const entries = scanQueue.map(isbn => ({
                 isbn: isbn,
@@ -1140,58 +1320,62 @@
 
                 if (response.ok) {
                     window.location.hash = '#profile';
-                    window.location.reload(); // Reload to show populated profile!
+                    window.location.reload();
                 } else {
                     alert('Error saving books');
                 }
             } catch (e) {
                 alert('Connection error');
             } finally {
-                btn.innerHTML = origHtml;
+                if (btn) btn.innerHTML = origHtml;
             }
         }
 
-        function saveBookChanges(bookId) {
-            // Stub for inline save
-            const btn = event.currentTarget;
-            const origHtml = btn.innerHTML;
-            btn.innerHTML = 'Saved!';
+        async function saveBookChanges(btn, userBookId) {
+            const container = btn.closest('.profile-book-expanded');
+            const status    = container.querySelector('.status-select').value;
+            const is_public = container.querySelector('.visibility-select').value === 'true';
+            const comment   = container.querySelector('.comment-textarea').value;
+            const origHtml  = btn.innerHTML;
+            btn.innerHTML   = 'Saving…';
+            try {
+                const res = await fetch(`/books/user_books/${userBookId}`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status, is_public, comment }),
+                });
+                if (res.ok) {
+                    const item  = btn.closest('.profile-book-item');
+                    const badge = item.querySelector('.badge');
+                    badge.className   = `badge badge-${status}`;
+                    badge.textContent = status.toUpperCase();
+                    item.classList.remove('expanded');
+                    btn.innerHTML = '✓ Saved';
+                } else {
+                    btn.innerHTML = 'Error';
+                }
+            } catch {
+                btn.innerHTML = 'Error';
+            }
             setTimeout(() => { btn.innerHTML = origHtml; }, 2000);
         }
 
-        // By default show profile if specifically looking for their lib OR if returning from login with pending scans
+        async function updateProfileVisibility(value) {
+            await fetch('/auth/profile', {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ is_profile_public: value === 'true' }),
+            });
+        }
+
         const pendingScansStr = sessionStorage.getItem('pendingScanQueue');
-        if (isLoggedIn && window.location.hash !== '#profile' && pendingScansStr) {
+        if (isLoggedIn && pendingScansStr) {
             scanQueue = JSON.parse(pendingScansStr);
             sessionStorage.removeItem('pendingScanQueue');
-            switchView('profile');
-            openAddModal();
-            // Optionally, automatically trigger saveBatchLibrary() here if desired:
-            // saveBatchLibrary().then(() => window.location.reload());
-            alert('Your scanned books are restored in the queue! Review your settings and hit "Done & Save Library" to confirm.');
-            // We'll populate the UI of the modal
-            document.getElementById('queue-empty').style.display = 'none';
-            document.getElementById('queue-count').innerText = scanQueue.length;
-            const queueDiv = document.getElementById('scan-queue');
-            scanQueue.forEach(isbn => {
-                const li = document.createElement('div');
-                li.className = 'queue-item';
-                li.innerHTML = `
-                    <div style="background:#eee; width:32px; height:48px; border-radius:4px; flex-shrink:0;"></div>
-                    <div style="flex:1;">
-                        <div style="font-weight:600; font-size:0.9rem;">Ready to save</div>
-                        <div style="font-size:0.8rem; color:#71717a;">${isbn}</div>
-                    </div>
-                `;
-                queueDiv.appendChild(li);
-            });
-        } else if (window.location.hash === '#profile') {
-            switchView('profile');
-        } else if (window.location.pathname === '/' && !window.location.hash) {
-            switchView('home');
-            // Ensures active tag doesn't break if no event occurs on initial page load
-            const hLink = document.querySelector('.bottom-nav-item:first-child');
-            if (hLink) hLink.classList.add('active');
+            saveBatchLibrary(null);
+        } else {
+            const hash = window.location.hash.slice(1);
+            switchView(['home', 'books', 'profile'].includes(hash) ? hash : 'home');
         }
     </script>
 </body>

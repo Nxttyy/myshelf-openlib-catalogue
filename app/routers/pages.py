@@ -101,3 +101,10 @@ async def reset_password_page(request: Request, token: str, error: str | None = 
     return templates.TemplateResponse(
         name="reset-password.html", request=request, context={"token": token, "error": error}
     )
+
+
+@router.get("/mobile-scan/{token}")
+async def mobile_scan_page(request: Request, token: str):
+    return templates.TemplateResponse(
+        name="mobile_scan.html", request=request, context={"token": token}
+    )

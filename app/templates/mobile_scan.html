@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Scan Books — Folio</title>
+    <script src="https://unpkg.com/@ericblade/quagga2/dist/quagga.min.js"></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #f4f4f5;
+            color: #18181b;
+            min-height: 100dvh;
+        }
+        .header {
+            background: #fff;
+            border-bottom: 1px solid #e4e4e7;
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .header h1 { font-size: 1.1rem; font-weight: 600; }
+        .count-badge {
+            background: #18181b;
+            color: #fff;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            font-weight: 700;
+        }
+        #reader-wrap { padding: 16px; }
+        #reader { width: 100%; border-radius: 12px; overflow: hidden; background: #000; min-height: 200px; }
+        .hint {
+            text-align: center;
+            font-size: 0.85rem;
+            color: #71717a;
+            margin-top: 10px;
+        }
+        .scanned-list { padding: 0 16px 100px; }
+        .scanned-item {
+            background: #fff;
+            border: 1px solid #e4e4e7;
+            border-radius: 10px;
+            padding: 12px 14px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: slideIn 0.2s ease;
+        }
+        .scanned-item img {
+            width: 32px;
+            height: 48px;
+            object-fit: cover;
+            border-radius: 4px;
+            flex-shrink: 0;
+            background: #eee;
+        }
+        .scanned-item .title { font-size: 0.9rem; font-weight: 600; }
+        .scanned-item .isbn { font-size: 0.78rem; color: #71717a; margin-top: 2px; }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .toast {
+            position: fixed;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #22c55e;
+            color: #fff;
+            padding: 10px 22px;
+            border-radius: 24px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            opacity: 0;
+            transition: opacity 0.2s;
+            pointer-events: none;
+            white-space: nowrap;
+            z-index: 100;
+        }
+        .toast.show { opacity: 1; }
+        .toast.error { background: #ef4444; }
+        .done-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #fff;
+            border-top: 1px solid #e4e4e7;
+            padding: 16px 20px;
+            text-align: center;
+            font-size: 0.9rem;
+            color: #71717a;
+        }
+        .done-bar strong { display: block; color: #18181b; font-size: 1rem; margin-bottom: 2px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Scan Books</h1>
+        <div class="count-badge" id="scan-count">0</div>
+    </div>
+    <div id="reader-wrap">
+        <div id="reader"></div>
+        <p class="hint">Point your camera at a book barcode to scan it.</p>
+    </div>
+    <div class="scanned-list" id="scanned-list"></div>
+    <div class="done-bar">
+        <strong id="done-label">Switch back to your desktop</strong>
+        Books will appear in the desktop queue automatically.
+    </div>
+    <div class="toast" id="toast"></div>
+    <script>
+        const TOKEN = "{{ token }}";
+        let count = 0;
+        const scannedSet = new Set();
+
+        function extractISBN(raw) {
+            if (!raw) return null;
+            const digits = raw.replace(/[^0-9X]/gi, '').toUpperCase();
+            if (digits.length >= 13 && /^97[89]/.test(digits)) return digits.slice(0, 13);
+            if (/^[0-9]{9}[0-9X]$/.test(digits)) return digits;
+            return null;
+        }
+
+        function handleScan(rawValue) {
+            const isbn = extractISBN(rawValue);
+            if (isbn && !scannedSet.has(isbn)) {
+                scannedSet.add(isbn);
+                onScan(isbn);
+            }
+        }
+
+        function showToast(msg, isError) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.className = 'toast show' + (isError ? ' error' : '');
+            clearTimeout(t._timeout);
+            t._timeout = setTimeout(() => t.classList.remove('show'), 2000);
+        }
+
+        async function onScan(isbn) {
+            try {
+                const res = await fetch(`/scan/session/${TOKEN}/add`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ isbn })
+                });
+                if (res.ok) {
+                    count++;
+                    document.getElementById('scan-count').textContent = count;
+                    document.getElementById('done-label').textContent =
+                        `${count} book${count !== 1 ? 's' : ''} sent to desktop`;
+                    showToast('Added!');
+                    addScannedItem(isbn);
+                } else if (res.status === 404) {
+                    showToast('Session expired — rescan QR code', true);
+                }
+            } catch {
+                showToast('Connection error', true);
+            }
+        }
+
+        function addScannedItem(isbn) {
+            const list = document.getElementById('scanned-list');
+            const item = document.createElement('div');
+            item.className = 'scanned-item';
+            item.innerHTML = `
+                <img src="" onerror="this.style.display='none'">
+                <div>
+                    <div class="title">Looking up…</div>
+                    <div class="isbn">${isbn}</div>
+                </div>
+            `;
+            list.prepend(item);
+            fetch(`/books/lookup/${isbn}`)
+                .then(r => r.ok ? r.json() : null)
+                .then(book => {
+                    if (!book) return;
+                    item.querySelector('.title').textContent = book.title || 'Unknown Title';
+                    const img = item.querySelector('img');
+                    const cover = book.covers?.[0]?.small || book.covers?.[0]?.medium;
+                    if (cover) img.src = cover;
+                });
+        }
+
+        async function startScanner() {
+            const reader = document.getElementById('reader');
+            if ('BarcodeDetector' in window) {
+                try {
+                    const formats = await BarcodeDetector.getSupportedFormats();
+                    if (formats.includes('ean_13')) {
+                        const stream = await navigator.mediaDevices.getUserMedia({
+                            video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } }
+                        });
+                        const video = document.createElement('video');
+                        video.srcObject = stream;
+                        video.setAttribute('playsinline', '');
+                        video.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:12px;display:block;';
+                        reader.innerHTML = '';
+                        reader.appendChild(video);
+                        await video.play();
+                        const detector = new BarcodeDetector({ formats: ['ean_13', 'ean_8', 'upc_a', 'upc_e'] });
+                        const detect = async () => {
+                            try {
+                                for (const { rawValue } of await detector.detect(video)) handleScan(rawValue);
+                            } catch {}
+                            requestAnimationFrame(detect);
+                        };
+                        requestAnimationFrame(detect);
+                        return;
+                    }
+                } catch {}
+            }
+            // Quagga2 fallback
+            reader.innerHTML = '';
+            Quagga.init({
+                inputStream: {
+                    type: 'LiveStream',
+                    target: reader,
+                    constraints: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } },
+                },
+                decoder: { readers: ['ean_reader', 'ean_8_reader', 'upc_reader', 'upc_e_reader'] },
+                locate: true,
+            }, (err) => {
+                if (err) {
+                    reader.innerHTML = `<div style="padding:30px;text-align:center;color:#fff;font-size:0.9rem;">Camera access denied.<br>Please allow camera access and reload.</div>`;
+                    return;
+                }
+                Quagga.start();
+                Quagga.onDetected((result) => {
+                    const errs = result.codeResult.decodedCodes
+                        .filter(c => c.error !== undefined).map(c => c.error);
+                    if (errs.length && errs.reduce((a, b) => a + b, 0) / errs.length > 0.15) return;
+                    handleScan(result.codeResult.code);
+                });
+            });
+        }
+
+        startScanner();
+    </script>
+</body>
+</html>

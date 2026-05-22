@@ -11,7 +11,7 @@ from contextlib import asynccontextmanager
 from starlette.middleware.sessions import SessionMiddleware
 
 from app.config import settings
-from app.routers import auth, book, pages
+from app.routers import auth, book, pages, scan
 
 # Import models so SQLModel metadata registers all tables
 import app.models  # noqa: F401
@@ -30,11 +30,18 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-app.add_middleware(SessionMiddleware, secret_key=settings.SECRET_KEY)
+app.add_middleware(
+    SessionMiddleware,
+    secret_key=settings.SECRET_KEY,
+    same_site="lax",
+    https_only=False,
+    max_age=3600,
+)
 
 app.include_router(pages.router)
 app.include_router(book.router)
 app.include_router(auth.router)
+app.include_router(scan.router)
 
 
 @app.get("/health", tags=["Health"])

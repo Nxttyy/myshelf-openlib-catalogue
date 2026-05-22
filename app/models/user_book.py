@@ -15,6 +15,7 @@ class UserBook(SQLModel, table=True):
     id: UUID = Field(default_factory=uuid4, primary_key=True)
     user_id: UUID = Field(foreign_key="users.id", index=True)
     book_id: UUID = Field(foreign_key="books.id", index=True)
+    status: str = Field(default='unread')
     comment: str | None = None
     is_public: bool = Field(default=True)
 

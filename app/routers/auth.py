@@ -1,13 +1,16 @@
 from datetime import timedelta
 from typing import Annotated
 
+from authlib.integrations.base_client.errors import MismatchingStateError
 from authlib.integrations.starlette_client import OAuth
 from fastapi import APIRouter, Depends, HTTPException, Request, status, Form
+from pydantic import BaseModel
 from fastapi.responses import RedirectResponse
 from sqlmodel import select
 
 from app.auth import (
     create_access_token,
+    get_current_user,
     get_password_hash,
     verify_password,
     create_password_reset_token,
@@ -116,12 +119,22 @@ async def reset_password(
 async def google_login(request: Request):
     if not settings.GOOGLE_CLIENT_ID:
         raise HTTPException(status_code=500, detail="Google OAuth not configured")
+    # Clear any stale OAuth state to prevent MismatchingStateError on retries
+    for key in list(request.session.keys()):
+        if key.startswith("_state_"):
+            del request.session[key]
     return await oauth.google.authorize_redirect(request, settings.GOOGLE_REDIRECT_URI)
 
 
 @router.get("/google/callback")
 async def google_callback(request: Request, session: SessionDep):
-    token = await oauth.google.authorize_access_token(request)
+    try:
+        token = await oauth.google.authorize_access_token(request)
+    except MismatchingStateError:
+        return RedirectResponse(
+            url="/login?error=Google sign-in failed (session expired). Please try again.",
+            status_code=303,
+        )
     user_info = token.get("userinfo")
     if not user_info:
         raise HTTPException(status_code=400, detail="Google authentication failed")
@@ -149,6 +162,22 @@ async def google_callback(request: Request, session: SessionDep):
     response = RedirectResponse(url="/")
     response.set_cookie(key="access_token", value=f"Bearer {access_token}", httponly=True)
     return response
+
+
+class ProfileUpdate(BaseModel):
+    is_profile_public: bool
+
+
+@router.patch("/profile")
+async def update_profile(
+    body: ProfileUpdate,
+    session: SessionDep,
+    current_user: User = Depends(get_current_user),
+):
+    current_user.is_profile_public = body.is_profile_public
+    session.add(current_user)
+    await session.commit()
+    return {"ok": True}
 
 
 @router.get("/logout")
