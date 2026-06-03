@@ -16,6 +16,16 @@ from sqlmodel import select
 router = APIRouter(tags=["Pages"])
 templates = Jinja2Templates(directory="app/templates")
 
+_COVER_PALETTES = [
+    ("#1B2230", "#EDE6D6"), ("#243B6B", "#EDE6D6"), ("#E0A23E", "#231A0E"),
+    ("#6B2B27", "#F0E5D8"), ("#23402F", "#E7E2D0"), ("#141210", "#E9E2D2"),
+    ("#C97B4A", "#211009"), ("#3A4250", "#E5E3DC"), ("#3D2A41", "#E9DCEC"),
+    ("#F2EBDD", "#3A2C1E"), ("#8FAFC0", "#15212A"), ("#EDE6D6", "#1A1714"),
+]
+
+templates.env.globals["cover_bg"] = lambda i: _COVER_PALETTES[i % len(_COVER_PALETTES)][0]
+templates.env.globals["cover_fg"] = lambda i: _COVER_PALETTES[i % len(_COVER_PALETTES)][1]
+
 
 @router.get("/")
 async def index(
@@ -45,11 +55,12 @@ async def index(
             error = f"Could not reach Open Library: {exc}"
 
     # 2. Fetch all books for the home page (community)
-    all_books_result = await session.exec(select(Book).order_by(Book.title))
+    all_books_result = await session.exec(select(Book).order_by(Book.created_at.desc()))  # type: ignore[attr-defined]
     all_books = all_books_result.all()
-    
+
     # 3. Fetch user's books if logged in
     user_books = []
+    n_reading = n_read = n_unread = 0
     if current_user:
         from app.models.user_book import UserBook
         stmt = (
@@ -58,13 +69,18 @@ async def index(
             .where(UserBook.user_id == current_user.id)
         )
         user_books_result = await session.exec(stmt)
-        # Store dicts containing {user_book, book}
         user_books = [{"user_book": ub, "book": b} for ub, b in user_books_result.all()]
+        n_reading = sum(1 for item in user_books if item["user_book"].status == "reading")
+        n_read    = sum(1 for item in user_books if item["user_book"].status == "read")
+        n_unread  = len(user_books) - n_reading - n_read
 
     context: dict = {
         "isbn": isbn,
         "all_books": all_books,
         "user_books": user_books,
+        "n_reading": n_reading,
+        "n_read": n_read,
+        "n_unread": n_unread,
         "selected_book": selected_book,
         "error": error,
         "user": current_user,

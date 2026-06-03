@@ -1,1383 +1,1163 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Folio</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/@ericblade/quagga2/dist/quagga.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
-    <style>
-        :root {
-            --bg-color: #f4f4f5;
-            --text-primary: #18181b;
-            --text-secondary: #71717a;
-            --white: #ffffff;
-            --border-color: #e4e4e7;
-            --accent-radius: 16px;
-        }
-
-        body {
-            font-family: 'Outfit', sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-primary);
-            margin: 0;
-            padding: 0;
-            overflow-x: hidden;
-        }
-
-        * {
-            box-sizing: border-box;
-        }
-
-        /* Typography */
-        h1,
-        h2,
-        h3,
-        h4 {
-            margin: 0;
-        }
-
-        /* Nav */
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1rem;
-            position: sticky;
-            top: 0;
-            z-index: 50;
-            background: rgba(244, 244, 245, 0.7);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-        }
-
-        .logo {
-            font-weight: 700;
-            font-size: 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .nav-links {
-            display: flex;
-            gap: 12px;
-            align-items: center;
-            font-weight: 500;
-        }
-
-        .nav-link {
-            color: var(--text-secondary);
-            text-decoration: none;
-            cursor: pointer;
-            transition: color 0.2s;
-        }
-
-        .nav-link.active,
-        .nav-link:hover {
-            color: var(--text-primary);
-        }
-
-        .btn-primary {
-            background-color: var(--text-primary);
-            color: var(--white);
-            border: none;
-            border-radius: 30px;
-            padding: 10px 20px;
-            font-family: 'Outfit', sans-serif;
-            font-weight: 500;
-            cursor: pointer;
-            transition: opacity 0.2s;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .btn-primary:hover {
-            opacity: 0.9;
-        }
-
-        /* Bottom Nav */
-        .bottom-nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border-top: 1px solid var(--border-color);
-            display: flex;
-            justify-content: space-around;
-            padding: 12px 0;
-            z-index: 100;
-        }
-
-        .bottom-nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 4px;
-            color: var(--text-secondary);
-            text-decoration: none;
-            font-size: 0.75rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: color 0.2s;
-        }
-
-        .bottom-nav-item.active,
-        .bottom-nav-item:hover {
-            color: var(--text-primary);
-        }
-
-        /* Container */
-        main {
-            padding: 1rem;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding-bottom: 80px;
-            /* Space for bottom nav */
-        }
-
-        /* View: Home */
-        #view-home {
-            display: block;
-        }
-
-        .hero {
-            margin: 40px 0;
-            max-width: 600px;
-        }
-
-        .hero h1 {
-            font-size: 3rem;
-            line-height: 1.1;
-            margin-bottom: 16px;
-            letter-spacing: -0.02em;
-        }
-
-        .hero p {
-            font-size: 1.25rem;
-            color: var(--text-secondary);
-        }
-
-        .section-title {
-            margin: 30px 0 20px;
-            font-size: 1.5rem;
-            font-weight: 600;
-        }
-
-        .book-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-            gap: 16px;
-        }
-
-        .book-grid-card {
-            background: var(--white);
-            border-radius: var(--accent-radius);
-            overflow: hidden;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        }
-
-        .book-grid-card img {
-            width: 100%;
-            aspect-ratio: 2/3;
-            object-fit: cover;
-            display: block;
-        }
-
-        .book-grid-card .info {
-            padding: 12px;
-        }
-
-        .book-grid-card .title {
-            font-weight: 600;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        /* View: Profile */
-        #view-profile {
-            display: none;
-        }
-
-        .profile-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 2rem;
-        }
-
-        .profile-info {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-
-        .avatar {
-            width: 64px;
-            height: 64px;
-            border-radius: 50%;
-            background: #ff7675;
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            font-weight: 600;
-        }
-
-        .profile-name {
-            font-size: 2rem;
-            font-weight: 700;
-            margin-bottom: 4px;
-        }
-
-        .profile-stats {
-            color: var(--text-secondary);
-        }
-
-        .profile-filters {
-            display: flex;
-            gap: 10px;
-        }
-
-        .filter-pill {
-            background: #e4e4e7;
-            padding: 8px 16px;
-            border-radius: 20px;
-            color: var(--text-primary);
-            font-weight: 500;
-            font-size: 0.9rem;
-            cursor: pointer;
-        }
-
-        .filter-pill.active {
-            background: var(--text-primary);
-            color: var(--white);
-        }
-
-        .profile-list {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-
-        .profile-book-item {
-            background: var(--white);
-            border-radius: var(--accent-radius);
-            padding: 16px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
-            display: flex;
-            flex-direction: column;
-            transition: all 0.3s ease;
-        }
-
-        .profile-book-core {
-            display: flex;
-            gap: 24px;
-            cursor: pointer;
-        }
-
-        .profile-book-cover {
-            width: 90px;
-            height: 135px;
-            border-radius: 8px;
-            object-fit: cover;
-            flex-shrink: 0;
-            background: #eee;
-        }
-
-        .profile-book-details {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-
-        .badge {
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 0.75rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            align-self: flex-start;
-            margin-bottom: 8px;
-        }
-        .badge-read    { background: #bbf7d0; color: #166534; }
-        .badge-reading { background: #fed7aa; color: #9a3412; }
-        .badge-unread  { background: #f4f4f5; color: #52525b; }
-
-        .book-title {
-            font-size: 1.15rem;
-            font-weight: 700;
-            margin-bottom: 4px;
-            overflow-wrap: anywhere;
-        }
-
-        .book-author {
-            color: var(--text-secondary);
-            font-size: 0.95rem;
-        }
-
-        .book-expand-btn {
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-            margin-top: auto;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            padding-top: 10px;
-        }
-
-        .profile-book-expanded {
-            display: none;
-            margin-top: 20px;
-            border-top: 1px solid var(--border-color);
-            padding-top: 20px;
-        }
-
-        .profile-book-item.expanded .profile-book-expanded {
-            display: block;
-        }
-
-        .profile-book-item.expanded .book-expand-btn svg {
-            transform: rotate(180deg);
-        }
-
-        .metadata-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-            gap: 16px;
-            margin-bottom: 24px;
-            align-items: start;
-        }
-
-        .metadata-item {
-            word-break: break-word;
-        }
-
-        .metadata-item h4 {
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            color: var(--text-secondary);
-            margin-bottom: 4px;
-        }
-
-        .metadata-pills {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-bottom: 24px;
-        }
-
-        .metadata-pill {
-            border: 1px solid var(--border-color);
-            border-radius: 20px;
-            padding: 4px 12px;
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-        }
-
-        .edit-form-group {
-            margin-bottom: 16px;
-        }
-
-        .edit-form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            font-size: 0.9rem;
-        }
-
-        .edit-form-row {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-            margin-bottom: 16px;
-        }
-
-        @media(min-width: 600px) {
-            .edit-form-row {
-                flex-direction: row;
-            }
-        }
-
-        .edit-form-row>div {
-            flex: 1;
-        }
-
-        .form-select,
-        .form-textarea,
-        .form-input {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            font-family: 'Outfit', sans-serif;
-            font-size: 0.95rem;
-            background: #fafafa;
-        }
-
-        .form-textarea {
-            resize: vertical;
-            min-height: 80px;
-        }
-
-        .btn-full {
-            width: 100%;
-            justify-content: center;
-            padding: 14px;
-            font-size: 1rem;
-            border-radius: 8px;
-        }
-
-
-        /* Modal */
-        .modal-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.4);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            z-index: 100;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-
-        .modal-overlay.active {
-            display: flex;
-        }
-
-        .modal-content {
-            background: var(--white);
-            border-radius: var(--accent-radius);
-            width: 100%;
-            max-width: 500px;
-            max-height: 90vh;
-            overflow-y: auto;
-            position: relative;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
-        }
-
-        .modal-header {
-            padding: 20px;
-            padding-bottom: 0;
-        }
-
-        .modal-title {
-            font-size: 1.5rem;
-            margin-bottom: 20px;
-        }
-
-        .modal-close {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: #f4f4f5;
-            border: none;
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-        }
-
-        .modal-tabs {
-            display: flex;
-            gap: 20px;
-            border-bottom: 1px solid var(--border-color);
-            padding: 0 20px;
-        }
-
-        .modal-tab {
-            padding: 10px 0;
-            font-weight: 500;
-            color: var(--text-secondary);
-            cursor: pointer;
-            border-bottom: 2px solid transparent;
-        }
-
-        .modal-tab.active {
-            color: var(--text-primary);
-            border-bottom-color: var(--text-primary);
-        }
-
-        .modal-body {
-            padding: 20px;
-        }
-
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        /* Scanner */
-        .scanner-container {
-            background: #000;
-            border-radius: 12px;
-            height: 200px;
-            position: relative;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #fff;
-            flex-direction: column;
-            margin-bottom: 10px;
-        }
-
-        .scanner-line {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 2px;
-            background: red;
-            box-shadow: 0 0 10px red;
-            animation: scan 2s infinite linear;
-        }
-
-        @keyframes scan {
-            0% {
-                top: 0;
-            }
-
-            50% {
-                top: 100%;
-            }
-
-            100% {
-                top: 0;
-            }
-        }
-
-        .queue-container {
-            background: #fafafa;
-            border: 1px dashed var(--border-color);
-            border-radius: 12px;
-            padding: 16px;
-            min-height: 80px;
-            margin-top: 10px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .queue-item {
-            display: flex;
-            gap: 12px;
-            padding: 8px;
-            background: var(--white);
-            border-radius: 8px;
-            border: 1px solid var(--border-color);
-            align-items: center;
-        }
-
-        .queue-item img {
-            width: 32px;
-            height: 48px;
-            object-fit: cover;
-            border-radius: 4px;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Folio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/@ericblade/quagga2/dist/quagga.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+<style>
+:root {
+  --ink-blue:    #243B6B;
+  --paper:       #F4EEE2;
+  --paper-2:     #ECE4D3;
+  --ink:         #1A1714;
+  --ink-soft:    #4A443B;
+  --ink-faint:   #8C8473;
+  --hair:        rgba(26,23,20,0.14);
+  --hair-strong: rgba(26,23,20,0.28);
+  --amber:       #E0A23E;
+  --amber-fg:    #231A0E;
+  --st-read:     #3F7A4E;
+  --font-sans:   'Inter Tight', -apple-system, system-ui, sans-serif;
+  --font-mono:   'JetBrains Mono', 'SF Mono', Menlo, monospace;
+  --ease-out:    cubic-bezier(0.2,0,0,1);
+  --ease-io:     cubic-bezier(0.4,0,0.2,1);
+  --shadow-lg:   0 12px 32px rgba(0,0,0,0.08),0 2px 6px rgba(0,0,0,0.04);
+  --shadow-xl:   0 24px 64px rgba(0,0,0,0.12),0 4px 12px rgba(0,0,0,0.06);
+}
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0;padding:0;font-family:var(--font-sans);font-size:14px;background:var(--paper);color:var(--ink);-webkit-font-smoothing:antialiased;line-height:1.45}
+
+/* ── Navbar ────────────────────────────────────────────── */
+.d-nav{position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:4px;padding:0 28px;height:62px;border-bottom:1px solid var(--hair);background:rgba(244,238,226,0.9);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.d-logo{display:flex;align-items:center;gap:8px;font-weight:600;font-size:17px;letter-spacing:-0.03em;text-decoration:none;color:var(--ink);flex-shrink:0;margin-right:4px}
+.d-logo-mark{width:26px;height:26px;border-radius:5px;background:var(--ink);color:var(--paper);display:grid;place-items:center;flex-shrink:0}
+.d-navlinks{display:none;gap:2px}
+@media(min-width:640px){.d-navlinks{display:flex}}
+.d-navlink{background:none;border:none;cursor:pointer;padding:7px 13px;border-radius:7px;font-family:var(--font-mono);font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink-faint);transition:color 120ms var(--ease-out),background 120ms var(--ease-out);display:flex;flex-direction:column;align-items:center}
+.d-navlink:hover{color:var(--ink);background:rgba(26,23,20,0.05)}
+.d-navlink.on{color:var(--ink)}
+.d-navlink.on::after{content:'';display:block;height:2px;background:var(--amber);margin-top:5px;border-radius:2px;width:100%}
+.d-nav-space{flex:1}
+.d-avatar{width:34px;height:34px;border-radius:7px;background:var(--ink-blue);color:var(--paper);display:grid;place-items:center;cursor:pointer;font-family:var(--font-mono);font-size:11px;font-weight:600;flex-shrink:0}
+.d-addbtn{position:relative}
+.d-addbtn .q-badge{position:absolute;top:-6px;right:-6px;min-width:17px;height:17px;padding:0 4px;border-radius:9px;background:var(--ink);color:var(--paper);font-family:var(--font-mono);font-size:9px;font-weight:600;display:none;place-items:center;border:2px solid var(--paper)}
+.d-addbtn.has-queue .q-badge{display:grid}
+
+/* ── Buttons ────────────────────────────────────────────── */
+.f-btn{font-family:var(--font-sans);font-weight:600;font-size:13px;letter-spacing:-0.01em;border:none;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;border-radius:7px;padding:9px 15px;white-space:nowrap;transition:transform 120ms var(--ease-out),background 120ms var(--ease-out);-webkit-tap-highlight-color:transparent}
+.f-btn:active{transform:scale(0.96)}
+.f-btn--amber{background:var(--amber);color:var(--amber-fg)}
+.f-btn--ink{background:var(--ink);color:var(--paper)}
+.f-btn--ghost{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 1px var(--hair-strong)}
+.f-btn--block{width:100%;padding:13px;font-size:14px;border-radius:9px;justify-content:center}
+.f-iconbtn{width:34px;height:34px;border-radius:7px;border:none;cursor:pointer;display:grid;place-items:center;background:transparent;color:var(--ink);transition:background 120ms var(--ease-out),transform 120ms var(--ease-out);flex-shrink:0}
+.f-iconbtn:hover{background:rgba(26,23,20,0.06)}
+.f-iconbtn:active{transform:scale(0.9)}
+
+/* ── Bottom tab bar ─────────────────────────────────────── */
+.f-tabbar{position:fixed;bottom:0;left:0;right:0;z-index:20;display:flex;align-items:stretch;padding:7px 10px calc(env(safe-area-inset-bottom,0px) + 14px);background:linear-gradient(to top,var(--paper) 70%,transparent);border-top:1px solid var(--hair)}
+@media(min-width:900px){.f-tabbar{display:none}}
+.f-tab{flex:1;background:none;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 0 4px;color:var(--ink-faint);font-family:var(--font-mono);font-size:9px;letter-spacing:0.1em;text-transform:uppercase;transition:color 120ms var(--ease-out);-webkit-tap-highlight-color:transparent}
+.f-tab.active{color:var(--ink)}
+.f-tab .dot{width:5px;height:5px;border-radius:50%;background:transparent;transition:background 180ms var(--ease-out),transform 180ms var(--ease-out);transform:scale(0)}
+.f-tab.active .dot{background:var(--amber);transform:scale(1)}
+
+/* ── Layout ─────────────────────────────────────────────── */
+main{max-width:1160px;margin:0 auto;padding:40px 28px 110px}
+@media(max-width:640px){main{padding:24px 16px 96px}}
+.view{display:none}.view.active{display:block}
+
+/* ── Hero (landing) ─────────────────────────────────────── */
+.d-hero{display:grid;gap:32px;margin-bottom:48px}
+@media(min-width:720px){.d-hero{grid-template-columns:1fr 1fr;align-items:center;min-height:300px}}
+.d-hero-label{font-family:var(--font-mono);font-size:9.5px;letter-spacing:0.18em;text-transform:uppercase;color:var(--ink-faint)}
+.d-hero h1{font-weight:600;letter-spacing:-0.045em;line-height:0.97;font-size:clamp(38px,6vw,68px);margin:12px 0 0;color:var(--ink)}
+.d-hero p{font-size:15px;color:var(--ink-soft);line-height:1.55;margin-top:14px;max-width:420px}
+.hero-btns{display:flex;gap:10px;margin-top:22px;flex-wrap:wrap}
+.d-fan{position:relative;height:340px;display:none}
+@media(min-width:720px){.d-fan{display:block}}
+.d-fan-book{position:absolute}
+
+/* ── Masthead ────────────────────────────────────────────── */
+.d-masthead{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-bottom:28px}
+.d-masthead-left{display:flex;align-items:flex-end;gap:20px}
+.d-bignum{font-weight:500;letter-spacing:-0.05em;font-variant-numeric:tabular-nums;line-height:0.82;font-size:clamp(56px,9vw,120px)}
+.d-masthead-sub{font-size:12px;font-family:var(--font-mono);color:var(--ink-faint);margin-top:4px}
+.d-masthead-label{font-weight:600;font-size:18px;letter-spacing:-0.025em}
+.d-filters{display:flex;gap:7px;flex-wrap:wrap;align-items:flex-end;padding-bottom:2px}
+.d-chip{border:none;cursor:pointer;font-family:var(--font-mono);font-size:10px;letter-spacing:0.04em;text-transform:uppercase;padding:7px 13px;border-radius:7px;background:transparent;color:var(--ink-soft);box-shadow:inset 0 0 0 1px var(--hair-strong);transition:all 120ms var(--ease-out)}
+.d-chip:hover{background:rgba(26,23,20,0.04)}
+.d-chip.on{background:var(--ink);color:var(--paper);box-shadow:none}
+.d-chip span{opacity:0.5;margin-left:5px}
+
+/* ── Cover grid ──────────────────────────────────────────── */
+.d-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,168px));gap:36px 20px}
+.d-cell{cursor:pointer}
+.d-cell:hover .d-cover-inner{transform:translateY(-4px);box-shadow:0 18px 36px rgba(0,0,0,0.22)}
+.d-cover-wrap{position:relative}
+.d-cover-inner{border-radius:4px;overflow:hidden;aspect-ratio:2/3;transition:transform 280ms var(--ease-out),box-shadow 280ms var(--ease-out);box-shadow:0 6px 16px rgba(0,0,0,0.18)}
+.d-cover-img{width:100%;height:100%;object-fit:cover;display:block}
+/* Typographic cover placeholder */
+.d-cover-ph{width:100%;height:100%;display:flex;flex-direction:column;padding:10% 9%;position:relative}
+.d-cover-ph .cp-shadow{position:absolute;top:0;bottom:0;left:0;width:11%;background:linear-gradient(90deg,rgba(0,0,0,0.22),transparent)}
+.d-cover-ph .cp-label{font-family:var(--font-mono);font-size:7.5px;letter-spacing:0.16em;text-transform:uppercase;opacity:0.6;display:flex;justify-content:space-between;position:relative;z-index:1}
+.d-cover-ph .cp-title{font-weight:600;font-size:14px;letter-spacing:-0.04em;line-height:0.96;margin-top:auto;position:relative;z-index:1}
+.d-cover-ph .cp-rule{height:1px;margin:7px 0 5px;opacity:0.3;position:relative;z-index:1}
+.d-cover-ph .cp-author{font-family:var(--font-mono);font-size:7.5px;letter-spacing:0.04em;text-transform:uppercase;opacity:0.8;position:relative;z-index:1}
+.d-cell-meta{margin-top:11px}
+.d-cell-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:5px}
+.d-cell-num{font-family:var(--font-mono);font-size:8.5px;letter-spacing:0.06em;color:var(--ink-faint)}
+.d-cell-title{font-size:13px;font-weight:600;letter-spacing:-0.015em;line-height:1.16;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.d-cell-author{font-size:11px;color:var(--ink-faint);margin-top:2px}
+
+/* ── Status badge ────────────────────────────────────────── */
+.f-status{display:inline-flex;align-items:center;gap:5px;font-family:var(--font-mono);font-size:9px;letter-spacing:0.1em;text-transform:uppercase;font-weight:500}
+.f-status .pip{width:6px;height:6px;border-radius:50%;flex-shrink:0;transition:background 180ms,box-shadow 180ms,transform 180ms}
+.f-status[data-s="unread"]{color:var(--ink-faint)}
+.f-status[data-s="unread"] .pip{background:transparent;box-shadow:inset 0 0 0 1.5px var(--ink-faint)}
+.f-status[data-s="reading"]{color:#9a6a13}
+.f-status[data-s="reading"] .pip{background:var(--amber);box-shadow:0 0 0 3px rgba(224,162,62,0.22)}
+.f-status[data-s="read"]{color:var(--st-read)}
+.f-status[data-s="read"] .pip{background:var(--st-read)}
+@keyframes pip-pop{0%{transform:scale(0.3)}60%{transform:scale(1.4)}100%{transform:scale(1)}}
+.pip.pop{animation:pip-pop 360ms var(--ease-out)}
+
+/* ── Drawer ──────────────────────────────────────────────── */
+.d-scrim{position:fixed;inset:0;z-index:40;background:rgba(20,18,16,0.42);opacity:0;pointer-events:none;transition:opacity 180ms var(--ease-out)}
+.d-scrim.open{opacity:1;pointer-events:all}
+.d-drawer{position:fixed;top:0;right:0;bottom:0;z-index:41;width:min(480px,100vw);background:var(--paper);box-shadow:var(--shadow-xl);display:flex;flex-direction:column;transform:translateX(100%);transition:transform 280ms var(--ease-out)}
+.d-drawer.open{transform:translateX(0)}
+.d-drawer-head{display:flex;align-items:center;justify-content:space-between;padding:18px 22px 14px;border-bottom:1px solid var(--hair);flex-shrink:0}
+.d-drawer-body{flex:1;overflow-y:auto;padding:22px 22px 40px}
+.d-drawer-cover-row{display:flex;gap:18px;margin-bottom:20px;align-items:flex-start}
+.d-drawer-book-title{font-size:21px;font-weight:600;letter-spacing:-0.03em;line-height:1.05;margin:0 0 5px}
+.d-drawer-book-sub{font-size:13px;color:var(--ink-soft);margin-bottom:4px}
+.d-drawer-book-author{font-size:13px;color:var(--ink-soft);margin-bottom:12px}
+
+/* ── Metagrid ────────────────────────────────────────────── */
+.f-metagrid{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--hair);border:1px solid var(--hair);border-radius:8px;overflow:hidden;margin:4px 0 18px}
+.f-metacell{background:var(--paper);padding:10px 12px}
+.f-metacell .k{font-family:var(--font-mono);font-size:8px;letter-spacing:0.14em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:4px}
+.f-metacell .v{font-size:13px;font-weight:500;letter-spacing:-0.01em;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+
+/* ── Labels / pills / links ──────────────────────────────── */
+.f-label{font-family:var(--font-mono);font-size:9px;font-weight:500;letter-spacing:0.18em;text-transform:uppercase;color:var(--ink-faint)}
+.f-pills{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px}
+.f-pill{font-family:var(--font-mono);font-size:9.5px;letter-spacing:0.04em;padding:4px 9px;border-radius:5px;color:var(--ink-soft);box-shadow:inset 0 0 0 1px var(--hair-strong);white-space:nowrap}
+.f-links{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:20px}
+.f-link{font-family:var(--font-mono);font-size:9.5px;letter-spacing:0.03em;padding:7px 11px;border-radius:6px;text-decoration:none;color:var(--ink);box-shadow:inset 0 0 0 1px var(--hair-strong);display:inline-flex;align-items:center;gap:6px;transition:background 120ms var(--ease-out)}
+.f-link:hover{background:rgba(26,23,20,0.05)}
+.f-rule{height:1px;background:var(--hair-strong);margin:16px 0}
+
+/* ── Form inputs ─────────────────────────────────────────── */
+.f-field{margin-bottom:12px}
+.f-field>.f-label{display:block;margin-bottom:6px}
+.f-input,.f-select,.f-textarea{width:100%;font-family:var(--font-sans);font-size:13px;color:var(--ink);background:var(--paper-2);border:1px solid var(--hair-strong);border-radius:8px;padding:10px 12px;transition:border-color 120ms,box-shadow 120ms}
+.f-input:focus,.f-select:focus,.f-textarea:focus{outline:none;border-color:var(--amber);box-shadow:0 0 0 3px rgba(224,162,62,0.18)}
+.f-select{appearance:none;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238C8473' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center}
+.f-textarea{resize:none;line-height:1.5}
+.f-editrow{display:flex;gap:8px;margin-bottom:10px}
+.f-editrow .f-select{flex:1}
+
+/* ── Profile ─────────────────────────────────────────────── */
+.d-profile-head{display:flex;align-items:center;gap:18px;margin-bottom:26px;flex-wrap:wrap}
+.d-profile-avatar{width:72px;height:72px;border-radius:10px;background:var(--ink-blue);color:var(--paper);display:grid;place-items:center;font-weight:600;font-size:26px;letter-spacing:-0.03em;flex-shrink:0}
+.d-profile-name{font-size:26px;font-weight:600;letter-spacing:-0.03em;margin:0}
+.d-profile-handle{font-family:var(--font-mono);font-size:11px;color:var(--ink-faint);margin-top:3px}
+.d-profile-actions{display:flex;align-items:center;gap:10px;margin-left:auto;flex-wrap:wrap}
+.d-vis-toggle{display:flex;background:var(--paper-2);border-radius:7px;padding:3px;gap:2px}
+.d-vis-btn{border:none;cursor:pointer;border-radius:5px;padding:7px 12px;font-family:var(--font-mono);font-size:9px;letter-spacing:0.06em;text-transform:uppercase;background:transparent;color:var(--ink-soft);transition:all 120ms var(--ease-out)}
+.d-vis-btn.on{background:var(--ink);color:var(--paper)}
+.d-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--hair);border:1px solid var(--hair);border-radius:10px;overflow:hidden;margin-bottom:32px}
+@media(max-width:520px){.d-stats{grid-template-columns:repeat(2,1fr)}}
+.d-stat-cell{background:var(--paper);padding:14px 16px}
+.d-stat-num{font-weight:500;letter-spacing:-0.04em;font-variant-numeric:tabular-nums;line-height:0.88;font-size:36px}
+.d-stat-label{font-family:var(--font-mono);font-size:8.5px;letter-spacing:0.14em;text-transform:uppercase;color:var(--ink-faint);margin-top:7px}
+
+/* ── Modal ───────────────────────────────────────────────── */
+.modal-scrim{position:fixed;inset:0;z-index:60;background:rgba(20,18,16,0.42);display:none;align-items:center;justify-content:center;padding:20px}
+.modal-scrim.active{display:flex}
+.d-dialog{background:var(--paper);border-radius:14px;box-shadow:var(--shadow-xl);display:flex;flex-direction:column;overflow:hidden;width:100%;max-width:720px;max-height:calc(100vh - 40px);animation:dialog-in 180ms var(--ease-out)}
+@keyframes dialog-in{from{opacity:0;transform:scale(0.98) translateY(-6px)}}
+.d-dialog-header{display:flex;align-items:flex-start;justify-content:space-between;padding:18px 22px 14px;flex-shrink:0}
+.d-dialog-title{font-size:19px;font-weight:600;letter-spacing:-0.025em;margin-top:3px}
+.d-dialog-tabs-row{padding:0 22px 12px;flex-shrink:0}
+.f-seg{display:flex;background:var(--paper-2);border-radius:9px;padding:3px;gap:3px;max-width:280px}
+.f-seg button{flex:1;border:none;background:transparent;cursor:pointer;font-family:var(--font-sans);font-weight:600;font-size:11.5px;letter-spacing:-0.01em;color:var(--ink-soft);padding:8px 10px;border-radius:7px;transition:all 120ms var(--ease-out);display:inline-flex;align-items:center;justify-content:center;gap:5px;white-space:nowrap}
+.f-seg button.on{background:var(--ink);color:var(--paper)}
+.d-dialog-body{display:flex;flex:1;min-height:0;overflow:hidden}
+@media(max-width:560px){.d-dialog-body{flex-direction:column}}
+.d-dialog-left{flex:1;padding:0 22px 22px;border-right:1px solid var(--hair);overflow-y:auto}
+@media(max-width:560px){.d-dialog-left{border-right:none;border-bottom:1px solid var(--hair);max-height:50vh}}
+.d-dialog-right{flex:1;padding:0 22px 22px;display:flex;flex-direction:column;min-height:0}
+.d-queue-header{display:flex;align-items:center;justify-content:space-between;padding:14px 0 10px;flex-shrink:0}
+.d-queue-count-badge{font-family:var(--font-mono);font-size:10px;font-weight:600;background:var(--paper-2);color:var(--ink-faint);border-radius:6px;padding:3px 9px;transition:all 180ms var(--ease-out)}
+.d-queue-count-badge.has{background:var(--amber);color:var(--amber-fg)}
+.d-queue-list{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:8px;min-height:60px}
+.d-queue-empty-msg{border:1.5px dashed var(--hair-strong);border-radius:9px;padding:18px;text-align:center;font-size:12.5px;color:var(--ink-faint)}
+.d-queue-chip{display:flex;align-items:center;gap:10px;padding:9px 11px;background:var(--paper-2);border-radius:8px;border:1px solid var(--hair);animation:chip-in 250ms var(--ease-out)}
+@keyframes chip-in{from{opacity:0;transform:translateX(-8px)}}
+.d-queue-chip-cover{width:28px;height:42px;border-radius:3px;background:var(--ink);flex-shrink:0;overflow:hidden}
+.d-queue-chip-cover img{width:100%;height:100%;object-fit:cover}
+.d-queue-chip-title{font-size:12px;font-weight:600;letter-spacing:-0.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.d-queue-chip-isbn{font-family:var(--font-mono);font-size:9px;color:var(--ink-faint);margin-top:1px}
+.d-dialog-save{padding:12px 22px 16px;border-top:1px solid var(--hair);flex-shrink:0}
+.d-batch-row{display:flex;gap:8px;margin-top:18px}
+.d-batch-row>div{flex:1}
+.d-batch-row .f-label{display:block;margin-bottom:6px}
+
+/* ── Camera / QR ─────────────────────────────────────────── */
+.f-cam{position:relative;aspect-ratio:4/3;border-radius:12px;overflow:hidden;background:radial-gradient(circle at 50% 40%,#2a2622,#131110)}
+#reader{position:absolute;inset:0;overflow:hidden}
+#reader video{width:100%;height:100%;object-fit:cover;display:block}
+.f-reticle{position:absolute;inset:22% 16%;border-radius:10px;box-shadow:0 0 0 9999px rgba(0,0,0,0.32);pointer-events:none}
+.f-reticle::before,.f-reticle::after,.f-reticle .c1,.f-reticle .c2{content:'';position:absolute;width:22px;height:22px;border:2.5px solid var(--amber)}
+.f-reticle::before{top:-2px;left:-2px;border-right:none;border-bottom:none;border-radius:7px 0 0 0}
+.f-reticle::after{top:-2px;right:-2px;border-left:none;border-bottom:none;border-radius:0 7px 0 0}
+.f-reticle .c1{bottom:-2px;left:-2px;border-right:none;border-top:none;border-radius:0 0 0 7px}
+.f-reticle .c2{bottom:-2px;right:-2px;border-left:none;border-top:none;border-radius:0 0 7px 0}
+.f-scanline{position:absolute;left:16%;right:16%;height:2px;background:linear-gradient(90deg,transparent,var(--amber),transparent);box-shadow:0 0 12px 2px rgba(224,162,62,0.6);animation:scanline 2.4s var(--ease-io) infinite;pointer-events:none}
+@keyframes scanline{0%,100%{top:24%}50%{top:74%}}
+.cam-pause-btn{position:absolute;top:10px;right:10px;border:none;cursor:pointer;background:rgba(0,0,0,0.45);color:var(--paper);border-radius:6px;padding:5px 9px;font-family:var(--font-mono);font-size:9.5px;letter-spacing:0.06em;text-transform:uppercase;z-index:2}
+#qr-code-wrap{display:inline-block;padding:12px;background:#fff;border-radius:10px;border:1px solid var(--hair)}
+
+/* ── Toasts ──────────────────────────────────────────────── */
+.toast-wrap{position:fixed;top:70px;left:50%;transform:translateX(-50%);z-index:90;display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none}
+.toast{display:flex;align-items:center;gap:10px;padding:10px 16px;border-radius:10px;box-shadow:var(--shadow-lg);font-size:12.5px;font-weight:500;letter-spacing:-0.01em;backdrop-filter:blur(8px);white-space:nowrap;animation:toast-in 240ms var(--ease-out)}
+.toast .tdot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.toast--ok{background:rgba(38,50,38,0.94);color:#DCEAD8}
+.toast--ok .tdot{background:var(--st-read)}
+.toast--err{background:rgba(52,30,28,0.95);color:#F2D8D2}
+.toast--err .tdot{background:#d65d4a}
+@keyframes toast-in{from{opacity:0;transform:translateY(-10px) scale(0.96)}}
+.toast.out{animation:toast-out 180ms var(--ease-out) forwards}
+@keyframes toast-out{to{opacity:0;transform:translateY(-8px)}}
+
+/* ── Misc ────────────────────────────────────────────────── */
+.f-rise{animation:rise 360ms var(--ease-out)}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.empty-state{padding:64px 0;text-align:center;color:var(--ink-faint)}
+.empty-state .f-label{margin-bottom:8px}
+.empty-state p{font-size:14px}
+</style>
 </head>
-
 <body>
 
-    <header>
-        <div class="logo">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                stroke-linecap="round" stroke-linejoin="round">
-                <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"></path>
-            </svg>
-            Folio
+<!-- ── Navbar ────────────────────────────────────────────── -->
+<nav class="d-nav">
+  <a class="d-logo" href="/">
+    <span class="d-logo-mark">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"/></svg>
+    </span>
+    Folio
+  </a>
+  <div class="d-navlinks">
+    {% if user %}
+    <button class="d-navlink" data-nav="home" onclick="switchView('home')">Library</button>
+    {% endif %}
+    <button class="d-navlink" data-nav="books" onclick="switchView('books')">Explore</button>
+    {% if user %}
+    <button class="d-navlink" data-nav="profile" onclick="switchView('profile')">Profile</button>
+    {% endif %}
+  </div>
+  <div class="d-nav-space"></div>
+  <button class="f-btn f-btn--amber d-addbtn" id="nav-add-btn" onclick="openAddModal()">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg>
+    Add book
+    <span class="q-badge" id="nav-badge">0</span>
+  </button>
+  {% if user %}
+  <div class="d-avatar" onclick="switchView('profile')" title="{{ user.firstname }} {{ user.lastname }}">{{ user.firstname[0] }}{{ user.lastname[0] if user.lastname else '' }}</div>
+  {% else %}
+  <a class="f-btn f-btn--ink" href="/login" style="text-decoration:none;margin-left:6px;">Sign in</a>
+  {% endif %}
+</nav>
+
+<!-- ── Main ──────────────────────────────────────────────── -->
+<main>
+
+  <!-- HOME / LANDING VIEW -->
+  <div id="view-home" class="view f-rise">
+    {% if not user %}
+    <!-- Logged out hero -->
+    <div class="d-hero">
+      <div>
+        <div class="d-hero-label">Folio · A library of record</div>
+        <h1>Your physical library, beautifully digitized.</h1>
+        <p>Scan a barcode and we pull the rest from Open Library — covers, subjects, the lot — and bind it into a catalog worth browsing.</p>
+        <div class="hero-btns">
+          <button class="f-btn f-btn--amber" onclick="openAddModal()" style="padding:13px 20px;font-size:14px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M7 12h10"/></svg>
+            Scan a book
+          </button>
+          <button class="f-btn f-btn--ghost" onclick="switchView('books')" style="padding:13px 20px;font-size:14px;">Browse the shelf</button>
         </div>
-        <div class="nav-links">
-            {% if user %}
-            <button class="btn-primary" onclick="openAddModal()">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M12 5v14M5 12h14" />
-                </svg>
-                Add Book
-            </button>
+      </div>
+      <div class="d-fan">
+        {% for b in all_books[:3] %}
+        {% set rots = [-11, 2, 12] %}{% set xs = [20, 100, 180] %}{% set ys = [30, 0, 50] %}{% set zs = [1,3,1] %}
+        <div class="d-fan-book" style="left:{{ xs[loop.index0] }}px;top:{{ ys[loop.index0] }}px;transform:rotate({{ rots[loop.index0] }}deg);z-index:{{ zs[loop.index0] }};">
+          <div class="d-cover-inner" style="width:140px;">
+            {% if b.covers %}<img class="d-cover-img" src="{{ b.covers[0].medium or b.covers[0].small or b.covers[0].large }}" alt="{{ b.title }}" loading="lazy">{% else %}<div class="d-cover-ph" style="background:{{ cover_bg(loop.index0) }};color:{{ cover_fg(loop.index0) }};"><div class="cp-shadow"></div><div class="cp-label"><span>Folio</span><span>{{ b.publish_date[:4] if b.publish_date else '—' }}</span></div><div class="cp-title">{{ b.title[:40] }}</div><div class="cp-rule" style="background:currentColor;"></div><div class="cp-author">{{ (b.authors[0].name if b.authors else 'Unknown')|truncate(20,true,'') }}</div></div>{% endif %}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    <div style="height:1px;background:var(--hair-strong);margin-bottom:24px;"></div>
+    <div class="f-label" style="margin-bottom:16px;">Recently shelved · community</div>
+    {% endif %}
+
+    {% if user %}
+    <!-- Logged in library -->
+    <div class="d-masthead">
+      <div class="d-masthead-left">
+        <div class="d-bignum" id="lib-bignum">{{ user_books|length }}</div>
+        <div style="padding-bottom:10px;">
+          <div class="d-masthead-label">volumes</div>
+          <div class="d-masthead-sub" id="lib-sub">{{ n_reading }} reading · {{ n_read }} read</div>
+        </div>
+      </div>
+      <div class="d-filters">
+        <button class="d-chip on" data-filter="all" onclick="filterLib(this,'all')">All <span>{{ user_books|length }}</span></button>
+        <button class="d-chip" data-filter="reading" onclick="filterLib(this,'reading')">Reading <span>{{ n_reading }}</span></button>
+        <button class="d-chip" data-filter="unread" onclick="filterLib(this,'unread')">Unread <span>{{ n_unread }}</span></button>
+        <button class="d-chip" data-filter="read" onclick="filterLib(this,'read')">Read <span>{{ n_read }}</span></button>
+      </div>
+    </div>
+
+    <div class="d-grid" id="lib-grid">
+      {% for item in user_books %}
+      {% set b = item.book %}
+      {% set ub = item.user_book %}
+      {% set st = ub.status or 'unread' %}
+      <div class="d-cell" data-status="{{ st }}" onclick="openDrawer('{{ b.id }}')">
+        <div class="d-cover-wrap">
+          <div class="d-cover-inner">
+            {% if b.covers %}
+            <img class="d-cover-img" src="{{ b.covers[0].medium or b.covers[0].small or b.covers[0].large }}" alt="{{ b.title }}" loading="lazy">
             {% else %}
-            <button class="btn-primary" onclick="openAddModal()" style="background:#e4e4e7; color:var(--text-primary);">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M12 5v14M5 12h14" />
-                </svg>
-                Scan
-            </button>
-            <a class="btn-primary" href="/login" style="text-decoration:none;">Login</a>
+            <div class="d-cover-ph" style="background:{{ cover_bg(loop.index0) }};color:{{ cover_fg(loop.index0) }};">
+              <div class="cp-shadow"></div>
+              <div class="cp-label"><span>Folio</span><span>{{ b.publish_date[:4] if b.publish_date else '—' }}</span></div>
+              <div class="cp-title">{{ b.title[:40] }}</div>
+              <div class="cp-rule" style="background:currentColor;"></div>
+              <div class="cp-author">{{ (b.authors[0].name if b.authors else 'Unknown')|truncate(20,true,'') }}</div>
+            </div>
             {% endif %}
+          </div>
         </div>
-    </header>
-
-{% macro identifier_links(b) %}
-{% if b.identifiers or b.openbook_url or b.isbns %}
-<div class="metadata-grid" style="grid-template-columns:1fr;margin-bottom:24px;">
-    <div class="metadata-item">
-        <h4>Links & Identifiers</h4>
-        <div style="display:flex;flex-wrap:wrap;gap:8px;font-size:0.85rem;margin-top:5px;">
-            {# Open Library page — comes from openbook_url, not identifiers #}
-            {% if b.openbook_url %}
-            <a href="{{ b.openbook_url }}" target="_blank" style="background:#eee;padding:2px 6px;border-radius:4px;text-decoration:none;color:var(--text-primary);">Open Library ↗</a>
-            {% endif %}
-            {# ISBNs from the record-level isbns list — skip isbn_10/isbn_13 in identifiers to avoid duplicates #}
-            {% for isbn in b.isbns %}
-            <a href="https://openlibrary.org/isbn/{{ isbn }}" target="_blank"
-               style="background:#dbeafe;padding:2px 6px;border-radius:4px;text-decoration:none;color:#1e40af;font-variant-numeric:tabular-nums;">{% if isbn|length == 13 %}ISBN-13{% elif isbn|length == 10 %}ISBN-10{% else %}ISBN{% endif %}: {{ isbn }}</a>
-            {% endfor %}
-            {# External links — skip openlibrary (covered above) and isbn_* (covered by b.isbns) #}
-            {% for k, vals in b.identifiers.items() %}{% if k not in ('openlibrary', 'isbn_10', 'isbn_13') %}{% for v in vals %}
-            <a href="{% if k=='amazon' %}https://www.amazon.com/dp/{{ v }}{% elif k=='goodreads' %}https://www.goodreads.com/book/show/{{ v }}{% elif k=='google' %}https://books.google.com/books?id={{ v }}{% elif k=='librarything' %}https://www.librarything.com/work/{{ v }}{% elif k=='wikidata' %}https://www.wikidata.org/wiki/{{ v }}{% elif k=='oclc' %}https://www.worldcat.org/oclc/{{ v }}{% elif k=='lccn' %}https://lccn.loc.gov/{{ v }}{% elif k=='project_gutenberg' %}https://www.gutenberg.org/ebooks/{{ v }}{% else %}https://www.worldcat.org/search?q={{ k }}%3A{{ v }}{% endif %}"
-               target="_blank"
-               style="background:#eee;padding:2px 6px;border-radius:4px;text-decoration:none;color:var(--text-primary);transition:background 0.2s;"
-               onmouseover="this.style.background='#e4e4e7'" onmouseout="this.style.background='#eee'">{% if k=='amazon' %}Amazon{% elif k=='goodreads' %}Goodreads{% elif k=='google' %}Google Books{% elif k=='librarything' %}LibraryThing{% elif k=='wikidata' %}Wikidata{% elif k=='oclc' %}WorldCat{% elif k=='lccn' %}Library of Congress{% elif k=='project_gutenberg' %}Project Gutenberg{% else %}{{ k|replace('_',' ')|title }}{% endif %}</a>
-            {% endfor %}{% endif %}{% endfor %}
+        <div class="d-cell-meta">
+          <div class="d-cell-row">
+            <span class="d-cell-num">№ {{ '%02d'|format(loop.index) }}</span>
+            <span class="f-status" data-s="{{ st }}"><span class="pip"></span>{{ st|title }}</span>
+          </div>
+          <div class="d-cell-title">{{ b.title }}</div>
+          <div class="d-cell-author">{{ b.authors[0].name if b.authors else 'Unknown' }}</div>
         </div>
+      </div>
+      {% else %}
+      <div class="empty-state" style="grid-column:1/-1;">
+        <div class="f-label" style="margin-bottom:8px;">Nothing here yet</div>
+        <p>Add your first book to get started.</p>
+      </div>
+      {% endfor %}
     </div>
+    {% else %}
+    <!-- Community strip on landing -->
+    <div class="d-grid">
+      {% for b in all_books[:12] %}
+      <div class="d-cell" onclick="openExploreDrawer('community-{{ b.id }}')">
+        <div class="d-cover-wrap">
+          <div class="d-cover-inner">
+            {% if b.covers %}
+            <img class="d-cover-img" src="{{ b.covers[0].medium or b.covers[0].small or b.covers[0].large }}" alt="{{ b.title }}" loading="lazy">
+            {% else %}
+            <div class="d-cover-ph" style="background:{{ cover_bg(loop.index0) }};color:{{ cover_fg(loop.index0) }};">
+              <div class="cp-shadow"></div>
+              <div class="cp-label"><span>Folio</span><span>{{ b.publish_date[:4] if b.publish_date else '—' }}</span></div>
+              <div class="cp-title">{{ b.title[:40] }}</div>
+              <div class="cp-rule" style="background:currentColor;"></div>
+              <div class="cp-author">{{ (b.authors[0].name if b.authors else 'Unknown')|truncate(20,true,'') }}</div>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+        <div class="d-cell-meta">
+          <div class="d-cell-row">
+            <span class="d-cell-num">№ {{ '%02d'|format(loop.index) }}</span>
+          </div>
+          <div class="d-cell-title">{{ b.title }}</div>
+          <div class="d-cell-author">{{ b.authors[0].name if b.authors else 'Unknown' }}</div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- EXPLORE VIEW -->
+  <div id="view-books" class="view f-rise">
+    <div style="margin-bottom:28px;">
+      <div class="f-label" style="margin-bottom:10px;">The community shelf</div>
+      <h1 style="font-weight:600;font-size:clamp(28px,5vw,48px);letter-spacing:-0.04em;margin:0;">Recently shelved</h1>
+      <p style="font-size:14px;color:var(--ink-soft);margin-top:10px;max-width:420px;">The latest books added across Folio. Click any cover to see its full record.</p>
+    </div>
+    <div class="d-grid">
+      {% for b in all_books[:50] %}
+      <div class="d-cell" onclick="openExploreDrawer('community-{{ b.id }}')">
+        <div class="d-cover-wrap">
+          <div class="d-cover-inner">
+            {% if b.covers %}
+            <img class="d-cover-img" src="{{ b.covers[0].medium or b.covers[0].small or b.covers[0].large }}" alt="{{ b.title }}" loading="lazy">
+            {% else %}
+            <div class="d-cover-ph" style="background:{{ cover_bg(loop.index0) }};color:{{ cover_fg(loop.index0) }};">
+              <div class="cp-shadow"></div>
+              <div class="cp-label"><span>Folio</span><span>{{ b.publish_date[:4] if b.publish_date else '—' }}</span></div>
+              <div class="cp-title">{{ b.title[:40] }}</div>
+              <div class="cp-rule" style="background:currentColor;"></div>
+              <div class="cp-author">{{ (b.authors[0].name if b.authors else 'Unknown')|truncate(20,true,'') }}</div>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+        <div class="d-cell-meta">
+          <div class="d-cell-row">
+            <span class="d-cell-num">№ {{ '%02d'|format(loop.index) }}</span>
+          </div>
+          <div class="d-cell-title">{{ b.title }}</div>
+          <div class="d-cell-author">{{ b.authors[0].name if b.authors else 'Unknown' }}</div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- PROFILE VIEW -->
+  {% if user %}
+  <div id="view-profile" class="view f-rise">
+    <div class="d-profile-head">
+      <div class="d-profile-avatar">{{ user.firstname[0] }}{{ user.lastname[0] if user.lastname else '' }}</div>
+      <div>
+        <h1 class="d-profile-name">{{ user.firstname }} {{ user.lastname }}</h1>
+        <div class="d-profile-handle">@{{ user.email.split('@')[0] }}</div>
+      </div>
+      <div class="d-profile-actions">
+        <div class="d-vis-toggle">
+          <button class="d-vis-btn {{ 'on' if user.is_profile_public else '' }}" onclick="setVis('public',this)">Public</button>
+          <button class="d-vis-btn {{ '' if user.is_profile_public else 'on' }}" onclick="setVis('private',this)">Private</button>
+        </div>
+        <a href="/auth/logout" class="f-btn f-btn--ghost" style="text-decoration:none;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/></svg>
+          Log out
+        </a>
+      </div>
+    </div>
+
+    <div class="d-stats">
+      <div class="d-stat-cell"><div class="d-stat-num">{{ user_books|length }}</div><div class="d-stat-label">Volumes</div></div>
+      <div class="d-stat-cell"><div class="d-stat-num">{{ n_reading }}</div><div class="d-stat-label">Reading</div></div>
+      <div class="d-stat-cell"><div class="d-stat-num">{{ n_read }}</div><div class="d-stat-label">Read</div></div>
+      <div class="d-stat-cell"><div class="d-stat-num">{{ n_unread }}</div><div class="d-stat-label">Unread</div></div>
+    </div>
+
+    <div class="f-label" style="margin-bottom:16px;">The collection</div>
+    <div class="d-grid">
+      {% for item in user_books %}
+      {% set b = item.book %}
+      {% set ub = item.user_book %}
+      {% set st = ub.status or 'unread' %}
+      <div class="d-cell" onclick="openDrawer('{{ b.id }}')">
+        <div class="d-cover-wrap">
+          <div class="d-cover-inner">
+            {% if b.covers %}
+            <img class="d-cover-img" src="{{ b.covers[0].medium or b.covers[0].small or b.covers[0].large }}" alt="{{ b.title }}" loading="lazy">
+            {% else %}
+            <div class="d-cover-ph" style="background:{{ cover_bg(loop.index0) }};color:{{ cover_fg(loop.index0) }};">
+              <div class="cp-shadow"></div>
+              <div class="cp-label"><span>Folio</span><span>{{ b.publish_date[:4] if b.publish_date else '—' }}</span></div>
+              <div class="cp-title">{{ b.title[:40] }}</div>
+              <div class="cp-rule" style="background:currentColor;"></div>
+              <div class="cp-author">{{ (b.authors[0].name if b.authors else 'Unknown')|truncate(20,true,'') }}</div>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+        <div class="d-cell-meta">
+          <div class="d-cell-row">
+            <span class="d-cell-num">№ {{ '%02d'|format(loop.index) }}</span>
+            <span class="f-status" data-s="{{ st }}"><span class="pip"></span>{{ st|title }}</span>
+          </div>
+          <div class="d-cell-title">{{ b.title }}</div>
+          <div class="d-cell-author">{{ b.authors[0].name if b.authors else 'Unknown' }}</div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+</main>
+
+<!-- ── Bottom Tab Bar ─────────────────────────────────────── -->
+<nav class="f-tabbar">
+  <button class="f-tab" data-tab="home" onclick="switchView('home')">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    <span>Library</span><span class="dot"></span>
+  </button>
+  <button class="f-tab" data-tab="books" onclick="switchView('books')">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2 5-5 2 2-5 5-2Z"/></svg>
+    <span>Explore</span><span class="dot"></span>
+  </button>
+  {% if user %}
+  <button class="f-tab" data-tab="profile" onclick="switchView('profile')">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    <span>Profile</span><span class="dot"></span>
+  </button>
+  {% endif %}
+</nav>
+
+<!-- ── Detail Drawer ──────────────────────────────────────── -->
+<div class="d-scrim" id="drawer-scrim" onclick="closeDrawer()"></div>
+<div class="d-drawer" id="detail-drawer">
+  <div class="d-drawer-head">
+    <span class="f-label">Catalog record</span>
+    <button class="f-iconbtn" onclick="closeDrawer()" aria-label="Close">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+  <div class="d-drawer-body" id="drawer-body"></div>
 </div>
-{% endif %}
-{% endmacro %}
 
-    <main>
-        <!-- HOME VIEW -->
-        <div id="view-home">
-            <div class="hero">
-                <h1 style="font-size:2.5rem;">Your physical library, beautifully digitized.</h1>
-                <p>Scan, organize, and track the books on your shelf. A minimalist home for your maximalist collection.
-                </p>
-            </div>
+<!-- Pre-rendered drawer contents for user books -->
+{% if user %}
+{% for item in user_books %}
+{% set b = item.book %}
+{% set ub = item.user_book %}
+{% set st = ub.status or 'unread' %}
+<div id="drawer-{{ b.id }}" style="display:none" data-ub-id="{{ ub.id }}" data-status="{{ st }}" data-is-public="{{ 'true' if ub.is_public else 'false' }}">
+  <div class="d-drawer-cover-row">
+    <div style="flex-shrink:0;">
+      <div class="d-cover-inner" style="width:110px;">
+        {% if b.covers %}
+        <img class="d-cover-img" src="{{ b.covers[0].medium or b.covers[0].large or b.covers[0].small }}" alt="{{ b.title }}">
+        {% else %}
+        <div class="d-cover-ph" style="background:{{ cover_bg(loop.index0) }};color:{{ cover_fg(loop.index0) }};height:165px;">
+          <div class="cp-shadow"></div>
+          <div class="cp-label"><span>Folio</span><span>{{ b.publish_date[:4] if b.publish_date else '—' }}</span></div>
+          <div class="cp-title">{{ b.title[:30] }}</div>
+          <div class="cp-rule" style="background:currentColor;"></div>
+          <div class="cp-author">{{ (b.authors[0].name if b.authors else '—')|truncate(16,true,'') }}</div>
         </div>
-
-        <!-- BOOKS VIEW (Global browsing) -->
-        <div id="view-books" style="display:none;">
-            <h2 class="section-title">Recently Added Community Books</h2>
-            <div class="profile-list">
-                {% for b in all_books[:50] %}
-                <div class="profile-book-item" id="explore-item-{{ b.id }}">
-                    <div class="profile-book-core"
-                        onclick="document.getElementById('explore-item-{{ b.id }}').classList.toggle('expanded')">
-                        {% if b.covers %}
-                        <img src="{{ b.covers[0].large or b.covers[0].medium or b.covers[0].small }}"
-                            class="profile-book-cover" alt="cover">
-                        {% else %}
-                        <div class="profile-book-cover"></div>
-                        {% endif %}
-                        <div class="profile-book-details">
-                            <div class="book-title">{{ b.title }}</div>
-                            {% if b.subtitle %}
-                            <div style="font-size:0.9rem; color:var(--text-secondary); margin-bottom:4px;">{{ b.subtitle
-                                }}</div>
-                            {% endif %}
-                            <div class="book-author">{{ b.authors | map(attribute='name') | join(', ') if b.authors else
-                                'Unknown Author' }}</div>
-                            <div class="book-expand-btn">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="2">
-                                    <path d="m6 9 6 6 6-6" />
-                                </svg>
-                                More Details
-                            </div>
-                        </div>
-                    </div>
-                    <div class="profile-book-expanded">
-                        <div class="metadata-pills">
-                            <div
-                                style="font-weight:600;font-size:0.85rem;color:#71717a;align-self:center;margin-right:10px;">
-                                SUBJECTS</div>
-                            {% for s in (b.subjects[:5] if b.subjects else []) %}
-                            <div class="metadata-pill">{{ s.name }}</div>
-                            {% endfor %}
-                        </div>
-                        <div class="metadata-grid">
-                            <div class="metadata-item">
-                                <h4>Published</h4>
-                                <div>{{ b.publish_date or '—' }}</div>
-                            </div>
-                            <div class="metadata-item">
-                                <h4>Pages</h4>
-                                <div>{{ b.number_of_pages or '—' }} p.</div>
-                            </div>
-                            <div class="metadata-item">
-                                <h4>Publisher</h4>
-                                <div>{{ b.publishers | map(attribute='name') | join(', ') if b.publishers else '—' }}
-                                </div>
-                            </div>
-                            {% if b.authors %}
-                            <div class="metadata-item">
-                                <h4>Authors</h4>
-                                <div>{{ b.authors | map(attribute='name') | join(', ') }}</div>
-                            </div>
-                            {% endif %}
-                        </div>
-                        {{ identifier_links(b) }}
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-
-        <!-- PROFILE VIEW -->
-        <div id="view-profile">
-            {% if user %}
-            <div class="profile-header">
-                <div class="profile-info" style="width:100%; justify-content:space-between;">
-                    <div style="display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
-                        <div class="avatar">{{ user.firstname[0] }}{{ user.lastname[0] if user.lastname else '' }}</div>
-                        <div>
-                            <div class="profile-name" style="font-size:1.5rem;">{{ user.firstname }} {{ user.lastname
-                                }}'s Library</div>
-                            <div class="profile-stats">{{ user_books|length }} Books Saved</div>
-                        </div>
-                        <div style="display:flex; align-items:center; gap:8px; margin-left:auto;">
-                            <span style="font-size:0.8rem; color:var(--text-secondary); white-space:nowrap;">Profile visibility</span>
-                            <select class="form-select" style="padding:5px 10px; font-size:0.8rem;"
-                                onchange="updateProfileVisibility(this.value)">
-                                <option value="true" {% if user.is_profile_public %}selected{% endif %}>Public</option>
-                                <option value="false" {% if not user.is_profile_public %}selected{% endif %}>Private</option>
-                            </select>
-                            <a href="/auth/logout" class="btn-primary"
-                                style="background:#ff7675;color:#fff;text-decoration:none;font-size:0.8rem;padding:6px 12px;white-space:nowrap;">Logout</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="profile-list">
-                {% for item in user_books %}
-                {% set b = item.book %}
-                {% set ub = item.user_book %}
-                <div class="profile-book-item" id="book-item-{{ b.id }}">
-                    <div class="profile-book-core" onclick="toggleProfileBook('{{ b.id }}')">
-                        {% if b.covers %}
-                        <img src="{{ b.covers[0].large or b.covers[0].medium or b.covers[0].small }}"
-                            class="profile-book-cover" alt="cover">
-                        {% else %}
-                        <div class="profile-book-cover"></div>
-                        {% endif %}
-                        <div class="profile-book-details">
-                            <div class="badge badge-{{ ub.status or 'unread' }}">{{ (ub.status or 'unread')|upper }}</div>
-                            <div class="book-title">{{ b.title }}</div>
-                            {% if b.subtitle %}
-                            <div style="font-size:0.9rem; color:var(--text-secondary); margin-bottom:4px;">{{ b.subtitle
-                                }}</div>
-                            {% endif %}
-                            <div class="book-author">{{ b.authors | map(attribute='name') | join(', ') if b.authors
-                                else 'Unknown Author' }}</div>
-                            <div class="book-expand-btn">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="2">
-                                    <path d="m6 9 6 6 6-6" />
-                                </svg>
-                                Details & Edit
-                            </div>
-                        </div>
-                    </div>
-                    <div class="profile-book-expanded">
-                        <div class="metadata-pills">
-                            <div
-                                style="font-weight:600;font-size:0.85rem;color:#71717a;align-self:center;margin-right:10px;">
-                                SUBJECTS</div>
-                            {% for s in (b.subjects[:5] if b.subjects else []) %}
-                            <div class="metadata-pill">{{ s.name }}</div>
-                            {% endfor %}
-                        </div>
-                        <div class="metadata-grid">
-                            <div class="metadata-item">
-                                <h4>Published</h4>
-                                <div>{{ b.publish_date or '—' }}</div>
-                            </div>
-                            <div class="metadata-item">
-                                <h4>Pages</h4>
-                                <div>{{ b.number_of_pages or '—' }} p.</div>
-                            </div>
-                            <div class="metadata-item">
-                                <h4>Publisher</h4>
-                                <div>{{ b.publishers | map(attribute='name') | join(', ') if b.publishers else '—'
-                                    }}</div>
-                            </div>
-                        </div>
-
-                        {{ identifier_links(b) }}
-
-                        <div class="edit-form-group"
-                            style="display:flex;align-items:center;gap:8px;margin-bottom:16px;">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2">
-                                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
-                            </svg>
-                            <strong>Notes & Status</strong>
-                        </div>
-
-                        <div class="edit-form-row">
-                            <div>
-                                <label>Reading Status</label>
-                                <select class="form-select status-select">
-                                    <option value="read"    {% if ub.status == 'read'    %}selected{% endif %}>Read</option>
-                                    <option value="reading" {% if ub.status == 'reading' %}selected{% endif %}>Reading</option>
-                                    <option value="unread"  {% if ub.status == 'unread' or not ub.status %}selected{% endif %}>Unread</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label>Visibility</label>
-                                <select class="form-select visibility-select">
-                                    <option value="true"  {% if ub.is_public  %}selected{% endif %}>Public</option>
-                                    <option value="false" {% if not ub.is_public %}selected{% endif %}>Private</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="edit-form-group">
-                            <label>Private Comments</label>
-                            <textarea class="form-textarea comment-textarea"
-                                placeholder="Add your thoughts...">{{ ub.comment or '' }}</textarea>
-                        </div>
-
-                        <button class="btn-primary btn-full" style="background:#18181b;color:#fff;"
-                            onclick="saveBookChanges(this, '{{ ub.id }}')">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2">
-                                <path d="M20 6 9 17l-5-5" />
-                            </svg>
-                            Save Profile Changes
-                        </button>
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-            {% endif %}
-        </div>
-    </main>
-
-    <!-- Bottom Nav -->
-    <nav class="bottom-nav">
-        <a class="bottom-nav-item" data-view="home" onclick="switchView('home')">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-                <polyline points="9 22 9 12 15 12 15 22" />
-            </svg>
-            Home
-        </a>
-        <a class="bottom-nav-item" data-view="books" onclick="switchView('books')">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
-                <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
-            </svg>
-            Explore
-        </a>
-        {% if user %}
-        <a class="bottom-nav-item" data-view="profile" onclick="switchView('profile')">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
-                <circle cx="12" cy="7" r="4" />
-            </svg>
-            Profile
-        </a>
         {% endif %}
-    </nav>
+      </div>
+    </div>
+    <div style="flex:1;padding-top:2px;">
+      <h2 class="d-drawer-book-title">{{ b.title }}</h2>
+      {% if b.subtitle %}<div class="d-drawer-book-sub">{{ b.subtitle }}</div>{% endif %}
+      <div class="d-drawer-book-author">{{ b.authors|map(attribute='name')|join(', ') if b.authors else 'Unknown' }}</div>
+      <span class="f-status drawer-status-badge" data-s="{{ st }}"><span class="pip"></span>{{ st|title }}</span>
+    </div>
+  </div>
 
-    <!-- Modal: Add to Library -->
-    <div class="modal-overlay" id="add-modal">
-        <div class="modal-content">
-            <button class="modal-close" onclick="closeAddModal()"><svg width="16" height="16" viewBox="0 0 24 24"
-                    fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M18 6 6 18M6 6l12 12" />
-                </svg></button>
-            <div class="modal-header">
-                <h2 class="modal-title">Add to Library</h2>
-                <div class="modal-tabs">
-                    <div class="modal-tab active" onclick="switchModalTab('scan')">Scan Barcode</div>
-                    <div class="modal-tab" onclick="switchModalTab('manual')">Enter ISBN</div>
-                </div>
-            </div>
-            <div class="modal-body">
+  {% if b.subjects %}
+  <div class="f-pills">
+    {% for s in b.subjects[:6] %}<span class="f-pill">{{ s.name }}</span>{% endfor %}
+  </div>
+  {% endif %}
 
-                <div id="tab-scan" class="tab-content active">
-                    <!-- Desktop: QR code to scan with phone -->
-                    <div id="scan-desktop" style="display:none; text-align:center;">
-                        <p style="font-size:0.88rem; color:var(--text-secondary); margin-bottom:14px;">
-                            Scan this QR code with your phone to use your phone camera
-                        </p>
-                        <div id="qr-code-wrap" style="display:inline-block; padding:14px; background:#fff; border-radius:12px; border:1px solid var(--border-color);">
-                            <div id="qr-code"></div>
-                        </div>
-                        <p id="scan-url-text" style="font-size:0.72rem; color:var(--text-secondary); margin-top:8px; word-break:break-all; padding:0 10px;"></p>
-                        <p id="desktop-scan-status" style="font-size:0.85rem; color:var(--text-secondary); margin-top:6px;">
-                            Waiting for phone to scan books…
-                        </p>
-                        <button onclick="switchToCamera()" style="margin-top:14px; width:100%; padding:10px 14px; background:transparent; border:1px solid var(--border-color); border-radius:8px; cursor:pointer; font-size:0.85rem; color:var(--text-secondary); font-family:inherit;">
-                            Use PC Camera Instead
-                        </button>
-                    </div>
-                    <!-- Camera: mobile default or desktop bypass -->
-                    <div id="scan-camera">
-                        <div id="reader"
-                            style="width:100%; border-radius:12px; overflow:hidden; background:#000; min-height:200px;">
-                        </div>
-                        <p style="font-size:0.85rem;color:var(--text-secondary);text-align:center;margin-top:10px;">
-                            Position the barcode to scan. It will automatically add to the queue below.
-                        </p>
-                    </div>
-                </div>
+  <div class="f-metagrid">
+    <div class="f-metacell"><div class="k">Published</div><div class="v">{{ b.publish_date or '—' }}</div></div>
+    <div class="f-metacell"><div class="k">Pages</div><div class="v">{{ b.number_of_pages or '—' }}</div></div>
+    <div class="f-metacell"><div class="k">Publisher</div><div class="v">{{ b.publishers|map(attribute='name')|join(', ') if b.publishers else '—' }}</div></div>
+    <div class="f-metacell"><div class="k">ISBN</div><div class="v" style="font-family:var(--font-mono);font-size:11px;">{{ b.isbns[0] if b.isbns else '—' }}</div></div>
+  </div>
 
-                <div id="tab-manual" class="tab-content">
-                    <div class="edit-form-group">
-                        <label>ISBN Number</label>
-                        <div style="display:flex;gap:10px;">
-                            <input type="text" id="manual-isbn" class="form-input" placeholder="e.g. 9780143127550">
-                            <button class="btn-primary" style="border-radius:8px;"
-                                onclick="addManualIsbn()">Add</button>
-                        </div>
-                    </div>
-                </div>
+  {% if b.identifiers or b.openbook_url or b.isbns %}
+  <div class="f-label" style="margin-bottom:8px;">Find this edition</div>
+  <div class="f-links">
+    {% if b.openbook_url %}<a href="{{ b.openbook_url }}" target="_blank" class="f-link">Open Library <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg></a>{% endif %}
+    {% for isbn in b.isbns[:1] %}
+    <a href="https://www.amazon.com/s?k={{ isbn }}" target="_blank" class="f-link">Amazon <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg></a>
+    {% endfor %}
+    {% for k, vals in b.identifiers.items() %}{% if k == 'goodreads' %}{% for v in vals[:1] %}<a href="https://www.goodreads.com/book/show/{{ v }}" target="_blank" class="f-link">Goodreads <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg></a>{% endfor %}{% endif %}{% if k == 'google' %}{% for v in vals[:1] %}<a href="https://books.google.com/books?id={{ v }}" target="_blank" class="f-link">Google Books <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg></a>{% endfor %}{% endif %}{% endfor %}
+  </div>
+  {% endif %}
 
-                <!-- Shared Queue controls -->
-                <div class="queue-section" style="margin-top:20px;">
-                    <div
-                        style="background:#fafafa; border:1px solid #eee; padding:16px; border-radius:12px; margin-bottom:16px;">
-                        <h4
-                            style="font-size:0.75rem; color:var(--text-secondary); margin-bottom:12px; text-transform:uppercase;">
-                            Batch Save Settings</h4>
-                        <div class="edit-form-row" style="margin:0;">
-                            <div>
-                                <select class="form-select" id="batch-status" style="padding:8px;">
-                                    <option value="unread">Unread</option>
-                                    <option value="reading">Reading</option>
-                                    <option value="read">Read</option>
-                                </select>
-                            </div>
-                            <div>
-                                <select class="form-select" id="batch-visibility" style="padding:8px;">
-                                    <option value="public">Public</option>
-                                    <option value="private">Private</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
+  <div class="f-rule"></div>
+  <div class="f-label" style="margin-bottom:10px;">Your shelf</div>
+  <div class="f-editrow">
+    <select class="f-select drawer-status-select" onchange="drawerStatusChange(this)">
+      <option value="unread" {{ 'selected' if st=='unread' }}>Unread</option>
+      <option value="reading" {{ 'selected' if st=='reading' }}>Reading</option>
+      <option value="read" {{ 'selected' if st=='read' }}>Read</option>
+    </select>
+    <select class="f-select drawer-vis-select">
+      <option value="true" {{ 'selected' if ub.is_public }}>Public</option>
+      <option value="false" {{ 'selected' if not ub.is_public }}>Private</option>
+    </select>
+  </div>
+  <textarea class="f-textarea drawer-comment-textarea" rows="3" placeholder="Add a note about this book…">{{ ub.comment or '' }}</textarea>
+  <button class="f-btn f-btn--amber f-btn--block" style="margin-top:10px;" onclick="saveDrawerChanges()">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 6 9 17l-5-5"/></svg>
+    Save changes
+  </button>
+</div>
+{% endfor %}
+{% endif %}
 
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                        <strong>Scan Queue</strong>
-                        <div style="background:#18181b; color:#fff; border-radius:50%; width:24px; height:24px; display:flex; align-items:center; justify-content:center; font-size:0.8rem; font-weight:700;"
-                            id="queue-count">0</div>
-                    </div>
-
-                    <div class="queue-container" id="scan-queue">
-                        <div style="text-align:center; color:var(--text-secondary); font-size:0.85rem; padding:20px 0;"
-                            id="queue-empty">Start scanning or entering ISBNs to build your queue.</div>
-                    </div>
-
-                </div>
-
-            </div>
-
-            <div style="padding:20px; border-top:1px solid var(--border-color);">
-                <button class="btn-primary btn-full" id="save-btn" onclick="saveBatchLibrary(this)">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M20 6 9 17l-5-5" />
-                    </svg>
-                    Done & Save Library
-                </button>
-                <div id="auth-prompt" style="display:none; margin-top:14px; background:#fafafa; border:1px solid var(--border-color); border-radius:10px; padding:14px 16px; text-align:center;">
-                    <p style="font-size:0.88rem; color:var(--text-secondary); margin-bottom:12px;">
-                        Sign in to save <strong id="auth-prompt-count">0</strong> book<span id="auth-prompt-plural">s</span> to your library
-                    </p>
-                    <div style="display:flex; gap:10px; justify-content:center;">
-                        <a href="/login" onclick="stashQueueAndGo()" class="btn-primary" style="text-decoration:none; padding:8px 20px; border-radius:8px; font-size:0.88rem;">Log In</a>
-                        <a href="/register" onclick="stashQueueAndGo()" style="text-decoration:none; padding:8px 20px; border-radius:8px; font-size:0.88rem; border:1px solid var(--border-color); color:var(--text-primary); background:#fff;">Create Account</a>
-                    </div>
-                </div>
-            </div>
+<!-- Pre-rendered drawer contents for explore/community books -->
+{% for b in all_books[:50] %}
+<div id="drawer-community-{{ b.id }}" style="display:none">
+  <div class="d-drawer-cover-row">
+    <div style="flex-shrink:0;">
+      <div class="d-cover-inner" style="width:110px;">
+        {% if b.covers %}
+        <img class="d-cover-img" src="{{ b.covers[0].medium or b.covers[0].large or b.covers[0].small }}" alt="{{ b.title }}">
+        {% else %}
+        <div class="d-cover-ph" style="background:{{ cover_bg(loop.index0) }};color:{{ cover_fg(loop.index0) }};height:165px;">
+          <div class="cp-shadow"></div>
+          <div class="cp-label"><span>Folio</span><span>{{ b.publish_date[:4] if b.publish_date else '—' }}</span></div>
+          <div class="cp-title">{{ b.title[:30] }}</div>
+          <div class="cp-rule" style="background:currentColor;"></div>
+          <div class="cp-author">{{ (b.authors[0].name if b.authors else '—')|truncate(16,true,'') }}</div>
         </div>
+        {% endif %}
+      </div>
+    </div>
+    <div style="flex:1;padding-top:2px;">
+      <h2 class="d-drawer-book-title">{{ b.title }}</h2>
+      {% if b.subtitle %}<div class="d-drawer-book-sub">{{ b.subtitle }}</div>{% endif %}
+      <div class="d-drawer-book-author">{{ b.authors|map(attribute='name')|join(', ') if b.authors else 'Unknown' }}</div>
+    </div>
+  </div>
+
+  {% if b.subjects %}
+  <div class="f-pills">
+    {% for s in b.subjects[:6] %}<span class="f-pill">{{ s.name }}</span>{% endfor %}
+  </div>
+  {% endif %}
+
+  <div class="f-metagrid">
+    <div class="f-metacell"><div class="k">Published</div><div class="v">{{ b.publish_date or '—' }}</div></div>
+    <div class="f-metacell"><div class="k">Pages</div><div class="v">{{ b.number_of_pages or '—' }}</div></div>
+    <div class="f-metacell"><div class="k">Publisher</div><div class="v">{{ b.publishers|map(attribute='name')|join(', ') if b.publishers else '—' }}</div></div>
+    <div class="f-metacell"><div class="k">ISBN</div><div class="v" style="font-family:var(--font-mono);font-size:11px;">{{ b.isbns[0] if b.isbns else '—' }}</div></div>
+  </div>
+
+  {% if b.identifiers or b.openbook_url or b.isbns %}
+  <div class="f-label" style="margin-bottom:8px;">Find this edition</div>
+  <div class="f-links">
+    {% if b.openbook_url %}<a href="{{ b.openbook_url }}" target="_blank" class="f-link">Open Library <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg></a>{% endif %}
+    {% for isbn in b.isbns[:1] %}
+    <a href="https://www.amazon.com/s?k={{ isbn }}" target="_blank" class="f-link">Amazon <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg></a>
+    {% endfor %}
+    {% for k, vals in b.identifiers.items() %}{% if k == 'goodreads' %}{% for v in vals[:1] %}<a href="https://www.goodreads.com/book/show/{{ v }}" target="_blank" class="f-link">Goodreads <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg></a>{% endfor %}{% endif %}{% if k == 'google' %}{% for v in vals[:1] %}<a href="https://books.google.com/books?id={{ v }}" target="_blank" class="f-link">Google Books <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg></a>{% endfor %}{% endif %}{% endfor %}
+  </div>
+  {% endif %}
+</div>
+{% endfor %}
+
+<!-- ── Add Modal ───────────────────────────────────────────── -->
+<div class="modal-scrim" id="add-modal">
+  <div class="d-dialog">
+    <div class="d-dialog-header">
+      <div>
+        <div class="f-label">Add to library</div>
+        <div class="d-dialog-title">Scan or enter a book</div>
+      </div>
+      <button class="f-iconbtn" onclick="closeAddModal()" aria-label="Close">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="d-dialog-tabs-row">
+      <div class="f-seg">
+        <button class="on modal-tab" id="tab-btn-scan" onclick="switchModalTab('scan')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M7 12h10"/></svg>
+          Scan barcode
+        </button>
+        <button class="modal-tab" id="tab-btn-manual" onclick="switchModalTab('manual')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5Z"/></svg>
+          Enter ISBN
+        </button>
+      </div>
     </div>
 
-    <script>
-        const isLoggedIn = {{ 'true' if user else 'false' }};
+    <div class="d-dialog-body">
+      <!-- Left: scan / isbn -->
+      <div class="d-dialog-left">
+        <!-- Scan tab -->
+        <div id="tab-scan" class="tab-content" style="display:block;">
+          <!-- Desktop QR -->
+          <div id="scan-desktop" style="display:none;text-align:center;padding-top:4px;">
+            <div id="qr-code-wrap" style="display:inline-block;">
+              <div id="qr-code"></div>
+            </div>
+            <p style="font-size:13px;color:var(--ink-soft);line-height:1.5;margin:14px auto 0;max-width:230px;">Scan with your phone to sync barcodes straight into this queue.</p>
+            <p id="scan-url-text" style="font-size:10px;color:var(--ink-faint);margin-top:6px;word-break:break-all;padding:0 10px;"></p>
+            <p id="desktop-scan-status" style="font-size:12px;color:var(--ink-faint);margin-top:4px;font-family:var(--font-mono);">Waiting for phone…</p>
+            <button class="f-btn f-btn--ghost" style="margin-top:14px;" onclick="switchToCamera()">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M7 12h10"/></svg>
+              Use PC camera instead
+            </button>
+          </div>
+          <!-- Camera -->
+          <div id="scan-camera">
+            <div class="f-cam">
+              <div id="reader"></div>
+              <div class="f-scanline" id="scan-line"></div>
+              <div class="f-reticle"><span class="c1"></span><span class="c2"></span></div>
+              <button class="cam-pause-btn" id="cam-pause-btn" onclick="toggleScanPause()">Pause</button>
+            </div>
+            <button class="f-btn f-btn--ghost" style="margin-top:12px;width:100%;justify-content:center;" onclick="switchToQR()" id="show-qr-btn" style="display:none;">
+              Show phone QR instead
+            </button>
+          </div>
+        </div>
+        <!-- ISBN tab -->
+        <div id="tab-manual" class="tab-content" style="display:none;padding-top:4px;">
+          <div class="f-field">
+            <label class="f-label">ISBN-10 or ISBN-13</label>
+            <div style="display:flex;gap:8px;margin-top:6px;">
+              <input type="text" id="manual-isbn" class="f-input" placeholder="978…" onkeydown="if(event.key==='Enter')addManualIsbn()" style="flex:1;">
+              <button class="f-btn f-btn--ink" onclick="addManualIsbn()" style="padding:0 18px;">Add</button>
+            </div>
+          </div>
+          <p style="font-size:12px;color:var(--ink-faint);line-height:1.5;">Enter the 10 or 13-digit ISBN from the back of the book.</p>
+        </div>
 
-        // Tab switching
-        function switchView(view) {
-            document.getElementById('view-home').style.display    = view === 'home'    ? 'block' : 'none';
-            document.getElementById('view-books').style.display   = view === 'books'   ? 'block' : 'none';
-            document.getElementById('view-profile').style.display = view === 'profile' ? 'block' : 'none';
-            document.querySelectorAll('.bottom-nav-item').forEach(l => l.classList.remove('active'));
-            const navEl = document.querySelector(`.bottom-nav-item[data-view="${view}"]`);
-            if (navEl) navEl.classList.add('active');
-            history.replaceState(null, '', '#' + view);
-        }
+        <!-- Batch settings -->
+        <div class="d-batch-row">
+          <div>
+            <div class="f-label" style="display:block;margin-bottom:6px;">Reading status</div>
+            <select class="f-select" id="batch-status">
+              <option value="unread">Unread</option>
+              <option value="reading">Reading</option>
+              <option value="read">Read</option>
+            </select>
+          </div>
+          <div>
+            <div class="f-label" style="display:block;margin-bottom:6px;">Visibility</div>
+            <select class="f-select" id="batch-visibility">
+              <option value="public">Public</option>
+              <option value="private">Private</option>
+            </select>
+          </div>
+        </div>
+      </div>
 
-        // Expanded book details
-        function toggleProfileBook(id) {
-            const el = document.getElementById('book-item-' + id);
-            el.classList.toggle('expanded');
-        }
+      <!-- Right: queue -->
+      <div class="d-dialog-right">
+        <div class="d-queue-header">
+          <span class="f-label">Scan queue</span>
+          <span class="d-queue-count-badge" id="queue-count-badge">0 books</span>
+        </div>
+        <div class="d-queue-list" id="scan-queue">
+          <div class="d-queue-empty-msg" id="queue-empty">Scanned books collect here before you save.</div>
+        </div>
+        <div style="margin-top:14px;">
+          {% if user %}
+          <button class="f-btn f-btn--amber f-btn--block" id="save-btn" onclick="saveBatchLibrary(this)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 6 9 17l-5-5"/></svg>
+            Done · save to library
+          </button>
+          {% else %}
+          <div id="auth-prompt" style="display:flex;align-items:center;gap:12px;">
+            <div style="flex:1;font-size:12.5px;color:var(--ink-soft);">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;margin-right:4px;"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+              Sign in to save <strong id="auth-prompt-count">0</strong> book<span id="auth-prompt-plural">s</span>
+            </div>
+            <a href="/login" onclick="stashQueueAndGo()" class="f-btn f-btn--ink" style="text-decoration:none;">Sign in</a>
+            <a href="/register" onclick="stashQueueAndGo()" class="f-btn f-btn--ghost" style="text-decoration:none;">Register</a>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
-        // Modal Logic
-        function switchModalTab(tab) {
-            document.querySelectorAll('.modal-tab').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+<!-- ── Toast container ────────────────────────────────────── -->
+<div class="toast-wrap" id="toast-wrap"></div>
 
-            document.getElementById('tab-' + tab).classList.add('active');
-            event.target.classList.add('active');
+<script>
+const isLoggedIn = {{ 'true' if user else 'false' }};
+const isDesktop = !('ontouchstart' in window) && window.innerWidth > 768;
+let currentDrawerUbId = null;
 
-            if (tab === 'scan') {
-                if (isDesktop) { initDesktopScan(); } else { startScanner(); }
-            } else {
-                stopDesktopPolling();
-                stopScanner();
-            }
-        }
+// ── View switching ────────────────────────────────────────
+function switchView(view) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  const el = document.getElementById('view-' + view);
+  if (el) { el.classList.remove('f-rise'); void el.offsetWidth; el.classList.add('active','f-rise'); }
+  document.querySelectorAll('.d-navlink').forEach(l => { l.classList.toggle('on', l.dataset.nav === view); });
+  document.querySelectorAll('.f-tab').forEach(t => { t.classList.toggle('active', t.dataset.tab === view); });
+  history.replaceState(null, '', '#' + view);
+}
 
-        const isDesktop = !('ontouchstart' in window) && window.innerWidth > 768;
+// ── Library filter chips ──────────────────────────────────
+function filterLib(btn, filter) {
+  document.querySelectorAll('.d-chip').forEach(c => c.classList.remove('on'));
+  btn.classList.add('on');
+  document.querySelectorAll('#lib-grid .d-cell').forEach(cell => {
+    cell.style.display = (filter === 'all' || cell.dataset.status === filter) ? '' : 'none';
+  });
+}
 
-        let scanQueue = [];
-        let scanSessionToken = null;
-        let scanPollingInterval = null;
-        let scanSeenCount = 0;
-        let qrCodeInstance = null;
+// ── Drawer ────────────────────────────────────────────────
+function openDrawer(bookId) {
+  const src = document.getElementById('drawer-' + bookId);
+  if (!src) return;
+  currentDrawerUbId = src.dataset.ubId;
+  document.getElementById('drawer-body').innerHTML = src.innerHTML;
+  document.getElementById('drawer-scrim').classList.add('open');
+  document.getElementById('detail-drawer').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
 
-        // --- ISBN extraction ---
-        function extractISBN(raw) {
-            if (!raw) return null;
-            const digits = raw.replace(/[^0-9X]/gi, '').toUpperCase();
-            // ISBN-13: must be exactly 13 digits starting with 978 or 979
-            if (digits.length >= 13 && /^97[89]/.test(digits)) return digits.slice(0, 13);
-            // ISBN-10: 9 digits + digit or X
-            if (/^[0-9]{9}[0-9X]$/.test(digits)) return digits;
-            return null;
-        }
+function openExploreDrawer(bookId) {
+  const src = document.getElementById('drawer-' + bookId);
+  if (!src) return;
+  currentDrawerUbId = null;
+  document.getElementById('drawer-body').innerHTML = src.innerHTML;
+  document.getElementById('drawer-scrim').classList.add('open');
+  document.getElementById('detail-drawer').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
 
-        // --- Scanner state ---
-        let nativeStream = null;
-        let nativeScanLoop = null;
-        let quaggaRunning = false;
+function closeDrawer() {
+  document.getElementById('drawer-scrim').classList.remove('open');
+  document.getElementById('detail-drawer').classList.remove('open');
+  document.body.style.overflow = '';
+}
 
-        const _quaggaHandler = (result) => {
-            const errs = result.codeResult.decodedCodes
-                .filter(c => c.error !== undefined).map(c => c.error);
-            if (errs.length && errs.reduce((a, b) => a + b, 0) / errs.length > 0.15) return;
-            const isbn = extractISBN(result.codeResult.code);
-            if (isbn && !scanQueue.includes(isbn)) appendQueue(isbn);
-        };
+function drawerStatusChange(sel) {
+  const badge = document.querySelector('.drawer-status-badge');
+  if (!badge) return;
+  const v = sel.value;
+  badge.dataset.s = v;
+  badge.innerHTML = `<span class="pip"></span>${v.charAt(0).toUpperCase()+v.slice(1)}`;
+}
 
-        async function startScanner() {
-            if ('BarcodeDetector' in window) {
-                try {
-                    const formats = await BarcodeDetector.getSupportedFormats();
-                    if (formats.includes('ean_13')) { startNativeScanner(); return; }
-                } catch {}
-            }
-            startQuaggaScanner();
-        }
+async function saveDrawerChanges() {
+  if (!currentDrawerUbId) return;
+  const body = document.getElementById('drawer-body');
+  const status    = body.querySelector('.drawer-status-select').value;
+  const is_public = body.querySelector('.drawer-vis-select').value === 'true';
+  const comment   = body.querySelector('.drawer-comment-textarea').value;
+  const btn = body.querySelector('.f-btn--amber');
+  const orig = btn.innerHTML;
+  btn.innerHTML = 'Saving…';
+  try {
+    const res = await fetch(`/books/user_books/${currentDrawerUbId}`, {
+      method: 'PATCH', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({status, is_public, comment}),
+    });
+    if (res.ok) {
+      pushToast('Saved', 'ok');
+      // Update the grid cell status badge
+      document.querySelectorAll(`.d-cell[onclick*="openDrawer"]`).forEach(cell => {
+        const badge = cell.querySelector('.f-status');
+        if (badge && cell.getAttribute('onclick').includes(currentDrawerUbId.slice(-4))) return; // rough match not ideal
+      });
+      setTimeout(closeDrawer, 600);
+    } else { pushToast('Error saving', 'err'); }
+  } catch { pushToast('Connection error', 'err'); }
+  btn.innerHTML = orig;
+}
 
-        async function startNativeScanner() {
-            const reader = document.getElementById('reader');
-            try {
-                nativeStream = await navigator.mediaDevices.getUserMedia({
-                    video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } }
-                });
-                const video = document.createElement('video');
-                video.srcObject = nativeStream;
-                video.setAttribute('playsinline', '');
-                video.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:12px;display:block;';
-                reader.innerHTML = '';
-                reader.appendChild(video);
-                await video.play();
-                const detector = new BarcodeDetector({ formats: ['ean_13', 'ean_8', 'upc_a', 'upc_e'] });
-                const detect = async () => {
-                    if (!nativeStream) return;
-                    try {
-                        for (const { rawValue } of await detector.detect(video)) {
-                            const isbn = extractISBN(rawValue);
-                            if (isbn && !scanQueue.includes(isbn)) appendQueue(isbn);
-                        }
-                    } catch {}
-                    nativeScanLoop = requestAnimationFrame(detect);
-                };
-                nativeScanLoop = requestAnimationFrame(detect);
-            } catch (err) {
-                console.warn('Native scanner failed, falling back to Quagga:', err);
-                stopNativeScanner();
-                startQuaggaScanner();
-            }
-        }
+// ── Profile visibility ────────────────────────────────────
+function setVis(val, btn) {
+  document.querySelectorAll('.d-vis-btn').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  fetch('/auth/profile', {method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({is_profile_public: val==='public'})});
+}
 
-        function startQuaggaScanner() {
-            const reader = document.getElementById('reader');
-            reader.innerHTML = '';
-            Quagga.init({
-                inputStream: {
-                    type: 'LiveStream',
-                    target: reader,
-                    constraints: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } },
-                },
-                decoder: { readers: ['ean_reader', 'ean_8_reader', 'upc_reader', 'upc_e_reader'] },
-                locate: true,
-            }, (err) => {
-                if (err) {
-                    reader.innerHTML = `<div style="padding:20px;text-align:center;color:#fff;">Camera access denied or unavailable.</div>`;
-                    return;
-                }
-                quaggaRunning = true;
-                Quagga.start();
-                Quagga.onDetected(_quaggaHandler);
-            });
-        }
+// ── Modal ─────────────────────────────────────────────────
+function switchModalTab(tab) {
+  document.getElementById('tab-scan').style.display = tab === 'scan' ? 'block' : 'none';
+  document.getElementById('tab-manual').style.display = tab === 'manual' ? 'block' : 'none';
+  document.getElementById('tab-btn-scan').classList.toggle('on', tab === 'scan');
+  document.getElementById('tab-btn-manual').classList.toggle('on', tab === 'manual');
+  if (tab === 'scan') {
+    if (isDesktop) initDesktopScan(); else startScanner();
+  } else {
+    stopDesktopPolling(); stopScanner();
+  }
+}
 
-        function stopNativeScanner() {
-            if (nativeScanLoop) { cancelAnimationFrame(nativeScanLoop); nativeScanLoop = null; }
-            if (nativeStream) { nativeStream.getTracks().forEach(t => t.stop()); nativeStream = null; }
-        }
+// ── Toast ─────────────────────────────────────────────────
+let _tid = 0;
+function pushToast(msg, kind='ok') {
+  const wrap = document.getElementById('toast-wrap');
+  const id = ++_tid;
+  const el = document.createElement('div');
+  el.className = `toast toast--${kind}`;
+  el.innerHTML = `<span class="tdot"></span><span>${msg}</span>`;
+  wrap.appendChild(el);
+  setTimeout(() => { el.classList.add('out'); setTimeout(() => el.remove(), 200); }, 2200);
+}
 
-        function stopQuaggaScanner() {
-            if (quaggaRunning) {
-                Quagga.offDetected(_quaggaHandler);
-                Quagga.stop();
-                quaggaRunning = false;
-            }
-        }
+// ── Scanner ───────────────────────────────────────────────
+let scanQueue = [];
+let scanSessionToken = null;
+let scanPollingInterval = null;
+let scanSeenCount = 0;
+let qrCodeInstance = null;
+let nativeStream = null;
+let nativeScanLoop = null;
+let quaggaRunning = false;
+let scanPaused = false;
 
-        function stopScanner() {
-            stopNativeScanner();
-            stopQuaggaScanner();
-        }
+function extractISBN(raw) {
+  if (!raw) return null;
+  const digits = raw.replace(/[^0-9X]/gi,'').toUpperCase();
+  if (digits.length >= 13 && /^97[89]/.test(digits)) return digits.slice(0,13);
+  if (/^[0-9]{9}[0-9X]$/.test(digits)) return digits;
+  return null;
+}
 
-        async function initDesktopScan() {
-            document.getElementById('scan-desktop').style.display = 'block';
-            document.getElementById('scan-camera').style.display = 'none';
-            document.getElementById('qr-code').innerHTML = '';
-            document.getElementById('desktop-scan-status').textContent = 'Creating scan session…';
-            try {
-                const res = await fetch('/scan/session', { method: 'POST' });
-                const data = await res.json();
-                scanSessionToken = data.token;
-                document.getElementById('scan-url-text').textContent = data.scan_url;
-                document.getElementById('desktop-scan-status').textContent = 'Waiting for phone to scan books…';
-                qrCodeInstance = new QRCode(document.getElementById('qr-code'), {
-                    text: data.scan_url,
-                    width: 200,
-                    height: 200,
-                    colorDark: '#18181b',
-                    colorLight: '#ffffff',
-                    correctLevel: QRCode.CorrectLevel.M,
-                });
-                scanSeenCount = 0;
-                scanPollingInterval = setInterval(pollScanSession, 2000);
-            } catch (err) {
-                console.error('Failed to create scan session:', err);
-                switchToCamera();
-            }
-        }
+const _quaggaHandler = (result) => {
+  const errs = result.codeResult.decodedCodes.filter(c=>c.error!==undefined).map(c=>c.error);
+  if (errs.length && errs.reduce((a,b)=>a+b,0)/errs.length > 0.15) return;
+  const isbn = extractISBN(result.codeResult.code);
+  if (isbn && !scanQueue.includes(isbn)) appendQueue(isbn);
+};
 
-        async function pollScanSession() {
-            if (!scanSessionToken) return;
-            try {
-                const res = await fetch(`/scan/session/${scanSessionToken}/items?after=${scanSeenCount}`);
-                if (!res.ok) { clearInterval(scanPollingInterval); return; }
-                const data = await res.json();
-                if (data.isbns.length > 0) {
-                    for (const isbn of data.isbns) appendQueue(isbn);
-                    scanSeenCount += data.isbns.length;
-                    document.getElementById('desktop-scan-status').textContent =
-                        `${scanSeenCount} book${scanSeenCount !== 1 ? 's' : ''} scanned from phone`;
-                }
-            } catch { /* ignore */ }
-        }
+async function startScanner() {
+  if ('BarcodeDetector' in window) {
+    try { const f = await BarcodeDetector.getSupportedFormats(); if (f.includes('ean_13')){ startNativeScanner(); return; } } catch {}
+  }
+  startQuaggaScanner();
+}
 
-        function switchToCamera() {
-            stopDesktopPolling();
-            document.getElementById('scan-desktop').style.display = 'none';
-            document.getElementById('scan-camera').style.display = 'block';
-            startScanner();
-        }
+async function startNativeScanner() {
+  const reader = document.getElementById('reader');
+  try {
+    nativeStream = await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment',width:{ideal:1280},height:{ideal:720}}});
+    const video = document.createElement('video');
+    video.srcObject = nativeStream; video.setAttribute('playsinline','');
+    video.style.cssText = 'width:100%;height:100%;object-fit:cover;display:block;';
+    reader.innerHTML = ''; reader.appendChild(video); await video.play();
+    const detector = new BarcodeDetector({formats:['ean_13','ean_8','upc_a','upc_e']});
+    const detect = async () => {
+      if (!nativeStream || scanPaused) { nativeScanLoop = requestAnimationFrame(detect); return; }
+      try { for (const {rawValue} of await detector.detect(video)) { const isbn=extractISBN(rawValue); if(isbn&&!scanQueue.includes(isbn))appendQueue(isbn); } } catch {}
+      nativeScanLoop = requestAnimationFrame(detect);
+    };
+    nativeScanLoop = requestAnimationFrame(detect);
+  } catch (err) { stopNativeScanner(); startQuaggaScanner(); }
+}
 
-        function stopDesktopPolling() {
-            if (scanPollingInterval) { clearInterval(scanPollingInterval); scanPollingInterval = null; }
-            scanSessionToken = null;
-        }
+function startQuaggaScanner() {
+  const reader = document.getElementById('reader');
+  reader.innerHTML = '';
+  Quagga.init({
+    inputStream:{type:'LiveStream',target:reader,constraints:{facingMode:'environment',width:{ideal:1280},height:{ideal:720}}},
+    decoder:{readers:['ean_reader','ean_8_reader','upc_reader','upc_e_reader']}, locate:true,
+  }, (err) => {
+    if (err) { reader.innerHTML=`<div style="padding:20px;text-align:center;color:#fff;font-size:13px;">Camera unavailable.</div>`; return; }
+    quaggaRunning = true; Quagga.start(); Quagga.onDetected(_quaggaHandler);
+  });
+}
 
-        function openAddModal() {
-            document.getElementById('add-modal').classList.add('active');
-            if (document.getElementById('tab-scan').classList.contains('active')) {
-                if (isDesktop) { initDesktopScan(); } else { startScanner(); }
-            }
-        }
+function stopNativeScanner() {
+  if (nativeScanLoop) { cancelAnimationFrame(nativeScanLoop); nativeScanLoop=null; }
+  if (nativeStream) { nativeStream.getTracks().forEach(t=>t.stop()); nativeStream=null; }
+}
+function stopQuaggaScanner() {
+  if (quaggaRunning) { Quagga.offDetected(_quaggaHandler); Quagga.stop(); quaggaRunning=false; }
+}
+function stopScanner() { stopNativeScanner(); stopQuaggaScanner(); }
 
-        function closeAddModal() {
-            document.getElementById('add-modal').classList.remove('active');
-            stopDesktopPolling();
-            stopScanner();
-        }
+function toggleScanPause() {
+  scanPaused = !scanPaused;
+  const btn = document.getElementById('cam-pause-btn');
+  const line = document.getElementById('scan-line');
+  if (btn) btn.textContent = scanPaused ? 'Resume' : 'Pause';
+  if (line) line.style.animationPlayState = scanPaused ? 'paused' : 'running';
+  if (quaggaRunning) { scanPaused ? Quagga.stop() : Quagga.start(); }
+}
 
-        function addManualIsbn() {
-            const val = document.getElementById('manual-isbn').value.trim();
-            if (val) {
-                appendQueue(val);
-                document.getElementById('manual-isbn').value = "";
-            }
-        }
+async function initDesktopScan() {
+  document.getElementById('scan-desktop').style.display = 'block';
+  document.getElementById('scan-camera').style.display = 'none';
+  document.getElementById('qr-code').innerHTML = '';
+  document.getElementById('desktop-scan-status').textContent = 'Creating scan session…';
+  try {
+    const res = await fetch('/scan/session', {method:'POST'});
+    const data = await res.json();
+    scanSessionToken = data.token;
+    document.getElementById('scan-url-text').textContent = data.scan_url;
+    document.getElementById('desktop-scan-status').textContent = 'Waiting for phone to scan books…';
+    if (qrCodeInstance) { try { qrCodeInstance.clear(); } catch {} }
+    qrCodeInstance = new QRCode(document.getElementById('qr-code'), {
+      text:data.scan_url, width:180, height:180,
+      colorDark:'#1A1714', colorLight:'#ffffff', correctLevel:QRCode.CorrectLevel.M,
+    });
+    scanSeenCount = 0;
+    scanPollingInterval = setInterval(pollScanSession, 2000);
+  } catch { switchToCamera(); }
+}
 
-        async function appendQueue(isbn) {
-            // Guard against duplicates that bypassed the startScanner check rapidly
-            if (scanQueue.includes(isbn)) return;
+async function pollScanSession() {
+  if (!scanSessionToken) return;
+  try {
+    const res = await fetch(`/scan/session/${scanSessionToken}/items?after=${scanSeenCount}`);
+    if (!res.ok) { clearInterval(scanPollingInterval); return; }
+    const data = await res.json();
+    if (data.isbns.length > 0) {
+      for (const isbn of data.isbns) appendQueue(isbn);
+      scanSeenCount += data.isbns.length;
+      document.getElementById('desktop-scan-status').textContent = `${scanSeenCount} book${scanSeenCount!==1?'s':''} scanned from phone`;
+    }
+  } catch {}
+}
 
-            document.getElementById('queue-empty').style.display = 'none';
-            const queueDiv = document.getElementById('scan-queue');
+function switchToCamera() {
+  stopDesktopPolling();
+  document.getElementById('scan-desktop').style.display = 'none';
+  document.getElementById('scan-camera').style.display = 'block';
+  const showQR = document.getElementById('show-qr-btn');
+  if (showQR) showQR.style.display = isDesktop ? 'flex' : 'none';
+  startScanner();
+}
 
-            const li = document.createElement('div');
-            li.className = 'queue-item';
-            li.innerHTML = `
-                <div style="background:#eee; width:32px; height:48px; border-radius:4px; flex-shrink:0;"></div>
-                <div style="flex:1;">
-                    <div style="font-weight:600; font-size:0.9rem;">Looking up...</div>
-                    <div style="font-size:0.8rem; color:#71717a;">${isbn}</div>
-                </div>
-            `;
-            queueDiv.prepend(li);
+function switchToQR() {
+  stopScanner();
+  document.getElementById('scan-camera').style.display = 'none';
+  initDesktopScan();
+}
 
-            // Queue state update
-            scanQueue.push(isbn);
-            document.getElementById('queue-count').innerText = scanQueue.length;
+function stopDesktopPolling() {
+  if (scanPollingInterval) { clearInterval(scanPollingInterval); scanPollingInterval=null; }
+  scanSessionToken = null;
+}
 
-            try {
-                const res = await fetch(`/books/lookup/${isbn}`);
-                if (res.ok) {
-                    const book = await res.json();
-                    li.innerHTML = `
-                        <img src="${(book.covers && book.covers[0]) ? (book.covers[0].small || book.covers[0].medium) : ''}" onerror="this.style.display='none'">
-                        <div style="flex:1; overflow:hidden;">
-                            <div style="font-weight:600; font-size:0.9rem; white-space:nowrap; text-overflow:ellipsis; overflow:hidden;">${book.title}</div>
-                            <div style="font-size:0.8rem; color:#71717a;">${book.authors?.[0]?.name || 'Unknown Author'}</div>
-                        </div>
-                    `;
-                } else {
-                    li.innerHTML = `
-                        <div style="background:#ffcccb; width:32px; height:48px; border-radius:4px;"></div>
-                        <div style="flex:1;">
-                            <div style="font-weight:600; font-size:0.9rem; color:red;">Not found</div>
-                            <div style="font-size:0.8rem; color:#71717a;">${isbn}</div>
-                        </div>
-                    `;
-                }
-            } catch (err) {
-                console.error(err);
-            }
-        }
+function openAddModal() {
+  document.getElementById('add-modal').classList.add('active');
+  document.body.style.overflow = 'hidden';
+  if (document.getElementById('tab-scan').style.display !== 'none') {
+    if (isDesktop) initDesktopScan(); else startScanner();
+  }
+}
 
-        function stashQueueAndGo() {
-            sessionStorage.setItem('pendingScanQueue', JSON.stringify(scanQueue));
-        }
+function closeAddModal() {
+  document.getElementById('add-modal').classList.remove('active');
+  document.body.style.overflow = '';
+  stopDesktopPolling(); stopScanner();
+}
 
-        async function saveBatchLibrary(btn) {
-            if (scanQueue.length === 0) {
-                closeAddModal();
-                return;
-            }
+function addManualIsbn() {
+  const val = document.getElementById('manual-isbn').value.trim();
+  if (val) { appendQueue(val); document.getElementById('manual-isbn').value = ''; }
+}
 
-            if (!isLoggedIn) {
-                const prompt = document.getElementById('auth-prompt');
-                document.getElementById('auth-prompt-count').textContent = scanQueue.length;
-                document.getElementById('auth-prompt-plural').textContent = scanQueue.length !== 1 ? 's' : '';
-                prompt.style.display = 'block';
-                prompt.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                return;
-            }
+function updateQueueBadge() {
+  const n = scanQueue.length;
+  const badge = document.getElementById('nav-badge');
+  const addBtn = document.getElementById('nav-add-btn');
+  const countBadge = document.getElementById('queue-count-badge');
+  if (badge) badge.textContent = n;
+  if (addBtn) addBtn.classList.toggle('has-queue', n > 0);
+  if (countBadge) {
+    countBadge.textContent = n + ' ' + (n === 1 ? 'book' : 'books');
+    countBadge.classList.toggle('has', n > 0);
+  }
+  const authCount = document.getElementById('auth-prompt-count');
+  const authPlural = document.getElementById('auth-prompt-plural');
+  if (authCount) authCount.textContent = n;
+  if (authPlural) authPlural.textContent = n !== 1 ? 's' : '';
+}
 
-            document.getElementById('auth-prompt').style.display = 'none';
+async function appendQueue(isbn) {
+  if (scanQueue.includes(isbn)) return;
+  document.getElementById('queue-empty').style.display = 'none';
+  const list = document.getElementById('scan-queue');
 
-            const is_public = document.getElementById('batch-visibility').value === 'public';
-            const statusStr = document.getElementById('batch-status').value;
+  const chip = document.createElement('div');
+  chip.className = 'd-queue-chip';
+  chip.innerHTML = `
+    <div class="d-queue-chip-cover" style="background:var(--ink-blue);display:flex;align-items:center;justify-content:center;">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(244,238,226,0.6)" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"/></svg>
+    </div>
+    <div style="flex:1;min-width:0;">
+      <div class="d-queue-chip-title">Looking up…</div>
+      <div class="d-queue-chip-isbn">${isbn}</div>
+    </div>
+    <button onclick="removeQueueItem('${isbn}',this.closest('.d-queue-chip'))" class="f-iconbtn" style="width:28px;height:28px;">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </button>
+  `;
+  list.prepend(chip);
+  scanQueue.push(isbn);
+  updateQueueBadge();
 
-            const origHtml = btn ? btn.innerHTML : '';
-            if (btn) btn.innerHTML = 'Saving...';
+  try {
+    const res = await fetch(`/books/lookup/${isbn}`);
+    if (res.ok) {
+      const book = await res.json();
+      const cover = chip.querySelector('.d-queue-chip-cover');
+      if (book.covers && book.covers[0]) {
+        const src = book.covers[0].small || book.covers[0].medium;
+        if (src) cover.innerHTML = `<img src="${src}" style="width:100%;height:100%;object-fit:cover;">`;
+      }
+      chip.querySelector('.d-queue-chip-title').textContent = book.title || isbn;
+      pushToast('Added · ' + (book.title || isbn), 'ok');
+    } else {
+      chip.querySelector('.d-queue-chip-title').textContent = 'Not found';
+      chip.querySelector('.d-queue-chip-title').style.color = '#d65d4a';
+    }
+  } catch {}
+}
 
-            const entries = scanQueue.map(isbn => ({
-                isbn: isbn,
-                is_public: is_public,
-                status: statusStr,
-                comment: ''
-            }));
+function removeQueueItem(isbn, chipEl) {
+  scanQueue = scanQueue.filter(i => i !== isbn);
+  chipEl.remove();
+  if (!scanQueue.length) document.getElementById('queue-empty').style.display = '';
+  updateQueueBadge();
+}
 
-            try {
-                const response = await fetch('/books/user_books/batch', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ entries: entries })
-                });
+function stashQueueAndGo() {
+  sessionStorage.setItem('pendingScanQueue', JSON.stringify(scanQueue));
+}
 
-                if (response.ok) {
-                    window.location.hash = '#profile';
-                    window.location.reload();
-                } else {
-                    alert('Error saving books');
-                }
-            } catch (e) {
-                alert('Connection error');
-            } finally {
-                if (btn) btn.innerHTML = origHtml;
-            }
-        }
+async function saveBatchLibrary(btn) {
+  if (scanQueue.length === 0) { closeAddModal(); return; }
+  const is_public = document.getElementById('batch-visibility').value === 'public';
+  const status = document.getElementById('batch-status').value;
+  const orig = btn ? btn.innerHTML : '';
+  if (btn) btn.innerHTML = 'Saving…';
+  const entries = scanQueue.map(isbn => ({isbn, is_public, status, comment:''}));
+  try {
+    const res = await fetch('/books/user_books/batch', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({entries}),
+    });
+    if (res.ok) { window.location.hash='#home'; window.location.reload(); }
+    else { pushToast('Error saving books', 'err'); if (btn) btn.innerHTML = orig; }
+  } catch { pushToast('Connection error','err'); if (btn) btn.innerHTML = orig; }
+}
 
-        async function saveBookChanges(btn, userBookId) {
-            const container = btn.closest('.profile-book-expanded');
-            const status    = container.querySelector('.status-select').value;
-            const is_public = container.querySelector('.visibility-select').value === 'true';
-            const comment   = container.querySelector('.comment-textarea').value;
-            const origHtml  = btn.innerHTML;
-            btn.innerHTML   = 'Saving…';
-            try {
-                const res = await fetch(`/books/user_books/${userBookId}`, {
-                    method: 'PATCH',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ status, is_public, comment }),
-                });
-                if (res.ok) {
-                    const item  = btn.closest('.profile-book-item');
-                    const badge = item.querySelector('.badge');
-                    badge.className   = `badge badge-${status}`;
-                    badge.textContent = status.toUpperCase();
-                    item.classList.remove('expanded');
-                    btn.innerHTML = '✓ Saved';
-                } else {
-                    btn.innerHTML = 'Error';
-                }
-            } catch {
-                btn.innerHTML = 'Error';
-            }
-            setTimeout(() => { btn.innerHTML = origHtml; }, 2000);
-        }
-
-        async function updateProfileVisibility(value) {
-            await fetch('/auth/profile', {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ is_profile_public: value === 'true' }),
-            });
-        }
-
-        const pendingScansStr = sessionStorage.getItem('pendingScanQueue');
-        if (isLoggedIn && pendingScansStr) {
-            scanQueue = JSON.parse(pendingScansStr);
-            sessionStorage.removeItem('pendingScanQueue');
-            saveBatchLibrary(null);
-        } else {
-            const hash = window.location.hash.slice(1);
-            switchView(['home', 'books', 'profile'].includes(hash) ? hash : 'home');
-        }
-    </script>
+// ── Init ──────────────────────────────────────────────────
+const pendingScans = sessionStorage.getItem('pendingScanQueue');
+if (isLoggedIn && pendingScans) {
+  scanQueue = JSON.parse(pendingScans);
+  sessionStorage.removeItem('pendingScanQueue');
+  updateQueueBadge();
+  // auto-save without opening modal
+  const entries = scanQueue.map(isbn => ({isbn, is_public:true, status:'unread', comment:''}));
+  fetch('/books/user_books/batch', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({entries})})
+    .then(r => { if(r.ok){ window.location.hash='#home'; window.location.reload(); } });
+} else {
+  const hash = window.location.hash.slice(1);
+  switchView(['home','books','profile'].includes(hash) ? hash : 'home');
+}
+</script>
 </body>
-
 </html>
