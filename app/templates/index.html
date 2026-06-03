@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Folio</title>
+<title>Morus</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -60,7 +60,7 @@ html,body{margin:0;padding:0;font-family:var(--font-sans);font-size:14px;backgro
 .f-iconbtn:active{transform:scale(0.9)}
 
 /* ── Bottom tab bar ─────────────────────────────────────── */
-.f-tabbar{position:fixed;bottom:0;left:0;right:0;z-index:20;display:flex;align-items:stretch;padding:7px 10px calc(env(safe-area-inset-bottom,0px) + 14px);background:linear-gradient(to top,var(--paper) 70%,transparent);border-top:1px solid var(--hair)}
+.f-tabbar{position:fixed;bottom:0;left:0;right:0;z-index:20;display:flex;align-items:stretch;padding:7px 10px calc(env(safe-area-inset-bottom,0px) + 14px);background:var(--paper);border-top:1px solid var(--hair)}
 @media(min-width:900px){.f-tabbar{display:none}}
 .f-tab{flex:1;background:none;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 0 4px;color:var(--ink-faint);font-family:var(--font-mono);font-size:9px;letter-spacing:0.1em;text-transform:uppercase;transition:color 120ms var(--ease-out);-webkit-tap-highlight-color:transparent}
 .f-tab.active{color:var(--ink)}
@@ -244,23 +244,53 @@ main{max-width:1160px;margin:0 auto;padding:40px 28px 110px}
 .empty-state{padding:64px 0;text-align:center;color:var(--ink-faint)}
 .empty-state .f-label{margin-bottom:8px}
 .empty-state p{font-size:14px}
+
+/* ── Pin button (profile grid hover) ─────────────────────── */
+.d-cover-wrap{position:relative}
+.d-pin{position:absolute;top:8px;right:8px;z-index:4;width:30px;height:30px;border-radius:7px;border:none;cursor:pointer;display:grid;place-items:center;color:var(--ink);background:rgba(244,238,226,0.88);backdrop-filter:blur(5px);box-shadow:0 4px 12px rgba(0,0,0,0.06),inset 0 0 0 1px var(--hair-strong);opacity:0;transform:translateY(-3px) scale(0.9);transition:opacity 120ms var(--ease-out),transform 120ms var(--ease-out),background 120ms var(--ease-out)}
+.d-cell:hover .d-pin{opacity:1;transform:none}
+.d-pin:hover{background:var(--paper)}
+.d-pin:active{transform:scale(0.88)}
+.d-pin.pinned{opacity:1;transform:none;color:var(--amber-fg);background:var(--amber);box-shadow:0 4px 12px rgba(0,0,0,0.06)}
+.d-cell-pin-flag{font-family:var(--font-mono);font-size:8.5px;letter-spacing:0.06em;color:#9a6a13;display:inline-flex;align-items:center;gap:4px}
+
+/* ── Share popover ───────────────────────────────────────── */
+.d-share-wrap{position:relative}
+.d-share-pop{position:absolute;top:calc(100% + 10px);right:0;z-index:50;width:300px;background:var(--paper);border-radius:12px;box-shadow:var(--shadow-xl);border:1px solid var(--hair);padding:16px;display:none}
+.d-share-pop.open{display:block;animation:dialog-in 180ms var(--ease-out)}
+.d-share-row{display:flex;align-items:center;gap:8px;margin-top:10px}
+.d-share-link{flex:1;min-width:0;font-family:var(--font-mono);font-size:11px;color:var(--ink);background:var(--paper-2);border:1px solid var(--hair-strong);border-radius:7px;padding:8px 10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* ── Colophon / essay band ───────────────────────────────── */
+.d-colophon{display:grid;grid-template-columns:200px 1fr;gap:48px;padding:48px 0;margin:0 0 4px;border-top:1px solid var(--hair-strong);border-bottom:1px solid var(--hair-strong)}
+@media(max-width:640px){.d-colophon{grid-template-columns:1fr;gap:24px}}
+.d-colophon .aside .berry{color:var(--ink-blue);display:inline-flex;margin-bottom:10px}
+.d-colophon .aside .cap{margin-top:6px;max-width:180px}
+.d-colophon .essay p{font-size:15px;line-height:1.62;color:var(--ink-soft);margin:0 0 14px;max-width:580px}
+.d-colophon .essay p:first-child{color:var(--ink);font-size:17px}
+.d-colophon .essay a{color:var(--ink);text-decoration:none;box-shadow:inset 0 -1px 0 0 var(--amber);padding-bottom:1px;transition:box-shadow 120ms}
+.d-colophon .essay a:hover{box-shadow:inset 0 -2px 0 0 var(--amber)}
+.d-colophon .essay .meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}
+.d-colophon .essay .meta a{box-shadow:inset 0 0 0 1px var(--hair-strong);color:var(--ink);padding:7px 11px;border-radius:7px;font-family:var(--font-mono);font-size:10px;letter-spacing:0.04em;transition:background 120ms}
+.d-colophon .essay .meta a:hover{background:rgba(26,23,20,0.04);box-shadow:inset 0 0 0 1px var(--hair-strong)}
+
+/* ── Footer ──────────────────────────────────────────────── */
+.d-footer{display:flex;align-items:flex-start;justify-content:space-between;gap:36px;padding:40px 0 8px;margin-top:44px;border-top:1px solid var(--hair);flex-wrap:wrap}
+.d-footer-cols{display:flex;gap:56px;flex-wrap:wrap}
+.d-footer-col{display:flex;flex-direction:column;gap:9px}
+.d-footer-col a,.d-footer-col button{background:none;border:none;cursor:pointer;padding:0;text-align:left;font-family:var(--font-sans);font-size:13px;color:var(--ink-soft);text-decoration:none;transition:color 120ms;display:inline-flex;align-items:center;gap:6px}
+.d-footer-col a:hover,.d-footer-col button:hover{color:var(--ink)}
+.d-footer-fine{font-family:var(--font-mono);font-size:10px;color:var(--ink-faint);letter-spacing:0.04em;max-width:220px;line-height:1.6;margin-top:12px}
 </style>
 </head>
 <body>
 
 <!-- ── Navbar ────────────────────────────────────────────── -->
 <nav class="d-nav">
-  <a class="d-logo" href="/">
-    <span class="d-logo-mark">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"/></svg>
-    </span>
-    Folio
-  </a>
   <div class="d-navlinks">
-    {% if user %}
-    <button class="d-navlink" data-nav="home" onclick="switchView('home')">Library</button>
-    {% endif %}
+    <button class="d-navlink" data-nav="home" onclick="switchView('home')">Home</button>
     <button class="d-navlink" data-nav="books" onclick="switchView('books')">Explore</button>
+    <a class="d-navlink" href="/guide" style="text-decoration:none;display:inline-flex;flex-direction:column;align-items:center;">Guide</a>
     {% if user %}
     <button class="d-navlink" data-nav="profile" onclick="switchView('profile')">Profile</button>
     {% endif %}
@@ -283,19 +313,18 @@ main{max-width:1160px;margin:0 auto;padding:40px 28px 110px}
 
   <!-- HOME / LANDING VIEW -->
   <div id="view-home" class="view f-rise">
-    {% if not user %}
     <!-- Logged out hero -->
     <div class="d-hero">
       <div>
-        <div class="d-hero-label">Folio · A library of record</div>
-        <h1>Your physical library, beautifully digitized.</h1>
-        <p>Scan a barcode and we pull the rest from Open Library — covers, subjects, the lot — and bind it into a catalog worth browsing.</p>
+        <div class="d-hero-label">Morus · A record of your books</div>
+        <h1>Keep track of the books you own.</h1>
+        <p>Scan a barcode. Morus pulls the cover, author, and page count from Open Library and adds the book to your shelf.</p>
         <div class="hero-btns">
           <button class="f-btn f-btn--amber" onclick="openAddModal()" style="padding:13px 20px;font-size:14px;">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M7 12h10"/></svg>
             Scan a book
           </button>
-          <button class="f-btn f-btn--ghost" onclick="switchView('books')" style="padding:13px 20px;font-size:14px;">Browse the shelf</button>
+          <button class="f-btn f-btn--ghost" onclick="switchView('books')" style="padding:13px 20px;font-size:14px;">Browse</button>
         </div>
       </div>
       <div class="d-fan">
@@ -303,72 +332,35 @@ main{max-width:1160px;margin:0 auto;padding:40px 28px 110px}
         {% set rots = [-11, 2, 12] %}{% set xs = [20, 100, 180] %}{% set ys = [30, 0, 50] %}{% set zs = [1,3,1] %}
         <div class="d-fan-book" style="left:{{ xs[loop.index0] }}px;top:{{ ys[loop.index0] }}px;transform:rotate({{ rots[loop.index0] }}deg);z-index:{{ zs[loop.index0] }};">
           <div class="d-cover-inner" style="width:140px;">
-            {% if b.covers %}<img class="d-cover-img" src="{{ b.covers[0].medium or b.covers[0].small or b.covers[0].large }}" alt="{{ b.title }}" loading="lazy">{% else %}<div class="d-cover-ph" style="background:{{ cover_bg(loop.index0) }};color:{{ cover_fg(loop.index0) }};"><div class="cp-shadow"></div><div class="cp-label"><span>Folio</span><span>{{ b.publish_date[:4] if b.publish_date else '—' }}</span></div><div class="cp-title">{{ b.title[:40] }}</div><div class="cp-rule" style="background:currentColor;"></div><div class="cp-author">{{ (b.authors[0].name if b.authors else 'Unknown')|truncate(20,true,'') }}</div></div>{% endif %}
+            {% if b.covers %}<img class="d-cover-img" src="{{ b.covers[0].medium or b.covers[0].small or b.covers[0].large }}" alt="{{ b.title }}" loading="lazy">{% else %}<div class="d-cover-ph" style="background:{{ cover_bg(loop.index0) }};color:{{ cover_fg(loop.index0) }};"><div class="cp-shadow"></div><div class="cp-label"><span>Morus</span><span>{{ b.publish_date[:4] if b.publish_date else '—' }}</span></div><div class="cp-title">{{ b.title[:40] }}</div><div class="cp-rule" style="background:currentColor;"></div><div class="cp-author">{{ (b.authors[0].name if b.authors else 'Unknown')|truncate(20,true,'') }}</div></div>{% endif %}
           </div>
         </div>
         {% endfor %}
       </div>
     </div>
-    <div style="height:1px;background:var(--hair-strong);margin-bottom:24px;"></div>
-    <div class="f-label" style="margin-bottom:16px;">Recently shelved · community</div>
-    {% endif %}
-
-    {% if user %}
-    <!-- Logged in library -->
-    <div class="d-masthead">
-      <div class="d-masthead-left">
-        <div class="d-bignum" id="lib-bignum">{{ user_books|length }}</div>
-        <div style="padding-bottom:10px;">
-          <div class="d-masthead-label">volumes</div>
-          <div class="d-masthead-sub" id="lib-sub">{{ n_reading }} reading · {{ n_read }} read</div>
+    <!-- Colophon -->
+    <div class="d-colophon">
+      <div class="aside">
+        <div class="berry">
+          <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.55" stroke-linecap="round" stroke-linejoin="round"><g fill="currentColor" stroke="none"><circle cx="10.7" cy="9.4" r="1.5"/><circle cx="13.3" cy="9.4" r="1.5"/><circle cx="9.5" cy="11.7" r="1.5"/><circle cx="12" cy="11.7" r="1.5"/><circle cx="14.5" cy="11.7" r="1.5"/><circle cx="9.6" cy="14" r="1.5"/><circle cx="12" cy="14" r="1.5"/><circle cx="14.4" cy="14" r="1.5"/><circle cx="10.4" cy="16.2" r="1.5"/><circle cx="13.6" cy="16.2" r="1.5"/><circle cx="12" cy="18.2" r="1.5"/></g><path d="M12 7.6 9.9 4.8" stroke-width="1.5"/><path d="M12 7.6V4.1" stroke-width="1.5"/><path d="m12 7.6 2.1-2.8" stroke-width="1.5"/></svg>
         </div>
+        <div class="f-label cap" style="margin-top:8px;max-width:180px;">A note on why this exists</div>
       </div>
-      <div class="d-filters">
-        <button class="d-chip on" data-filter="all" onclick="filterLib(this,'all')">All <span>{{ user_books|length }}</span></button>
-        <button class="d-chip" data-filter="reading" onclick="filterLib(this,'reading')">Reading <span>{{ n_reading }}</span></button>
-        <button class="d-chip" data-filter="unread" onclick="filterLib(this,'unread')">Unread <span>{{ n_unread }}</span></button>
-        <button class="d-chip" data-filter="read" onclick="filterLib(this,'read')">Read <span>{{ n_read }}</span></button>
+      <div class="essay">
+        <p>Morus keeps a record of the books I own — read, reading, and not yet started. That's the whole idea.</p>
+        <p>The catalogue data comes from <a href="https://openlibrary.org" target="_blank" rel="noreferrer">Open Library</a>, the free and editable record of the world's books. Covers, page counts, publishers — all of it. Morus is a front end for browsing and shelving it.</p>
+        <p>It's free and open source. No tracking, no ads. I built it for myself and put it online in case it's useful to you. The code, and the rest of my work, is at <a href="https://nty.et" target="_blank" rel="noreferrer">nty.et</a>.</p>
+        <p style="font-size:13px;color:var(--ink-faint);">Morus is the Latin name for the mulberry — the tree in the story of Pyramus and Thisbe.</p>
+        <div class="meta">
+          <a href="https://nty.et" target="_blank" rel="noreferrer">nty.et</a>
+          <a href="https://openlibrary.org" target="_blank" rel="noreferrer">Open Library</a>
+          <a href="/guide">User guide</a>
+        </div>
       </div>
     </div>
 
-    <div class="d-grid" id="lib-grid">
-      {% for item in user_books %}
-      {% set b = item.book %}
-      {% set ub = item.user_book %}
-      {% set st = ub.status or 'unread' %}
-      <div class="d-cell" data-status="{{ st }}" onclick="openDrawer('{{ b.id }}')">
-        <div class="d-cover-wrap">
-          <div class="d-cover-inner">
-            {% if b.covers %}
-            <img class="d-cover-img" src="{{ b.covers[0].medium or b.covers[0].small or b.covers[0].large }}" alt="{{ b.title }}" loading="lazy">
-            {% else %}
-            <div class="d-cover-ph" style="background:{{ cover_bg(loop.index0) }};color:{{ cover_fg(loop.index0) }};">
-              <div class="cp-shadow"></div>
-              <div class="cp-label"><span>Folio</span><span>{{ b.publish_date[:4] if b.publish_date else '—' }}</span></div>
-              <div class="cp-title">{{ b.title[:40] }}</div>
-              <div class="cp-rule" style="background:currentColor;"></div>
-              <div class="cp-author">{{ (b.authors[0].name if b.authors else 'Unknown')|truncate(20,true,'') }}</div>
-            </div>
-            {% endif %}
-          </div>
-        </div>
-        <div class="d-cell-meta">
-          <div class="d-cell-row">
-            <span class="d-cell-num">№ {{ '%02d'|format(loop.index) }}</span>
-            <span class="f-status" data-s="{{ st }}"><span class="pip"></span>{{ st|title }}</span>
-          </div>
-          <div class="d-cell-title">{{ b.title }}</div>
-          <div class="d-cell-author">{{ b.authors[0].name if b.authors else 'Unknown' }}</div>
-        </div>
-      </div>
-      {% else %}
-      <div class="empty-state" style="grid-column:1/-1;">
-        <div class="f-label" style="margin-bottom:8px;">Nothing here yet</div>
-        <p>Add your first book to get started.</p>
-      </div>
-      {% endfor %}
-    </div>
-    {% else %}
+    <div class="f-label" style="margin-bottom:16px;margin-top:36px;">Recently shelved · community</div>
+
     <!-- Community strip on landing -->
     <div class="d-grid">
       {% for b in all_books[:12] %}
@@ -380,7 +372,7 @@ main{max-width:1160px;margin:0 auto;padding:40px 28px 110px}
             {% else %}
             <div class="d-cover-ph" style="background:{{ cover_bg(loop.index0) }};color:{{ cover_fg(loop.index0) }};">
               <div class="cp-shadow"></div>
-              <div class="cp-label"><span>Folio</span><span>{{ b.publish_date[:4] if b.publish_date else '—' }}</span></div>
+              <div class="cp-label"><span>Morus</span><span>{{ b.publish_date[:4] if b.publish_date else '—' }}</span></div>
               <div class="cp-title">{{ b.title[:40] }}</div>
               <div class="cp-rule" style="background:currentColor;"></div>
               <div class="cp-author">{{ (b.authors[0].name if b.authors else 'Unknown')|truncate(20,true,'') }}</div>
@@ -398,15 +390,38 @@ main{max-width:1160px;margin:0 auto;padding:40px 28px 110px}
       </div>
       {% endfor %}
     </div>
-    {% endif %}
+
+    <!-- Footer -->
+    <div class="d-footer">
+      <div>
+        <div style="display:flex;align-items:center;gap:8px;font-weight:600;font-size:16px;letter-spacing:-0.03em;color:var(--ink);">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--ink-blue)" stroke-width="1.55" stroke-linecap="round" stroke-linejoin="round"><g fill="var(--ink-blue)" stroke="none"><circle cx="10.7" cy="9.4" r="1.5"/><circle cx="13.3" cy="9.4" r="1.5"/><circle cx="9.5" cy="11.7" r="1.5"/><circle cx="12" cy="11.7" r="1.5"/><circle cx="14.5" cy="11.7" r="1.5"/><circle cx="9.6" cy="14" r="1.5"/><circle cx="12" cy="14" r="1.5"/><circle cx="14.4" cy="14" r="1.5"/><circle cx="10.4" cy="16.2" r="1.5"/><circle cx="13.6" cy="16.2" r="1.5"/><circle cx="12" cy="18.2" r="1.5"/></g><path d="M12 7.6 9.9 4.8" stroke-width="1.5"/><path d="M12 7.6V4.1" stroke-width="1.5"/><path d="m12 7.6 2.1-2.8" stroke-width="1.5"/></svg>
+          Morus
+        </div>
+        <div class="d-footer-fine">A record of the books you own. Built on Open Library, free and open source.</div>
+      </div>
+      <div class="d-footer-cols">
+        <div class="d-footer-col">
+          <div class="f-label" style="margin-bottom:2px;">Morus</div>
+          <button onclick="switchView('home')">Home</button>
+          <button onclick="switchView('books')">Explore</button>
+          <a href="/guide">User guide</a>
+        </div>
+        <div class="d-footer-col">
+          <div class="f-label" style="margin-bottom:2px;">Built on</div>
+          <a href="https://openlibrary.org" target="_blank" rel="noreferrer">Open Library <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg></a>
+          <a href="https://nty.et" target="_blank" rel="noreferrer">nty.et <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg></a>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- EXPLORE VIEW -->
   <div id="view-books" class="view f-rise">
     <div style="margin-bottom:28px;">
-      <div class="f-label" style="margin-bottom:10px;">The community shelf</div>
-      <h1 style="font-weight:600;font-size:clamp(28px,5vw,48px);letter-spacing:-0.04em;margin:0;">Recently shelved</h1>
-      <p style="font-size:14px;color:var(--ink-soft);margin-top:10px;max-width:420px;">The latest books added across Folio. Click any cover to see its full record.</p>
+      <div class="f-label" style="margin-bottom:10px;">Community</div>
+      <h1 style="font-weight:600;font-size:clamp(28px,5vw,48px);letter-spacing:-0.04em;margin:0;">Recently added</h1>
+      <p style="font-size:14px;color:var(--ink-soft);margin-top:10px;max-width:420px;">The newest books added across Morus. Click any cover for its record.</p>
     </div>
     <div class="d-grid">
       {% for b in all_books[:50] %}
@@ -418,7 +433,7 @@ main{max-width:1160px;margin:0 auto;padding:40px 28px 110px}
             {% else %}
             <div class="d-cover-ph" style="background:{{ cover_bg(loop.index0) }};color:{{ cover_fg(loop.index0) }};">
               <div class="cp-shadow"></div>
-              <div class="cp-label"><span>Folio</span><span>{{ b.publish_date[:4] if b.publish_date else '—' }}</span></div>
+              <div class="cp-label"><span>Morus</span><span>{{ b.publish_date[:4] if b.publish_date else '—' }}</span></div>
               <div class="cp-title">{{ b.title[:40] }}</div>
               <div class="cp-rule" style="background:currentColor;"></div>
               <div class="cp-author">{{ (b.authors[0].name if b.authors else 'Unknown')|truncate(20,true,'') }}</div>
@@ -445,12 +460,26 @@ main{max-width:1160px;margin:0 auto;padding:40px 28px 110px}
       <div class="d-profile-avatar">{{ user.firstname[0] }}{{ user.lastname[0] if user.lastname else '' }}</div>
       <div>
         <h1 class="d-profile-name">{{ user.firstname }} {{ user.lastname }}</h1>
-        <div class="d-profile-handle">@{{ user.email.split('@')[0] }}</div>
+        <div class="d-profile-handle">@{{ user_handle }} · morus/u/{{ user_handle }}</div>
       </div>
       <div class="d-profile-actions">
         <div class="d-vis-toggle">
           <button class="d-vis-btn {{ 'on' if user.is_profile_public else '' }}" onclick="setVis('public',this)">Public</button>
           <button class="d-vis-btn {{ '' if user.is_profile_public else 'on' }}" onclick="setVis('private',this)">Private</button>
+        </div>
+        <div class="d-share-wrap" id="share-btn-wrap" style="{{ '' if user.is_profile_public else 'display:none' }}">
+          <button class="f-btn f-btn--ghost" onclick="toggleShare()" id="share-btn">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><path d="m16 6-4-4-4 4"/><path d="M12 2v13"/></svg>
+            Share
+          </button>
+          <div class="d-share-pop" id="share-pop">
+            <div class="f-label">Share your shelf</div>
+            <div style="font-size:12.5px;color:var(--ink-soft);margin-top:6px;line-height:1.5;">Anyone with the link can view your public books.</div>
+            <div class="d-share-row">
+              <div class="d-share-link" id="share-link-text">/u/{{ user_handle }}</div>
+              <button class="f-btn f-btn--ink" onclick="copyProfileLink()" style="padding:0 14px;height:36px;font-size:12px;">Copy</button>
+            </div>
+          </div>
         </div>
         <a href="/auth/logout" class="f-btn f-btn--ghost" style="text-decoration:none;">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/></svg>
@@ -466,7 +495,10 @@ main{max-width:1160px;margin:0 auto;padding:40px 28px 110px}
       <div class="d-stat-cell"><div class="d-stat-num">{{ n_unread }}</div><div class="d-stat-label">Unread</div></div>
     </div>
 
-    <div class="f-label" style="margin-bottom:16px;">The collection</div>
+    <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:16px;">
+      <div class="f-label">The collection</div>
+      <div class="f-label" style="color:var(--ink-faint);">Hover a cover to pin it</div>
+    </div>
     <div class="d-grid">
       {% for item in user_books %}
       {% set b = item.book %}
@@ -480,17 +512,29 @@ main{max-width:1160px;margin:0 auto;padding:40px 28px 110px}
             {% else %}
             <div class="d-cover-ph" style="background:{{ cover_bg(loop.index0) }};color:{{ cover_fg(loop.index0) }};">
               <div class="cp-shadow"></div>
-              <div class="cp-label"><span>Folio</span><span>{{ b.publish_date[:4] if b.publish_date else '—' }}</span></div>
+              <div class="cp-label"><span>Morus</span><span>{{ b.publish_date[:4] if b.publish_date else '—' }}</span></div>
               <div class="cp-title">{{ b.title[:40] }}</div>
               <div class="cp-rule" style="background:currentColor;"></div>
               <div class="cp-author">{{ (b.authors[0].name if b.authors else 'Unknown')|truncate(20,true,'') }}</div>
             </div>
             {% endif %}
           </div>
+          <button class="d-pin {{ 'pinned' if ub.is_pinned else '' }}" data-ub-id="{{ ub.id }}" data-pinned="{{ 'true' if ub.is_pinned else 'false' }}"
+            title="{{ 'Unpin' if ub.is_pinned else 'Pin to top' }}" aria-label="{{ 'Unpin' if ub.is_pinned else 'Pin to top' }}"
+            onclick="event.stopPropagation();togglePin(this)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17v5"/><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1Z"/></svg>
+          </button>
         </div>
         <div class="d-cell-meta">
           <div class="d-cell-row">
+            {% if ub.is_pinned %}
+            <span class="d-cell-pin-flag">
+              <svg width="9" height="9" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 17v5M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1Z"/></svg>
+              Pinned
+            </span>
+            {% else %}
             <span class="d-cell-num">№ {{ '%02d'|format(loop.index) }}</span>
+            {% endif %}
             <span class="f-status" data-s="{{ st }}"><span class="pip"></span>{{ st|title }}</span>
           </div>
           <div class="d-cell-title">{{ b.title }}</div>
@@ -549,7 +593,7 @@ main{max-width:1160px;margin:0 auto;padding:40px 28px 110px}
         {% else %}
         <div class="d-cover-ph" style="background:{{ cover_bg(loop.index0) }};color:{{ cover_fg(loop.index0) }};height:165px;">
           <div class="cp-shadow"></div>
-          <div class="cp-label"><span>Folio</span><span>{{ b.publish_date[:4] if b.publish_date else '—' }}</span></div>
+          <div class="cp-label"><span>Morus</span><span>{{ b.publish_date[:4] if b.publish_date else '—' }}</span></div>
           <div class="cp-title">{{ b.title[:30] }}</div>
           <div class="cp-rule" style="background:currentColor;"></div>
           <div class="cp-author">{{ (b.authors[0].name if b.authors else '—')|truncate(16,true,'') }}</div>
@@ -622,7 +666,7 @@ main{max-width:1160px;margin:0 auto;padding:40px 28px 110px}
         {% else %}
         <div class="d-cover-ph" style="background:{{ cover_bg(loop.index0) }};color:{{ cover_fg(loop.index0) }};height:165px;">
           <div class="cp-shadow"></div>
-          <div class="cp-label"><span>Folio</span><span>{{ b.publish_date[:4] if b.publish_date else '—' }}</span></div>
+          <div class="cp-label"><span>Morus</span><span>{{ b.publish_date[:4] if b.publish_date else '—' }}</span></div>
           <div class="cp-title">{{ b.title[:30] }}</div>
           <div class="cp-rule" style="background:currentColor;"></div>
           <div class="cp-author">{{ (b.authors[0].name if b.authors else '—')|truncate(16,true,'') }}</div>
@@ -875,7 +919,60 @@ async function saveDrawerChanges() {
 function setVis(val, btn) {
   document.querySelectorAll('.d-vis-btn').forEach(b => b.classList.remove('on'));
   btn.classList.add('on');
+  const shareWrap = document.getElementById('share-btn-wrap');
+  if (shareWrap) shareWrap.style.display = val === 'public' ? '' : 'none';
   fetch('/auth/profile', {method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({is_profile_public: val==='public'})});
+}
+
+// ── Share popover ─────────────────────────────────────────
+function toggleShare() {
+  const pop = document.getElementById('share-pop');
+  if (!pop) return;
+  pop.classList.toggle('open');
+  if (pop.classList.contains('open')) {
+    document.addEventListener('click', closeShareOnOutside, true);
+  }
+}
+function closeShareOnOutside(e) {
+  const wrap = document.querySelector('.d-share-wrap');
+  if (wrap && !wrap.contains(e.target)) {
+    document.getElementById('share-pop').classList.remove('open');
+    document.removeEventListener('click', closeShareOnOutside, true);
+  }
+}
+function copyProfileLink() {
+  const linkEl = document.getElementById('share-link-text');
+  if (!linkEl) return;
+  const url = window.location.origin + linkEl.textContent.trim();
+  navigator.clipboard.writeText(url).then(() => pushToast('Profile link copied', 'ok')).catch(() => pushToast('Could not copy', 'err'));
+  document.getElementById('share-pop').classList.remove('open');
+}
+
+// ── Pin book ──────────────────────────────────────────────
+async function togglePin(btn) {
+  const ubId = btn.dataset.ubId;
+  const isPinned = btn.dataset.pinned === 'true';
+  const newPinned = !isPinned;
+  try {
+    const res = await fetch(`/books/user_books/${ubId}`, {
+      method:'PATCH', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({is_pinned: newPinned}),
+    });
+    if (res.ok) {
+      // Unpin all other pin buttons
+      if (newPinned) {
+        document.querySelectorAll('.d-pin.pinned').forEach(b => {
+          if (b !== btn) { b.classList.remove('pinned'); b.dataset.pinned = 'false'; b.title = 'Pin to top'; }
+        });
+      }
+      btn.classList.toggle('pinned', newPinned);
+      btn.dataset.pinned = String(newPinned);
+      btn.title = newPinned ? 'Unpin' : 'Pin to top';
+      pushToast(newPinned ? 'Pinned to top' : 'Unpinned', 'ok');
+      // Reload to reorder the grid
+      setTimeout(() => { window.location.hash='#profile'; window.location.reload(); }, 800);
+    } else { pushToast('Error updating pin', 'err'); }
+  } catch { pushToast('Connection error', 'err'); }
 }
 
 // ── Modal ─────────────────────────────────────────────────
@@ -1157,6 +1254,10 @@ if (isLoggedIn && pendingScans) {
 } else {
   const hash = window.location.hash.slice(1);
   switchView(['home','books','profile'].includes(hash) ? hash : 'home');
+  if (new URLSearchParams(window.location.search).get('open') === 'scan') {
+    history.replaceState(null, '', '/');
+    openAddModal();
+  }
 }
 </script>
 </body>

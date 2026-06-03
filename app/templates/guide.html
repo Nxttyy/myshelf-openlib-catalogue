@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How it works · Morus</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--ink-blue:#243B6B;--paper:#F4EEE2;--paper-2:#ECE4D3;--ink:#1A1714;--ink-soft:#4A443B;--ink-faint:#8C8473;--hair:rgba(26,23,20,0.14);--hair-strong:rgba(26,23,20,0.28);--amber:#E0A23E;--amber-fg:#231A0E;--font-sans:'Inter Tight',-apple-system,system-ui,sans-serif;--font-mono:'JetBrains Mono',monospace;--ease-out:cubic-bezier(0.2,0,0,1)}
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0;padding:0;font-family:var(--font-sans);font-size:14px;background:var(--paper);color:var(--ink);-webkit-font-smoothing:antialiased;line-height:1.45}
+.d-nav{position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:4px;padding:0 28px;height:62px;border-bottom:1px solid var(--hair);background:rgba(244,238,226,0.9);backdrop-filter:blur(10px)}
+.d-nav-space{flex:1}
+.d-navlinks{display:none;gap:2px}
+@media(min-width:640px){.d-navlinks{display:flex}}
+.d-navlink{background:none;border:none;cursor:pointer;padding:7px 13px;border-radius:7px;font-family:var(--font-mono);font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink-faint);text-decoration:none;transition:color 120ms,background 120ms;display:flex;flex-direction:column;align-items:center}
+.d-navlink:hover{color:var(--ink);background:rgba(26,23,20,0.05)}
+.d-navlink.on{color:var(--ink)}
+.d-navlink.on::after{content:'';display:block;height:2px;background:var(--amber);margin-top:5px;border-radius:2px;width:100%}
+.d-avatar{width:34px;height:34px;border-radius:7px;background:var(--ink-blue);color:var(--paper);display:grid;place-items:center;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;flex-shrink:0}
+.f-btn{font-family:var(--font-sans);font-weight:600;font-size:13px;letter-spacing:-0.01em;border:none;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;border-radius:7px;padding:9px 15px;white-space:nowrap;text-decoration:none}
+.f-btn--ink{background:var(--ink);color:var(--paper)}
+main{max-width:960px;margin:0 auto;padding:48px 28px 80px}
+@media(max-width:640px){main{padding:32px 16px 60px}}
+.f-label{font-family:var(--font-mono);font-size:9px;font-weight:500;letter-spacing:0.18em;text-transform:uppercase;color:var(--ink-faint)}
+.guide-hd h1{font-weight:600;letter-spacing:-0.045em;line-height:0.98;font-size:clamp(36px,6vw,56px);margin:12px 0 0}
+.guide-hd p{font-size:15px;color:var(--ink-soft);line-height:1.55;margin-top:14px;max-width:440px}
+.guide-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--hair);border:1px solid var(--hair);border-radius:12px;overflow:hidden;margin-top:40px}
+@media(max-width:580px){.guide-grid{grid-template-columns:1fr}}
+.guide-step{background:var(--paper);padding:28px 30px}
+.guide-step .n{font-family:var(--font-mono);font-size:11px;letter-spacing:0.1em;color:var(--amber);font-weight:600}
+.guide-step .ic{width:36px;height:36px;border-radius:9px;display:grid;place-items:center;background:var(--ink);color:var(--paper);margin-bottom:14px}
+.guide-step h3{font-size:18px;font-weight:600;letter-spacing:-0.02em;margin:12px 0 7px}
+.guide-step p{font-size:14px;line-height:1.55;color:var(--ink-soft);margin:0}
+.btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:32px}
+.f-btn{font-family:var(--font-sans);font-weight:600;font-size:13px;letter-spacing:-0.01em;border:none;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;border-radius:7px;padding:12px 20px;white-space:nowrap;text-decoration:none;transition:transform 120ms}
+.f-btn--amber{background:var(--amber);color:var(--amber-fg)}
+.f-btn--ghost{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 1px var(--hair-strong)}
+.f-rise{animation:rise 360ms var(--ease-out)}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+<nav class="d-nav">
+  <div class="d-navlinks">
+    <a class="d-navlink" href="/">Home</a>
+    <a class="d-navlink" href="/#books">Explore</a>
+    <a class="d-navlink on" href="/guide">Guide</a>
+    {% if user %}
+    <a class="d-navlink" href="/#profile">Profile</a>
+    {% endif %}
+  </div>
+  <div class="d-nav-space"></div>
+  {% if user %}
+  <div class="d-avatar">{{ user.firstname[0] }}{{ user.lastname[0] if user.lastname else '' }}</div>
+  {% else %}
+  <a class="f-btn f-btn--ink" href="/login" style="margin-left:6px;">Sign in</a>
+  {% endif %}
+</nav>
+
+<main class="f-rise">
+  <div class="guide-hd">
+    <div class="f-label">How Morus works</div>
+    <h1>How it works.</h1>
+    <p>Six things, start to finish.</p>
+  </div>
+
+  <div class="guide-grid">
+    <div class="guide-step">
+      <div class="ic">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M7 12h10"/></svg>
+      </div>
+      <div class="n">01</div>
+      <h3>Add a book</h3>
+      <p>Scan a barcode or type the ISBN. Morus looks it up on Open Library and adds it to a queue. Add as many as you like, then save them at once.</p>
+    </div>
+    <div class="guide-step">
+      <div class="ic">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      </div>
+      <div class="n">02</div>
+      <h3>Set a status</h3>
+      <p>Mark each book unread, reading, or read, and change it whenever. Books sit on your profile, newest first.</p>
+    </div>
+    <div class="guide-step">
+      <div class="ic">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 17v5"/><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1Z"/></svg>
+      </div>
+      <div class="n">03</div>
+      <h3>Pin a book</h3>
+      <p>Hover a cover on your profile and click the pin. Pinned books move to the top of your shelf.</p>
+    </div>
+    <div class="guide-step">
+      <div class="ic">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+      </div>
+      <div class="n">04</div>
+      <h3>Public or private</h3>
+      <p>Set any book, or your whole shelf, to public or private. Public shelves are visible to anyone with the link.</p>
+    </div>
+    <div class="guide-step">
+      <div class="ic">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><path d="m16 6-4-4-4 4"/><path d="M12 2v13"/></svg>
+      </div>
+      <div class="n">05</div>
+      <h3>Share your shelf</h3>
+      <p>Your profile has its own link. Send it to anyone — they can view your public books without an account.</p>
+    </div>
+    <div class="guide-step">
+      <div class="ic">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15 15 0 0 1 0 20"/><path d="M12 2a15 15 0 0 0 0 20"/></svg>
+      </div>
+      <div class="n">06</div>
+      <h3>Open data</h3>
+      <p>Morus is open source, and every book links back to its Open Library record. Nothing is locked in.</p>
+    </div>
+  </div>
+
+  <div class="btns">
+    <a class="f-btn f-btn--amber" href="/?open=scan">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M7 12h10"/></svg>
+      Add your first book
+    </a>
+    <a class="f-btn f-btn--ghost" href="https://openlibrary.org" target="_blank" rel="noreferrer">
+      Visit Open Library
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
+    </a>
+  </div>
+</main>
+</body>
+</html>

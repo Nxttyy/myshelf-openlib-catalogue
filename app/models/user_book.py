@@ -18,6 +18,7 @@ class UserBook(SQLModel, table=True):
     status: str = Field(default='unread')
     comment: str | None = None
     is_public: bool = Field(default=True)
+    is_pinned: bool = Field(default=False)
 
     created_at: datetime = Field(
         default_factory=datetime.utcnow,

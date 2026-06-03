@@ -2,7 +2,7 @@
 Page routes — serves Jinja2 HTML templates.
 """
 
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends, Request, HTTPException
 from fastapi.templating import Jinja2Templates
 from httpx import HTTPStatusError, RequestError
 
@@ -67,12 +67,15 @@ async def index(
             select(UserBook, Book)
             .join(Book, UserBook.book_id == Book.id)
             .where(UserBook.user_id == current_user.id)
+            .order_by(UserBook.is_pinned.desc(), UserBook.created_at.desc())
         )
         user_books_result = await session.exec(stmt)
         user_books = [{"user_book": ub, "book": b} for ub, b in user_books_result.all()]
         n_reading = sum(1 for item in user_books if item["user_book"].status == "reading")
         n_read    = sum(1 for item in user_books if item["user_book"].status == "read")
         n_unread  = len(user_books) - n_reading - n_read
+
+    user_handle = current_user.email.split("@")[0] if current_user else None
 
     context: dict = {
         "isbn": isbn,
@@ -84,6 +87,7 @@ async def index(
         "selected_book": selected_book,
         "error": error,
         "user": current_user,
+        "user_handle": user_handle,
     }
 
     return templates.TemplateResponse(
@@ -123,4 +127,61 @@ async def reset_password_page(request: Request, token: str, error: str | None = 
 async def mobile_scan_page(request: Request, token: str):
     return templates.TemplateResponse(
         name="mobile_scan.html", request=request, context={"token": token}
+    )
+
+
+@router.get("/guide")
+async def guide_page(request: Request, current_user: User = Depends(get_current_user)):
+    return templates.TemplateResponse(
+        name="guide.html", request=request, context={"user": current_user}
+    )
+
+
+@router.get("/u/{handle}")
+async def public_profile_page(
+    request: Request,
+    handle: str,
+    session: SessionDep,
+    current_user: User = Depends(get_current_user),
+):
+    """Public profile page — 404 if user not found or profile is private."""
+    from app.models.user_book import UserBook
+
+    profile_user = (
+        await session.exec(select(User).where(User.email.like(f"{handle}@%")))
+    ).first()
+
+    if not profile_user or not profile_user.is_profile_public:
+        return templates.TemplateResponse(
+            name="404.html",
+            request=request,
+            context={"user": current_user},
+            status_code=404,
+        )
+
+    stmt = (
+        select(UserBook, Book)
+        .join(Book, UserBook.book_id == Book.id)
+        .where(UserBook.user_id == profile_user.id, UserBook.is_public == True)
+        .order_by(UserBook.is_pinned.desc(), UserBook.created_at.desc())
+    )
+    result = await session.exec(stmt)
+    public_books = [{"user_book": ub, "book": b} for ub, b in result.all()]
+
+    n_reading = sum(1 for item in public_books if item["user_book"].status == "reading")
+    n_read    = sum(1 for item in public_books if item["user_book"].status == "read")
+    n_unread  = len(public_books) - n_reading - n_read
+
+    return templates.TemplateResponse(
+        name="profile.html",
+        request=request,
+        context={
+            "profile_user": profile_user,
+            "handle": handle,
+            "public_books": public_books,
+            "n_reading": n_reading,
+            "n_read": n_read,
+            "n_unread": n_unread,
+            "user": current_user,
+        },
     )

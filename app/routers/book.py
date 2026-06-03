@@ -35,6 +35,7 @@ class UpdateUserBookRequest(BaseModel):
     status: str | None = None
     is_public: bool | None = None
     comment: str | None = None
+    is_pinned: bool | None = None
 
 
 
@@ -130,6 +131,19 @@ async def update_user_book(
         ub.is_public = request_data.is_public
     if request_data.comment is not None:
         ub.comment = request_data.comment
+    if request_data.is_pinned is not None:
+        if request_data.is_pinned:
+            # unpin any currently pinned book for this user first
+            pinned_stmt = select(UserBook).where(
+                UserBook.user_id == current_user.id,
+                UserBook.is_pinned == True,
+                UserBook.id != user_book_id,
+            )
+            currently_pinned = (await session.exec(pinned_stmt)).all()
+            for other in currently_pinned:
+                other.is_pinned = False
+                session.add(other)
+        ub.is_pinned = request_data.is_pinned
     session.add(ub)
     await session.commit()
     return {"ok": True}
