@@ -605,9 +605,14 @@ main{max-width:1160px;margin:0 auto;padding:40px 28px 110px}
       <h2 class="d-drawer-book-title">{{ b.title }}</h2>
       {% if b.subtitle %}<div class="d-drawer-book-sub">{{ b.subtitle }}</div>{% endif %}
       <div class="d-drawer-book-author">{{ b.authors|map(attribute='name')|join(', ') if b.authors else 'Unknown' }}</div>
+      {% if b.by_statement %}<div class="d-drawer-book-byline" style="font-size:12px;color:var(--ink-faint);margin-top:3px;">{{ b.by_statement }}</div>{% endif %}
       <span class="f-status drawer-status-badge" data-s="{{ st }}"><span class="pip"></span>{{ st|title }}</span>
     </div>
   </div>
+
+  {% if b.description %}
+  <p class="d-drawer-desc" style="font-size:13px;line-height:1.55;color:var(--ink-soft);margin:14px 0 0;white-space:pre-line;">{{ b.description|truncate(600, true, '…') }}</p>
+  {% endif %}
 
   {% if b.subjects %}
   <div class="f-pills">
@@ -619,13 +624,14 @@ main{max-width:1160px;margin:0 auto;padding:40px 28px 110px}
     <div class="f-metacell"><div class="k">Published</div><div class="v">{{ b.publish_date or '—' }}</div></div>
     <div class="f-metacell"><div class="k">Pages</div><div class="v">{{ b.number_of_pages or '—' }}</div></div>
     <div class="f-metacell"><div class="k">Publisher</div><div class="v">{{ b.publishers|map(attribute='name')|join(', ') if b.publishers else '—' }}</div></div>
-    <div class="f-metacell"><div class="k">ISBN</div><div class="v" style="font-family:var(--font-mono);font-size:11px;">{{ b.isbns[0] if b.isbns else '—' }}</div></div>
+    <div class="f-metacell"><div class="k">ISBN</div><div class="v" title="{{ b.isbns|join(', ') }}" style="font-family:var(--font-mono);font-size:11px;">{{ b.isbns[0] if b.isbns else '—' }}{% if b.isbns|length > 1 %} <span style="color:var(--ink-faint);">+{{ b.isbns|length - 1 }}</span>{% endif %}</div></div>
   </div>
 
   {% if b.identifiers or b.openbook_url or b.isbns %}
   <div class="f-label" style="margin-bottom:8px;">Find this edition</div>
   <div class="f-links">
     {% if b.openbook_url %}<a href="{{ b.openbook_url }}" target="_blank" class="f-link">Open Library <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg></a>{% endif %}
+    {% if b.archive_id %}<a href="https://archive.org/details/{{ b.archive_id }}" target="_blank" class="f-link">Read · Archive.org <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg></a>{% else %}<a href="https://archive.org/search?query={{ (b.isbns[0] if b.isbns else b.title)|urlencode }}" target="_blank" class="f-link">Archive.org <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg></a>{% endif %}
     {% for isbn in b.isbns[:1] %}
     <a href="https://www.amazon.com/s?k={{ isbn }}" target="_blank" class="f-link">Amazon <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg></a>
     {% endfor %}
@@ -678,8 +684,13 @@ main{max-width:1160px;margin:0 auto;padding:40px 28px 110px}
       <h2 class="d-drawer-book-title">{{ b.title }}</h2>
       {% if b.subtitle %}<div class="d-drawer-book-sub">{{ b.subtitle }}</div>{% endif %}
       <div class="d-drawer-book-author">{{ b.authors|map(attribute='name')|join(', ') if b.authors else 'Unknown' }}</div>
+      {% if b.by_statement %}<div class="d-drawer-book-byline" style="font-size:12px;color:var(--ink-faint);margin-top:3px;">{{ b.by_statement }}</div>{% endif %}
     </div>
   </div>
+
+  {% if b.description %}
+  <p class="d-drawer-desc" style="font-size:13px;line-height:1.55;color:var(--ink-soft);margin:14px 0 0;white-space:pre-line;">{{ b.description|truncate(600, true, '…') }}</p>
+  {% endif %}
 
   {% if b.subjects %}
   <div class="f-pills">
@@ -691,13 +702,14 @@ main{max-width:1160px;margin:0 auto;padding:40px 28px 110px}
     <div class="f-metacell"><div class="k">Published</div><div class="v">{{ b.publish_date or '—' }}</div></div>
     <div class="f-metacell"><div class="k">Pages</div><div class="v">{{ b.number_of_pages or '—' }}</div></div>
     <div class="f-metacell"><div class="k">Publisher</div><div class="v">{{ b.publishers|map(attribute='name')|join(', ') if b.publishers else '—' }}</div></div>
-    <div class="f-metacell"><div class="k">ISBN</div><div class="v" style="font-family:var(--font-mono);font-size:11px;">{{ b.isbns[0] if b.isbns else '—' }}</div></div>
+    <div class="f-metacell"><div class="k">ISBN</div><div class="v" title="{{ b.isbns|join(', ') }}" style="font-family:var(--font-mono);font-size:11px;">{{ b.isbns[0] if b.isbns else '—' }}{% if b.isbns|length > 1 %} <span style="color:var(--ink-faint);">+{{ b.isbns|length - 1 }}</span>{% endif %}</div></div>
   </div>
 
   {% if b.identifiers or b.openbook_url or b.isbns %}
   <div class="f-label" style="margin-bottom:8px;">Find this edition</div>
   <div class="f-links">
     {% if b.openbook_url %}<a href="{{ b.openbook_url }}" target="_blank" class="f-link">Open Library <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg></a>{% endif %}
+    {% if b.archive_id %}<a href="https://archive.org/details/{{ b.archive_id }}" target="_blank" class="f-link">Read · Archive.org <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg></a>{% else %}<a href="https://archive.org/search?query={{ (b.isbns[0] if b.isbns else b.title)|urlencode }}" target="_blank" class="f-link">Archive.org <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg></a>{% endif %}
     {% for isbn in b.isbns[:1] %}
     <a href="https://www.amazon.com/s?k={{ isbn }}" target="_blank" class="f-link">Amazon <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg></a>
     {% endfor %}
@@ -1194,7 +1206,7 @@ let searchDebounce = null;
 let searchSeq = 0;
 function onSearchInput() {
   clearTimeout(searchDebounce);
-  searchDebounce = setTimeout(runBookSearch, 350);
+  searchDebounce = setTimeout(runBookSearch, 700);
 }
 async function runBookSearch() {
   clearTimeout(searchDebounce);

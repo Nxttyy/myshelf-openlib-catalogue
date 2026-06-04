@@ -42,6 +42,8 @@ class BookRead(BaseModel):
     openbook_key: str
     title: str
     subtitle: str | None = None
+    description: str | None = None
+    archive_id: str | None = None
     authors: list[AuthorSchema] = []
     number_of_pages: int | None = None
     by_statement: str | None = None

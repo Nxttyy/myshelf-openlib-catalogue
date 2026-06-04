@@ -33,6 +33,9 @@ class Book(SQLModel, table=True):
     openbook_key: str = Field(unique=True, index=True)
     title: str
     subtitle: str | None = None
+    description: str | None = None
+    # Internet Archive identifier (ocaid) → https://archive.org/details/{archive_id}
+    archive_id: str | None = Field(default=None, index=True)
     authors: list[dict] = Field(
         default_factory=list,
         sa_column=Column(sa.dialects.postgresql.JSONB, nullable=False, server_default="[]"),

@@ -109,6 +109,16 @@ def _parse_covers(raw: dict | None) -> list[dict]:
     ]
 
 
+def _parse_description(raw: str | dict | None) -> str | None:
+    """Open Library descriptions are sometimes a plain string, sometimes
+    a {"type": ..., "value": ...} dict. Normalise to a string."""
+    if not raw:
+        return None
+    if isinstance(raw, dict):
+        return raw.get("value")
+    return raw
+
+
 def clean_book_response(raw_response: dict) -> list[Book]:
     """
     Extract and clean book records from the Open Library API response.
@@ -120,6 +130,8 @@ def clean_book_response(raw_response: dict) -> list[Book]:
 
     for _key, record in records.items():
         data: dict = record.get("data", {})
+        # Richer fields (ocaid, description) live in the nested details block.
+        details: dict = record.get("details", {}).get("details", {})
 
         book = Book(
             isbns=record.get("isbns", []),
@@ -128,6 +140,8 @@ def clean_book_response(raw_response: dict) -> list[Book]:
             openbook_key=data.get("key", ""),
             title=data.get("title", ""),
             subtitle=data.get("subtitle"),
+            description=_parse_description(details.get("description")),
+            archive_id=details.get("ocaid"),
             authors=_parse_simple_list(data.get("authors"), ["name", "url"]),
             number_of_pages=data.get("number_of_pages"),
             by_statement=data.get("by_statement"),
