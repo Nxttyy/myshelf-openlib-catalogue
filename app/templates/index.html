@@ -438,7 +438,19 @@ main{max-width:1160px;margin:0 auto;padding:40px 28px 110px}
       <div class="d-profile-avatar">{{ user.firstname[0] }}{{ user.lastname[0] if user.lastname else '' }}</div>
       <div>
         <h1 class="d-profile-name">{{ user.firstname }} {{ user.lastname }}</h1>
-        <div class="d-profile-handle">@{{ user_handle }} · morus/u/{{ user_handle }}</div>
+        <div class="d-profile-handle">
+          <span id="handle-display">@<span id="handle-text">{{ user_handle }}</span> · morus/u/{{ user_handle }}</span>
+          <button id="handle-edit-btn" onclick="startEditUsername()" title="Edit username" style="background:none;border:none;color:var(--ink-faint);cursor:pointer;padding:0 4px;vertical-align:middle;">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5Z"/></svg>
+          </button>
+          <span id="handle-edit" style="display:none;align-items:center;gap:6px;">
+            @<input id="username-input" value="{{ user_handle }}" maxlength="30" autocomplete="off"
+              style="font:inherit;padding:2px 6px;border:1px solid var(--hair);border-radius:6px;width:150px;"
+              onkeydown="if(event.key==='Enter')saveUsername(this.nextElementSibling);if(event.key==='Escape')cancelEditUsername()">
+            <button onclick="saveUsername(this)" style="font:inherit;cursor:pointer;border:none;background:var(--ink);color:var(--paper);border-radius:6px;padding:3px 10px;">Save</button>
+            <button onclick="cancelEditUsername()" style="font:inherit;cursor:pointer;border:none;background:none;color:var(--ink-faint);padding:3px 6px;">Cancel</button>
+          </span>
+        </div>
       </div>
       <div class="d-profile-actions">
         <div class="d-vis-toggle">
@@ -897,6 +909,49 @@ function setVis(val, btn) {
   const shareWrap = document.getElementById('share-btn-wrap');
   if (shareWrap) shareWrap.style.display = val === 'public' ? '' : 'none';
   fetch('/auth/profile', {method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({is_profile_public: val==='public'})});
+}
+
+// ── Edit username ─────────────────────────────────────────
+function startEditUsername() {
+  document.getElementById('handle-display').style.display = 'none';
+  document.getElementById('handle-edit-btn').style.display = 'none';
+  const edit = document.getElementById('handle-edit');
+  edit.style.display = 'inline-flex';
+  const input = document.getElementById('username-input');
+  input.focus(); input.select();
+}
+function cancelEditUsername() {
+  document.getElementById('handle-edit').style.display = 'none';
+  document.getElementById('handle-display').style.display = '';
+  document.getElementById('handle-edit-btn').style.display = '';
+}
+async function saveUsername(btn) {
+  const input = document.getElementById('username-input');
+  const uname = input.value.trim().toLowerCase();
+  const orig = btn.textContent;
+  btn.disabled = true; btn.textContent = 'Saving…';
+  try {
+    const res = await fetch('/auth/username', {
+      method: 'PATCH', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({username: uname}),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (res.ok) {
+      const u = data.username || uname;
+      document.getElementById('handle-text').textContent = u;
+      document.getElementById('handle-display').lastChild.textContent = ` · morus/u/${u}`;
+      const link = document.getElementById('share-link-text');
+      if (link) link.textContent = `/u/${u}`;
+      cancelEditUsername();
+      pushToast('Username updated', 'ok');
+    } else {
+      pushToast(data.detail || 'Could not update username', 'err');
+    }
+  } catch {
+    pushToast('Connection error', 'err');
+  } finally {
+    btn.disabled = false; btn.textContent = orig;
+  }
 }
 
 // ── Share popover ─────────────────────────────────────────

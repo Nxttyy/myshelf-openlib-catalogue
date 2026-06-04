@@ -16,6 +16,7 @@ class User(SQLModel, table=True):
     firstname: str
     lastname: str
     email: str = Field(unique=True, index=True)
+    username: str | None = Field(default=None, unique=True, index=True)
     password: str
     is_google_user: bool = Field(default=False)
     is_profile_public: bool = Field(default=True)

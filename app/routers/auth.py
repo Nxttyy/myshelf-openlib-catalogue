@@ -21,6 +21,7 @@ from app.config import settings
 from app.db import SessionDep
 from app.models.user import Token, User, UserCreate, UserLogin
 from app.services.email import send_reset_password_email
+from app.services.username import USERNAME_RE, generate_unique_username
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
@@ -53,6 +54,7 @@ async def register(
         lastname=lastname,
         email=email,
         password=get_password_hash(password),
+        username=await generate_unique_username(session, email.split("@")[0]),
     )
     session.add(user)
     await session.commit()
@@ -152,6 +154,7 @@ async def google_callback(request: Request, session: SessionDep):
             email=email,
             password="",  # No password for google users
             is_google_user=True,
+            username=await generate_unique_username(session, email.split("@")[0]),
         )
         session.add(user)
         await session.commit()
@@ -179,6 +182,34 @@ async def update_profile(
     session.add(current_user)
     await session.commit()
     return {"ok": True}
+
+
+class UsernameUpdate(BaseModel):
+    username: str
+
+
+@router.patch("/username")
+async def update_username(
+    body: UsernameUpdate,
+    session: SessionDep,
+    current_user: User = Depends(require_user),
+):
+    uname = body.username.strip().lower()
+    if not USERNAME_RE.match(uname):
+        raise HTTPException(
+            status_code=422,
+            detail="3–30 characters: lowercase letters, numbers, hyphen or underscore.",
+        )
+    taken = (await session.exec(
+        select(User).where(User.username == uname, User.id != current_user.id)
+    )).first()
+    if taken:
+        raise HTTPException(status_code=409, detail="That username is already taken.")
+
+    current_user.username = uname
+    session.add(current_user)
+    await session.commit()
+    return {"ok": True, "username": uname}
 
 
 @router.get("/logout")

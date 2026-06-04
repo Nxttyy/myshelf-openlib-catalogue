@@ -79,7 +79,7 @@ async def index(
         n_read    = sum(1 for item in user_books if item["user_book"].status == "read")
         n_unread  = len(user_books) - n_reading - n_read
 
-    user_handle = current_user.email.split("@")[0] if current_user else None
+    user_handle = (current_user.username or current_user.email.split("@")[0]) if current_user else None
     user_book_ids = {item["book"].id for item in user_books}
 
     context: dict = {
@@ -191,7 +191,7 @@ async def public_profile_page(
     from app.models.user_book import UserBook
 
     profile_user = (
-        await session.exec(select(User).where(User.email.like(f"{handle}@%")))
+        await session.exec(select(User).where(User.username == handle))
     ).first()
 
     if not profile_user or not profile_user.is_profile_public:
