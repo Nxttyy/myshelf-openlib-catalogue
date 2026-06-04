@@ -98,7 +98,7 @@ def _parse_simple_list(
 
 def _parse_covers(raw: dict | None) -> list[dict]:
     """Wrap the single cover dict into a list of dicts."""
-    if not raw:
+    if not raw or not isinstance(raw, dict):
         return []
     return [
         {
@@ -115,8 +115,9 @@ def _parse_description(raw: str | dict | None) -> str | None:
     if not raw:
         return None
     if isinstance(raw, dict):
-        return raw.get("value")
-    return raw
+        value = raw.get("value")
+        return value if isinstance(value, str) else None
+    return raw if isinstance(raw, str) else None
 
 
 def clean_book_response(raw_response: dict) -> list[Book]:
@@ -125,13 +126,16 @@ def clean_book_response(raw_response: dict) -> list[Book]:
 
     Returns a list of Book model instances (unsaved — no DB session needed).
     """
-    records: dict = raw_response.get("records", {})
+    # Open Library returns an empty LIST (`[]`), not a dict, when it has no
+    # record for an ISBN. Guard so this doesn't raise and poison the caller.
+    records: dict = raw_response.get("records", {}) if isinstance(raw_response, dict) else {}
     books: list[Book] = []
 
     for _key, record in records.items():
-        data: dict = record.get("data", {})
+        data: dict = record.get("data", {}) if isinstance(record, dict) else {}
         # Richer fields (ocaid, description) live in the nested details block.
-        details: dict = record.get("details", {}).get("details", {})
+        _details_outer = record.get("details", {}) if isinstance(record, dict) else {}
+        details: dict = _details_outer.get("details", {}) if isinstance(_details_outer, dict) else {}
 
         book = Book(
             isbns=record.get("isbns", []),
@@ -179,6 +183,12 @@ async def get_or_create_book(session: AsyncSession, isbn: str) -> Book:
     2. If not found → call Open Library API → persist
     3. Return the Book instance
     """
+    # 0. Normalise and sanity-check the ISBN so malformed barcodes (e.g.
+    #    "08/35110745", short/long scans) don't hit Open Library and 500.
+    isbn = isbn.replace("-", "").replace(" ", "").strip().upper()
+    if len(isbn) not in (10, 13) or not isbn[:-1].isdigit() or isbn[-1] not in "0123456789X":
+        raise ValueError(f"Invalid ISBN: {isbn}")
+
     # 1. Check DB first
     existing = await find_book_by_isbn(session, isbn)
     if existing:

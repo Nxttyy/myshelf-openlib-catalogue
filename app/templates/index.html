@@ -1374,6 +1374,12 @@ async function saveBatchLibrary(btn) {
       body:JSON.stringify({entries}),
     });
     if (res.ok) { window.location.hash='#profile'; window.location.reload(); }
+    else if (res.status === 401) {
+      // Session lapsed — keep the queue and re-authenticate; it auto-saves on return.
+      pushToast('Please sign in again to save', 'err');
+      stashQueueAndGo();
+      window.location.href = '/login';
+    }
     else { pushToast('Error saving books', 'err'); if (btn) btn.innerHTML = orig; }
   } catch { pushToast('Connection error','err'); if (btn) btn.innerHTML = orig; }
 }

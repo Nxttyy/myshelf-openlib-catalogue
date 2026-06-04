@@ -12,7 +12,7 @@ from httpx import HTTPStatusError, RequestError
 
 from sqlmodel import select
 from app.db import SessionDep
-from app.auth import get_current_user
+from app.auth import get_current_user, require_user
 from app.models.user import User
 from app.models.user_book import UserBook
 from app.schemas.book import BookRead
@@ -115,11 +115,19 @@ async def search_books_endpoint(
 async def batch_add_user_books(
     session: SessionDep,
     request_data: BatchUserBookRequest,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_user),
 ):
     """
     Save a batch of books to the user's library.
+
+    Each entry is committed independently: a failure on one entry is rolled back
+    and skipped so it can't poison the session and silently drop the rest.
     """
+    # Capture the id up front: per-entry commits below expire ORM objects, and
+    # touching current_user.id afterwards would trigger lazy IO outside the
+    # async greenlet (the "greenlet_spawn" error).
+    user_id = current_user.id
+
     added_count = 0
     for entry in request_data.entries:
         try:
@@ -132,34 +140,38 @@ async def batch_add_user_books(
             else:
                 continue
 
+            book_id = book.id  # read before any commit expires `book`
+
             # Check if UserBook already exists
             stmt = select(UserBook).where(
-                UserBook.user_id == current_user.id,
-                UserBook.book_id == book.id
+                UserBook.user_id == user_id,
+                UserBook.book_id == book_id
             )
             existing = (await session.exec(stmt)).first()
-            
-            if not existing:
+
+            is_new = existing is None
+            if is_new:
                 ub = UserBook(
-                    user_id=current_user.id,
-                    book_id=book.id,
+                    user_id=user_id,
+                    book_id=book_id,
                     is_public=entry.is_public,
                     comment=entry.comment,
                     status=entry.status if entry.status in VALID_STATUSES else 'unread',
                 )
                 session.add(ub)
-                added_count += 1
             else:
                 existing.is_public = entry.is_public
                 existing.comment = entry.comment
                 session.add(existing)
-                
-        except Exception as e:
-            # Maybe log the error, but continue batch
-            print(f"Error adding {entry.isbn}: {e}")
-            pass
 
-    await session.commit()
+            await session.commit()
+            if is_new:
+                added_count += 1
+        except Exception as e:
+            # Roll back the poisoned transaction so the next entry starts clean.
+            await session.rollback()
+            print(f"Error adding entry {entry.isbn or (entry.book and entry.book.key)}: {e}")
+
     return {"message": f"Successfully added {added_count} books"}
 
 
@@ -168,7 +180,7 @@ async def update_user_book(
     user_book_id: UUID,
     request_data: UpdateUserBookRequest,
     session: SessionDep,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_user),
 ):
     ub = await session.get(UserBook, user_book_id)
     if not ub or ub.user_id != current_user.id:

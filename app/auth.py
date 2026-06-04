@@ -55,6 +55,20 @@ async def get_current_user(request: Request, session: SessionDep) -> User | None
     return user
 
 
+async def require_user(current_user: User | None = Depends(get_current_user)) -> User:
+    """Like get_current_user, but rejects unauthenticated requests with a 401.
+
+    Use this on endpoints that write to a user's library — without it, a lapsed
+    session resolves to ``None`` and the route can silently create orphaned data.
+    """
+    if current_user is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Not authenticated",
+        )
+    return current_user
+
+
 def create_password_reset_token(email: str) -> str:
     delta = timedelta(hours=1)
     now = datetime.utcnow()

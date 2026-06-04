@@ -11,6 +11,7 @@ from sqlmodel import select
 from app.auth import (
     create_access_token,
     get_current_user,
+    require_user,
     get_password_hash,
     verify_password,
     create_password_reset_token,
@@ -172,7 +173,7 @@ class ProfileUpdate(BaseModel):
 async def update_profile(
     body: ProfileUpdate,
     session: SessionDep,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_user),
 ):
     current_user.is_profile_public = body.is_profile_public
     session.add(current_user)
