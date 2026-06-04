@@ -13,6 +13,7 @@ from httpx import HTTPStatusError, RequestError
 from sqlmodel import select
 from app.db import SessionDep
 from app.auth import get_current_user, require_user
+from app.models.book import Book
 from app.models.user import User
 from app.models.user_book import UserBook
 from app.schemas.book import BookRead
@@ -173,6 +174,31 @@ async def batch_add_user_books(
             print(f"Error adding entry {entry.isbn or (entry.book and entry.book.key)}: {e}")
 
     return {"message": f"Successfully added {added_count} books"}
+
+
+@router.post("/user_books/add/{book_id}")
+async def add_book_to_shelf(
+    book_id: UUID,
+    session: SessionDep,
+    current_user: User = Depends(require_user),
+):
+    """Add a book that already exists in the catalogue to the user's shelf."""
+    book = await session.get(Book, book_id)
+    if not book:
+        raise HTTPException(status_code=404, detail="Book not found")
+
+    existing = (await session.exec(
+        select(UserBook).where(
+            UserBook.user_id == current_user.id,
+            UserBook.book_id == book_id,
+        )
+    )).first()
+    if existing:
+        return {"ok": True, "already": True}
+
+    session.add(UserBook(user_id=current_user.id, book_id=book_id, is_public=True, status="unread"))
+    await session.commit()
+    return {"ok": True, "already": False}
 
 
 @router.patch("/user_books/{user_book_id}")

@@ -423,34 +423,12 @@ main{max-width:1160px;margin:0 auto;padding:40px 28px 110px}
       <h1 style="font-weight:600;font-size:clamp(28px,5vw,48px);letter-spacing:-0.04em;margin:0;">Recently added</h1>
       <p style="font-size:14px;color:var(--ink-soft);margin-top:10px;max-width:420px;">The newest books added across Morus. Click any cover for its record.</p>
     </div>
-    <div class="d-grid">
-      {% for b in all_books[:50] %}
-      <div class="d-cell" onclick="openExploreDrawer('community-{{ b.id }}')">
-        <div class="d-cover-wrap">
-          <div class="d-cover-inner">
-            {% if b.covers %}
-            <img class="d-cover-img" src="{{ b.covers[0].medium or b.covers[0].small or b.covers[0].large }}" alt="{{ b.title }}" loading="lazy">
-            {% else %}
-            <div class="d-cover-ph" style="background:{{ cover_bg(loop.index0) }};color:{{ cover_fg(loop.index0) }};">
-              <div class="cp-shadow"></div>
-              <div class="cp-label"><span>Morus</span><span>{{ b.publish_date[:4] if b.publish_date else '—' }}</span></div>
-              <div class="cp-title">{{ b.title[:40] }}</div>
-              <div class="cp-rule" style="background:currentColor;"></div>
-              <div class="cp-author">{{ (b.authors[0].name if b.authors else 'Unknown')|truncate(20,true,'') }}</div>
-            </div>
-            {% endif %}
-          </div>
-        </div>
-        <div class="d-cell-meta">
-          <div class="d-cell-row">
-            <span class="d-cell-num">№ {{ '%02d'|format(loop.index) }}</span>
-          </div>
-          <div class="d-cell-title">{{ b.title }}</div>
-          <div class="d-cell-author">{{ b.authors[0].name if b.authors else 'Unknown' }}</div>
-        </div>
-      </div>
-      {% endfor %}
+    <div class="d-grid" id="explore-grid">
+      {% set books = all_books %}
+      {% include '_explore_entries.html' %}
     </div>
+    <div id="explore-sentinel" style="height:1px;"></div>
+    <div id="explore-loading" style="display:none;text-align:center;padding:24px 0;color:var(--ink-faint);font-size:13px;font-family:var(--font-mono);">Loading more…</div>
   </div>
 
   <!-- PROFILE VIEW -->
@@ -661,63 +639,6 @@ main{max-width:1160px;margin:0 auto;padding:40px 28px 110px}
 {% endfor %}
 {% endif %}
 
-<!-- Pre-rendered drawer contents for explore/community books -->
-{% for b in all_books[:50] %}
-<div id="drawer-community-{{ b.id }}" style="display:none">
-  <div class="d-drawer-cover-row">
-    <div style="flex-shrink:0;">
-      <div class="d-cover-inner" style="width:110px;">
-        {% if b.covers %}
-        <img class="d-cover-img" src="{{ b.covers[0].medium or b.covers[0].large or b.covers[0].small }}" alt="{{ b.title }}">
-        {% else %}
-        <div class="d-cover-ph" style="background:{{ cover_bg(loop.index0) }};color:{{ cover_fg(loop.index0) }};height:165px;">
-          <div class="cp-shadow"></div>
-          <div class="cp-label"><span>Morus</span><span>{{ b.publish_date[:4] if b.publish_date else '—' }}</span></div>
-          <div class="cp-title">{{ b.title[:30] }}</div>
-          <div class="cp-rule" style="background:currentColor;"></div>
-          <div class="cp-author">{{ (b.authors[0].name if b.authors else '—')|truncate(16,true,'') }}</div>
-        </div>
-        {% endif %}
-      </div>
-    </div>
-    <div style="flex:1;padding-top:2px;">
-      <h2 class="d-drawer-book-title">{{ b.title }}</h2>
-      {% if b.subtitle %}<div class="d-drawer-book-sub">{{ b.subtitle }}</div>{% endif %}
-      <div class="d-drawer-book-author">{{ b.authors|map(attribute='name')|join(', ') if b.authors else 'Unknown' }}</div>
-      {% if b.by_statement %}<div class="d-drawer-book-byline" style="font-size:12px;color:var(--ink-faint);margin-top:3px;">{{ b.by_statement }}</div>{% endif %}
-    </div>
-  </div>
-
-  {% if b.description %}
-  <p class="d-drawer-desc" style="font-size:13px;line-height:1.55;color:var(--ink-soft);margin:14px 0 0;white-space:pre-line;">{{ b.description|truncate(600, true, '…') }}</p>
-  {% endif %}
-
-  {% if b.subjects %}
-  <div class="f-pills">
-    {% for s in b.subjects[:6] %}<span class="f-pill">{{ s.name }}</span>{% endfor %}
-  </div>
-  {% endif %}
-
-  <div class="f-metagrid">
-    <div class="f-metacell"><div class="k">Published</div><div class="v">{{ b.publish_date or '—' }}</div></div>
-    <div class="f-metacell"><div class="k">Pages</div><div class="v">{{ b.number_of_pages or '—' }}</div></div>
-    <div class="f-metacell"><div class="k">Publisher</div><div class="v">{{ b.publishers|map(attribute='name')|join(', ') if b.publishers else '—' }}</div></div>
-    <div class="f-metacell"><div class="k">ISBN</div><div class="v" title="{{ b.isbns|join(', ') }}" style="font-family:var(--font-mono);font-size:11px;">{{ b.isbns[0] if b.isbns else '—' }}{% if b.isbns|length > 1 %} <span style="color:var(--ink-faint);">+{{ b.isbns|length - 1 }}</span>{% endif %}</div></div>
-  </div>
-
-  {% if b.identifiers or b.openbook_url or b.isbns %}
-  <div class="f-label" style="margin-bottom:8px;">Find this edition</div>
-  <div class="f-links">
-    {% if b.openbook_url %}<a href="{{ b.openbook_url }}" target="_blank" class="f-link">Open Library <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg></a>{% endif %}
-    {% if b.archive_id %}<a href="https://archive.org/details/{{ b.archive_id }}" target="_blank" class="f-link">Read · Archive.org <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg></a>{% else %}<a href="https://archive.org/search?query={{ (b.isbns[0] if b.isbns else b.title)|urlencode }}" target="_blank" class="f-link">Archive.org <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg></a>{% endif %}
-    {% for isbn in b.isbns[:1] %}
-    <a href="https://www.amazon.com/s?k={{ isbn }}" target="_blank" class="f-link">Amazon <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg></a>
-    {% endfor %}
-    {% for k, vals in b.identifiers.items() %}{% if k == 'goodreads' %}{% for v in vals[:1] %}<a href="https://www.goodreads.com/book/show/{{ v }}" target="_blank" class="f-link">Goodreads <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg></a>{% endfor %}{% endif %}{% if k == 'google' %}{% for v in vals[:1] %}<a href="https://books.google.com/books?id={{ v }}" target="_blank" class="f-link">Google Books <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg></a>{% endfor %}{% endif %}{% endfor %}
-  </div>
-  {% endif %}
-</div>
-{% endfor %}
 
 <!-- ── Add Modal ───────────────────────────────────────────── -->
 <div class="modal-scrim" id="add-modal">
@@ -904,6 +825,34 @@ function closeDrawer() {
   document.getElementById('drawer-scrim').classList.remove('open');
   document.getElementById('detail-drawer').classList.remove('open');
   document.body.style.overflow = '';
+}
+
+// Add an existing community book to the current user's shelf.
+async function addToShelf(bookId, btn) {
+  const orig = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = 'Adding…';
+  try {
+    const res = await fetch(`/books/user_books/add/${bookId}`, { method: 'POST' });
+    if (res.ok) {
+      btn.classList.remove('f-btn--amber');
+      btn.classList.add('f-btn--ghost');
+      btn.style.opacity = '0.7';
+      btn.style.cursor = 'default';
+      btn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 6 9 17l-5-5"/></svg> On your shelf';
+      pushToast('Added to your shelf', 'ok');
+    } else if (res.status === 401) {
+      window.location.href = '/login';
+    } else {
+      btn.disabled = false;
+      btn.innerHTML = orig;
+      pushToast('Could not add book', 'err');
+    }
+  } catch {
+    btn.disabled = false;
+    btn.innerHTML = orig;
+    pushToast('Connection error', 'err');
+  }
 }
 
 function drawerStatusChange(sel) {
@@ -1402,6 +1351,47 @@ if (isLoggedIn && pendingScans) {
     openAddModal();
   }
 }
+
+// ── Lazy-load more community books (50 at a time) ─────────
+(function () {
+  const EXPLORE_PAGE = 50;
+  const grid = document.getElementById('explore-grid');
+  const sentinel = document.getElementById('explore-sentinel');
+  const loading = document.getElementById('explore-loading');
+  if (!grid || !sentinel) return;
+
+  let offset = grid.querySelectorAll('.d-cell').length;
+  let done = offset < EXPLORE_PAGE;   // first page already short → nothing more
+  let busy = false;
+
+  async function loadMore() {
+    if (busy || done) return;
+    busy = true;
+    loading.style.display = 'block';
+    try {
+      const res = await fetch(`/explore?offset=${offset}`);
+      if (!res.ok) { done = true; return; }
+      const tmp = document.createElement('div');
+      tmp.innerHTML = (await res.text()).trim();
+      const added = tmp.querySelectorAll('.d-cell').length;
+      while (tmp.firstChild) grid.appendChild(tmp.firstChild);
+      offset += added;
+      if (added < EXPLORE_PAGE) done = true;
+    } catch {
+      /* leave sentinel observed; retries on next intersection */
+    } finally {
+      busy = false;
+      loading.style.display = 'none';
+      if (done) obs.disconnect();
+    }
+  }
+
+  const obs = new IntersectionObserver(
+    (entries) => { if (entries.some(e => e.isIntersecting)) loadMore(); },
+    { rootMargin: '400px' }
+  );
+  obs.observe(sentinel);
+})();
 </script>
 </body>
 </html>

@@ -16,6 +16,8 @@ from sqlmodel import select
 router = APIRouter(tags=["Pages"])
 templates = Jinja2Templates(directory="app/templates")
 
+EXPLORE_PAGE_SIZE = 50
+
 _COVER_PALETTES = [
     ("#1B2230", "#EDE6D6"), ("#243B6B", "#EDE6D6"), ("#E0A23E", "#231A0E"),
     ("#6B2B27", "#F0E5D8"), ("#23402F", "#E7E2D0"), ("#141210", "#E9E2D2"),
@@ -54,8 +56,10 @@ async def index(
         except RequestError as exc:
             error = f"Could not reach Open Library: {exc}"
 
-    # 2. Fetch all books for the home page (community)
-    all_books_result = await session.exec(select(Book).order_by(Book.created_at.desc()))  # type: ignore[attr-defined]
+    # 2. Fetch the first page of community books (rest load lazily via /explore)
+    all_books_result = await session.exec(
+        select(Book).order_by(Book.created_at.desc()).limit(EXPLORE_PAGE_SIZE)  # type: ignore[attr-defined]
+    )
     all_books = all_books_result.all()
 
     # 3. Fetch user's books if logged in
@@ -76,11 +80,14 @@ async def index(
         n_unread  = len(user_books) - n_reading - n_read
 
     user_handle = current_user.email.split("@")[0] if current_user else None
+    user_book_ids = {item["book"].id for item in user_books}
 
     context: dict = {
         "isbn": isbn,
         "all_books": all_books,
         "user_books": user_books,
+        "user_book_ids": user_book_ids,
+        "explore_start": 0,
         "n_reading": n_reading,
         "n_read": n_read,
         "n_unread": n_unread,
@@ -92,6 +99,42 @@ async def index(
 
     return templates.TemplateResponse(
         name="index.html", request=request, context=context
+    )
+
+
+@router.get("/explore")
+async def explore_page(
+    request: Request,
+    session: SessionDep,
+    offset: int = 0,
+    current_user: User = Depends(get_current_user),
+):
+    """Return one page of community books as an HTML fragment (lazy loading)."""
+    result = await session.exec(
+        select(Book)
+        .order_by(Book.created_at.desc())  # type: ignore[attr-defined]
+        .offset(offset)
+        .limit(EXPLORE_PAGE_SIZE)
+    )
+    books = result.all()
+
+    user_book_ids: set = set()
+    if current_user:
+        from app.models.user_book import UserBook
+        ub_result = await session.exec(
+            select(UserBook.book_id).where(UserBook.user_id == current_user.id)
+        )
+        user_book_ids = set(ub_result.all())
+
+    return templates.TemplateResponse(
+        name="_explore_entries.html",
+        request=request,
+        context={
+            "books": books,
+            "explore_start": offset,
+            "user_book_ids": user_book_ids,
+            "user": current_user,
+        },
     )
 
 
