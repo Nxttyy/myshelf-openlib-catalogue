@@ -16,14 +16,42 @@ from app.auth import get_current_user
 from app.models.user import User
 from app.models.user_book import UserBook
 from app.schemas.book import BookRead
-from app.services.openlibrary import get_or_create_book, search_books
+from app.services.openlibrary import (
+    get_or_create_book,
+    get_or_create_book_from_metadata,
+    search_books,
+)
+
+
+def _raise_for_openlibrary(exc: HTTPStatusError):
+    """Translate an Open Library HTTP error into a client-friendly HTTPException."""
+    status = exc.response.status_code
+    if status == 429:
+        retry_after = exc.response.headers.get("Retry-After")
+        raise HTTPException(
+            status_code=429,
+            detail="Open Library is rate-limiting us. Please try again shortly.",
+            headers={"Retry-After": retry_after} if retry_after else None,
+        )
+    raise HTTPException(status_code=status, detail=f"Open Library returned {status}")
 
 router = APIRouter(prefix="/books", tags=["Books"])
 
 VALID_STATUSES = {'unread', 'reading', 'read'}
 
+class SearchBookMetadata(BaseModel):
+    key: str
+    title: str | None = None
+    authors: list[str] = []
+    isbns: list[str] = []
+    cover_url: str | None = None
+    first_publish_year: int | None = None
+
+
 class BatchUserBookEntry(BaseModel):
-    isbn: str
+    # Either an ISBN (scanned / manually entered) or full search metadata.
+    isbn: str | None = None
+    book: SearchBookMetadata | None = None
     is_public: bool = True
     comment: str | None = None
     status: str = 'unread'
@@ -55,10 +83,7 @@ async def lookup_isbn(
     except ValueError as exc:
         raise HTTPException(status_code=404, detail=str(exc))
     except HTTPStatusError as exc:
-        raise HTTPException(
-            status_code=exc.response.status_code,
-            detail=f"Open Library returned {exc.response.status_code}",
-        )
+        _raise_for_openlibrary(exc)
     except RequestError as exc:
         raise HTTPException(
             status_code=502,
@@ -81,10 +106,7 @@ async def search_books_endpoint(
     try:
         return await search_books(q, limit)
     except HTTPStatusError as exc:
-        raise HTTPException(
-            status_code=exc.response.status_code,
-            detail=f"Open Library returned {exc.response.status_code}",
-        )
+        _raise_for_openlibrary(exc)
     except RequestError as exc:
         raise HTTPException(status_code=502, detail=f"Failed to reach Open Library: {exc}")
 
@@ -101,9 +123,15 @@ async def batch_add_user_books(
     added_count = 0
     for entry in request_data.entries:
         try:
-            # Assuming get_or_create_book returns a Book instance
-            book = await get_or_create_book(session, entry.isbn)
-            
+            # Search results carry full metadata → save directly (no re-lookup).
+            # Scanned / manually-entered ISBNs → resolve via Open Library.
+            if entry.book is not None:
+                book = await get_or_create_book_from_metadata(session, entry.book.model_dump())
+            elif entry.isbn:
+                book = await get_or_create_book(session, entry.isbn)
+            else:
+                continue
+
             # Check if UserBook already exists
             stmt = select(UserBook).where(
                 UserBook.user_id == current_user.id,

@@ -13,6 +13,15 @@ from app.models.book import Book
 
 # ── Open Library API ─────────────────────────────────────────────────────────
 
+# Identify ourselves per Open Library's API etiquette (descriptive UA + contact).
+_USER_AGENT = f"Morus/0.1 (+mailto:{settings.CONTACT_EMAIL})"
+_DEFAULT_HEADERS = {"User-Agent": _USER_AGENT}
+
+
+def _client() -> httpx.AsyncClient:
+    """An httpx client preconfigured with our identifying User-Agent."""
+    return httpx.AsyncClient(timeout=15.0, headers=_DEFAULT_HEADERS)
+
 
 async def fetch_book_by_isbn(isbn: str) -> dict:
     """
@@ -21,7 +30,7 @@ async def fetch_book_by_isbn(isbn: str) -> dict:
     Endpoint: GET https://openlibrary.org/api/volumes/brief/isbn/{isbn}.json
     """
     url = f"{settings.OPENLIBRARY_BASE_URL}/{isbn}.json"
-    async with httpx.AsyncClient(timeout=15.0) as client:
+    async with _client() as client:
         response = await client.get(url)
         response.raise_for_status()
         return response.json()
@@ -43,7 +52,7 @@ async def search_books(query: str, limit: int = 12) -> list[dict]:
         "fields": "key,title,author_name,first_publish_year,cover_i,isbn,edition_count",
         "limit": limit,
     }
-    async with httpx.AsyncClient(timeout=15.0) as client:
+    async with _client() as client:
         response = await client.get(settings.OPENLIBRARY_SEARCH_URL, params=params)
         response.raise_for_status()
         docs = response.json().get("docs", [])
@@ -59,8 +68,10 @@ async def search_books(query: str, limit: int = 12) -> list[dict]:
                 "authors": doc.get("author_name", []),
                 "first_publish_year": doc.get("first_publish_year"),
                 "edition_count": doc.get("edition_count"),
-                # Representative ISBN — the bridge into the add-to-library flow.
+                # Representative ISBN (for display) plus the full list so the book
+                # can be saved directly from search data without a second lookup.
                 "isbn": isbns[0] if isbns else None,
+                "isbns": isbns[:20],
                 "cover_url": (
                     f"{settings.OPENLIBRARY_COVERS_URL}/{cover_id}-M.jpg"
                     if cover_id
@@ -183,3 +194,68 @@ async def get_or_create_book(session: AsyncSession, isbn: str) -> Book:
     await session.refresh(new_book)
 
     return new_book
+
+
+def _covers_from_url(cover_url: str | None) -> list[dict]:
+    """Derive small/medium/large cover dicts from a single Open Library cover URL.
+
+    Open Library cover URLs only differ by a size suffix (…-S.jpg/-M.jpg/-L.jpg),
+    so we can reconstruct all three from the medium URL the search returned.
+    """
+    if not cover_url:
+        return []
+    base = cover_url
+    for suffix in ("-S.jpg", "-M.jpg", "-L.jpg"):
+        if base.endswith(suffix):
+            base = base[: -len(suffix)]
+            break
+    return [
+        {"small": f"{base}-S.jpg", "medium": f"{base}-M.jpg", "large": f"{base}-L.jpg"}
+    ]
+
+
+async def get_or_create_book_from_metadata(session: AsyncSession, data: dict) -> Book:
+    """
+    Persist a book from Open Library *search* data, without a second Volumes lookup.
+
+    Used when a user adds a result found via title search — we save exactly what
+    the search returned (which may have no ISBN at all). Dedup order:
+      1. reuse an existing book matching any of the result's ISBNs
+      2. reuse an existing book with the same Open Library work key
+      3. otherwise insert a new record
+    """
+    isbns = [i for i in (data.get("isbns") or []) if i]
+
+    # 1. Reuse by ISBN if we have any.
+    for isbn in isbns:
+        existing = await find_book_by_isbn(session, isbn)
+        if existing:
+            return existing
+
+    key = (data.get("key") or "").strip()
+    if not key:
+        raise ValueError("Search result is missing an Open Library key")
+
+    # 2. Reuse by work key.
+    existing_by_key = (
+        await session.exec(select(Book).where(Book.openbook_key == key))
+    ).first()
+    if existing_by_key:
+        return existing_by_key
+
+    # 3. Insert from the metadata we already have.
+    year = data.get("first_publish_year")
+    book = Book(
+        isbns=isbns,
+        publish_dates=[],
+        openbook_url=f"https://openlibrary.org{key}",
+        openbook_key=key,
+        title=data.get("title", "") or "",
+        authors=[{"name": name, "url": None} for name in (data.get("authors") or [])],
+        publish_date=str(year) if year else None,
+        covers=_covers_from_url(data.get("cover_url")),
+    )
+    session.add(book)
+    await session.commit()
+    await session.refresh(book)
+    return book

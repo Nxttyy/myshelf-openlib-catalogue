@@ -1041,7 +1041,7 @@ const _quaggaHandler = (result) => {
   const errs = result.codeResult.decodedCodes.filter(c=>c.error!==undefined).map(c=>c.error);
   if (errs.length && errs.reduce((a,b)=>a+b,0)/errs.length > 0.15) return;
   const isbn = extractISBN(result.codeResult.code);
-  if (isbn && !scanQueue.includes(isbn)) appendQueue(isbn);
+  if (isbn && !queueHasKey(isbn)) appendQueue(isbn);
 };
 
 async function startScanner() {
@@ -1062,7 +1062,7 @@ async function startNativeScanner() {
     const detector = new BarcodeDetector({formats:['ean_13','ean_8','upc_a','upc_e']});
     const detect = async () => {
       if (!nativeStream || scanPaused) { nativeScanLoop = requestAnimationFrame(detect); return; }
-      try { for (const {rawValue} of await detector.detect(video)) { const isbn=extractISBN(rawValue); if(isbn&&!scanQueue.includes(isbn))appendQueue(isbn); } } catch {}
+      try { for (const {rawValue} of await detector.detect(video)) { const isbn=extractISBN(rawValue); if(isbn&&!queueHasKey(isbn))appendQueue(isbn); } } catch {}
       nativeScanLoop = requestAnimationFrame(detect);
     };
     nativeScanLoop = requestAnimationFrame(detect);
@@ -1211,7 +1211,7 @@ async function runBookSearch() {
     if (!results.length) { box.innerHTML = `<div class="d-queue-empty-msg">No matches found.</div>`; return; }
     box.innerHTML = '';
     for (const b of results) {
-      const inQueue = b.isbn && scanQueue.includes(b.isbn);
+      const inQueue = queueHasKey(b.key);
       const meta = [b.authors?.join(', '), b.first_publish_year].filter(Boolean).join(' · ');
       const row = document.createElement('div');
       row.className = 'd-queue-chip';
@@ -1224,16 +1224,14 @@ async function runBookSearch() {
           <div class="d-queue-chip-title">${b.title || 'Untitled'}</div>
           <div class="d-queue-chip-isbn">${meta || '—'}</div>
         </div>
-        <button class="f-btn f-btn--ink add-result-btn" style="padding:0 14px;" ${b.isbn ? '' : 'disabled title="No ISBN available"'}>${inQueue ? 'Added' : 'Add'}</button>
+        <button class="f-btn f-btn--ink add-result-btn" style="padding:0 14px;">${inQueue ? 'Added' : 'Add'}</button>
       `;
       const btn = row.querySelector('.add-result-btn');
-      if (b.isbn) {
-        btn.onclick = () => {
-          if (scanQueue.includes(b.isbn)) return;
-          appendQueue(b.isbn);
-          btn.textContent = 'Added';
-        };
-      }
+      btn.onclick = () => {
+        if (queueHasKey(b.key)) return;
+        appendSearchResult(b);
+        btn.textContent = 'Added';
+      };
       box.appendChild(row);
     }
   } catch {
@@ -1258,27 +1256,44 @@ function updateQueueBadge() {
   if (authPlural) authPlural.textContent = n !== 1 ? 's' : '';
 }
 
-async function appendQueue(isbn) {
-  if (scanQueue.includes(isbn)) return;
+// Queue items are objects:
+//   ISBN (scan/manual):  { key: isbn, isbn }
+//   Search result:       { key: workKey, book: {key,title,authors,isbns,cover_url,first_publish_year} }
+function queueHasKey(key) { return scanQueue.some(i => i.key === key); }
+
+function queueToEntries(is_public, status) {
+  return scanQueue.map(i =>
+    i.book ? { book: i.book, is_public, status, comment: '' }
+           : { isbn: i.isbn, is_public, status, comment: '' }
+  );
+}
+
+function makeChip(key, coverHtml, title, sub) {
   document.getElementById('queue-empty').style.display = 'none';
   const list = document.getElementById('scan-queue');
-
   const chip = document.createElement('div');
   chip.className = 'd-queue-chip';
   chip.innerHTML = `
-    <div class="d-queue-chip-cover" style="background:var(--ink-blue);display:flex;align-items:center;justify-content:center;">
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(244,238,226,0.6)" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"/></svg>
-    </div>
+    <div class="d-queue-chip-cover" style="background:var(--ink-blue);display:flex;align-items:center;justify-content:center;">${coverHtml}</div>
     <div style="flex:1;min-width:0;">
-      <div class="d-queue-chip-title">Looking up…</div>
-      <div class="d-queue-chip-isbn">${isbn}</div>
+      <div class="d-queue-chip-title">${title}</div>
+      <div class="d-queue-chip-isbn">${sub}</div>
     </div>
-    <button onclick="removeQueueItem('${isbn}',this.closest('.d-queue-chip'))" class="f-iconbtn" style="width:28px;height:28px;">
+    <button class="f-iconbtn" style="width:28px;height:28px;">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
     </button>
   `;
+  chip.querySelector('button').onclick = () => removeQueueItem(key, chip);
   list.prepend(chip);
-  scanQueue.push(isbn);
+  return chip;
+}
+
+const BOOK_ICON = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(244,238,226,0.6)" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"/></svg>`;
+
+async function appendQueue(isbn) {
+  if (queueHasKey(isbn)) return;
+  const chip = makeChip(isbn, BOOK_ICON, 'Looking up…', isbn);
+  scanQueue.push({ key: isbn, isbn });
   updateQueueBadge();
 
   try {
@@ -1292,6 +1307,9 @@ async function appendQueue(isbn) {
       }
       chip.querySelector('.d-queue-chip-title').textContent = book.title || isbn;
       pushToast('Added · ' + (book.title || isbn), 'ok');
+    } else if (res.status === 429) {
+      chip.querySelector('.d-queue-chip-title').textContent = 'Rate-limited — try again shortly';
+      chip.querySelector('.d-queue-chip-title').style.color = '#d65d4a';
     } else {
       chip.querySelector('.d-queue-chip-title').textContent = 'Not found';
       chip.querySelector('.d-queue-chip-title').style.color = '#d65d4a';
@@ -1299,8 +1317,29 @@ async function appendQueue(isbn) {
   } catch {}
 }
 
-function removeQueueItem(isbn, chipEl) {
-  scanQueue = scanQueue.filter(i => i !== isbn);
+// Add a title-search result using the metadata we already have — no re-lookup,
+// so books without an ISBN can still be saved.
+function appendSearchResult(b) {
+  if (queueHasKey(b.key)) return;
+  const cover = b.cover_url
+    ? `<img src="${b.cover_url}" style="width:100%;height:100%;object-fit:cover;" onerror="this.remove()">`
+    : BOOK_ICON;
+  const sub = [b.authors?.join(', '), b.first_publish_year].filter(Boolean).join(' · ') || (b.isbn || '—');
+  makeChip(b.key, cover, b.title || 'Untitled', sub);
+  scanQueue.push({
+    key: b.key,
+    book: {
+      key: b.key, title: b.title, authors: b.authors || [],
+      isbns: b.isbns || [], cover_url: b.cover_url || null,
+      first_publish_year: b.first_publish_year || null,
+    },
+  });
+  updateQueueBadge();
+  pushToast('Added · ' + (b.title || 'book'), 'ok');
+}
+
+function removeQueueItem(key, chipEl) {
+  scanQueue = scanQueue.filter(i => i.key !== key);
   chipEl.remove();
   if (!scanQueue.length) document.getElementById('queue-empty').style.display = '';
   updateQueueBadge();
@@ -1316,13 +1355,13 @@ async function saveBatchLibrary(btn) {
   const status = document.getElementById('batch-status').value;
   const orig = btn ? btn.innerHTML : '';
   if (btn) btn.innerHTML = 'Saving…';
-  const entries = scanQueue.map(isbn => ({isbn, is_public, status, comment:''}));
+  const entries = queueToEntries(is_public, status);
   try {
     const res = await fetch('/books/user_books/batch', {
       method:'POST', headers:{'Content-Type':'application/json'},
       body:JSON.stringify({entries}),
     });
-    if (res.ok) { window.location.hash='#home'; window.location.reload(); }
+    if (res.ok) { window.location.hash='#profile'; window.location.reload(); }
     else { pushToast('Error saving books', 'err'); if (btn) btn.innerHTML = orig; }
   } catch { pushToast('Connection error','err'); if (btn) btn.innerHTML = orig; }
 }
@@ -1334,9 +1373,9 @@ if (isLoggedIn && pendingScans) {
   sessionStorage.removeItem('pendingScanQueue');
   updateQueueBadge();
   // auto-save without opening modal
-  const entries = scanQueue.map(isbn => ({isbn, is_public:true, status:'unread', comment:''}));
+  const entries = queueToEntries(true, 'unread');
   fetch('/books/user_books/batch', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({entries})})
-    .then(r => { if(r.ok){ window.location.hash='#home'; window.location.reload(); } });
+    .then(r => { if(r.ok){ window.location.hash='#profile'; window.location.reload(); } });
 } else {
   const hash = window.location.hash.slice(1);
   switchView(['home','books','profile'].includes(hash) ? hash : 'home');

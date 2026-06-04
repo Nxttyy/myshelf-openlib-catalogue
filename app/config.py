@@ -8,6 +8,9 @@ class Settings(BaseSettings):
     OPENLIBRARY_BASE_URL: str = "https://openlibrary.org/api/volumes/brief/isbn"
     OPENLIBRARY_SEARCH_URL: str = "https://openlibrary.org/search.json"
     OPENLIBRARY_COVERS_URL: str = "https://covers.openlibrary.org/b/id"
+    # Open Library asks clients to identify themselves with a contact address so
+    # they can reach out before throttling. Sent in the User-Agent header.
+    CONTACT_EMAIL: str = "nathnaelyirga@gmail.com"
     DATABASE_URL: str
 
     # Auth
