@@ -11,7 +11,10 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
             background: #f4f4f5;
             color: #18181b;
-            min-height: 100dvh;
+            height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
         }
         .header {
             background: #fff;
@@ -20,8 +23,7 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            position: sticky;
-            top: 0;
+            flex-shrink: 0;
             z-index: 10;
         }
         .header h1 { font-size: 1.1rem; font-weight: 600; }
@@ -37,15 +39,35 @@
             font-size: 0.85rem;
             font-weight: 700;
         }
-        #reader-wrap { padding: 16px; }
-        #reader { width: 100%; border-radius: 12px; overflow: hidden; background: #000; min-height: 200px; }
+        #reader-wrap { padding: 16px; flex-shrink: 0; }
+        #reader {
+            width: 100%;
+            height: min(42vh, 300px);
+            border-radius: 12px;
+            overflow: hidden;
+            background: #000;
+            position: relative;
+        }
+        /* Keep the camera feed (native <video> or Quagga's injected video/canvas)
+           filling the box without stretching. */
+        #reader video, #reader canvas {
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: cover;
+            display: block;
+        }
         .hint {
             text-align: center;
             font-size: 0.85rem;
             color: #71717a;
             margin-top: 10px;
         }
-        .scanned-list { padding: 0 16px 100px; }
+        .scanned-list {
+            flex: 1 1 auto;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            padding: 0 16px 16px;
+        }
         .scanned-item {
             background: #fff;
             border: 1px solid #e4e4e7;
@@ -91,13 +113,11 @@
         .toast.show { opacity: 1; }
         .toast.error { background: #ef4444; }
         .done-bar {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
+            flex-shrink: 0;
             background: #fff;
             border-top: 1px solid #e4e4e7;
-            padding: 16px 20px;
+            padding: 14px 20px;
+            padding-bottom: calc(14px + env(safe-area-inset-bottom));
             text-align: center;
             font-size: 0.9rem;
             color: #71717a;

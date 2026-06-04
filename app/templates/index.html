@@ -1005,6 +1005,7 @@ let scanQueue = [];
 let scanSessionToken = null;
 let scanPollingInterval = null;
 let scanSeenCount = 0;
+let scanPollFailures = 0;
 let qrCodeInstance = null;
 let nativeStream = null;
 let nativeScanLoop = null;
@@ -1098,6 +1099,7 @@ async function initDesktopScan() {
       colorDark:'#1A1714', colorLight:'#ffffff', correctLevel:QRCode.CorrectLevel.M,
     });
     scanSeenCount = 0;
+    scanPollFailures = 0;
     scanPollingInterval = setInterval(pollScanSession, 2000);
   } catch { switchToCamera(); }
 }
@@ -1106,14 +1108,29 @@ async function pollScanSession() {
   if (!scanSessionToken) return;
   try {
     const res = await fetch(`/scan/session/${scanSessionToken}/items?after=${scanSeenCount}`);
-    if (!res.ok) { clearInterval(scanPollingInterval); return; }
+    if (res.status === 404) {
+      // Session is genuinely gone (expired / never existed) — start a fresh one
+      // so the QR code is scannable again instead of silently dying.
+      stopDesktopPolling();
+      initDesktopScan();
+      return;
+    }
+    if (!res.ok) {
+      // Transient error (network blip, restart) — keep polling, give up only
+      // after several consecutive failures.
+      if (++scanPollFailures >= 5) { stopDesktopPolling(); switchToCamera(); }
+      return;
+    }
+    scanPollFailures = 0;
     const data = await res.json();
     if (data.isbns.length > 0) {
       for (const isbn of data.isbns) appendQueue(isbn);
       scanSeenCount += data.isbns.length;
       document.getElementById('desktop-scan-status').textContent = `${scanSeenCount} book${scanSeenCount!==1?'s':''} scanned from phone`;
     }
-  } catch {}
+  } catch {
+    if (++scanPollFailures >= 5) { stopDesktopPolling(); switchToCamera(); }
+  }
 }
 
 function switchToCamera() {
