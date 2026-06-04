@@ -187,8 +187,8 @@ main{max-width:1160px;margin:0 auto;padding:40px 28px 110px}
 .d-dialog-header{display:flex;align-items:flex-start;justify-content:space-between;padding:18px 22px 14px;flex-shrink:0}
 .d-dialog-title{font-size:19px;font-weight:600;letter-spacing:-0.025em;margin-top:3px}
 .d-dialog-tabs-row{padding:0 22px 12px;flex-shrink:0}
-.f-seg{display:flex;background:var(--paper-2);border-radius:9px;padding:3px;gap:3px;max-width:280px}
-.f-seg button{flex:1;border:none;background:transparent;cursor:pointer;font-family:var(--font-sans);font-weight:600;font-size:11.5px;letter-spacing:-0.01em;color:var(--ink-soft);padding:8px 10px;border-radius:7px;transition:all 120ms var(--ease-out);display:inline-flex;align-items:center;justify-content:center;gap:5px;white-space:nowrap}
+.f-seg{display:flex;background:var(--paper-2);border-radius:9px;padding:3px;gap:3px;max-width:380px;width:100%}
+.f-seg button{flex:1;min-width:0;border:none;background:transparent;cursor:pointer;font-family:var(--font-sans);font-weight:600;font-size:11.5px;letter-spacing:-0.01em;color:var(--ink-soft);padding:8px 8px;border-radius:7px;transition:all 120ms var(--ease-out);display:inline-flex;align-items:center;justify-content:center;gap:5px;white-space:nowrap}
 .f-seg button.on{background:var(--ink);color:var(--paper)}
 .d-dialog-body{display:flex;flex:1;min-height:0;overflow:hidden}
 @media(max-width:560px){.d-dialog-body{flex-direction:column}}
@@ -729,6 +729,10 @@ main{max-width:1160px;margin:0 auto;padding:40px 28px 110px}
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5Z"/></svg>
           Enter ISBN
         </button>
+        <button class="modal-tab" id="tab-btn-search" onclick="switchModalTab('search')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          Search title
+        </button>
       </div>
     </div>
 
@@ -773,6 +777,16 @@ main{max-width:1160px;margin:0 auto;padding:40px 28px 110px}
             </div>
           </div>
           <p style="font-size:12px;color:var(--ink-faint);line-height:1.5;">Enter the 10 or 13-digit ISBN from the back of the book.</p>
+        </div>
+        <!-- Search tab -->
+        <div id="tab-search" class="tab-content" style="display:none;padding-top:4px;">
+          <div class="f-field">
+            <label class="f-label">Search by title or author</label>
+            <div style="display:flex;gap:8px;margin-top:6px;">
+              <input type="text" id="search-query" class="f-input" placeholder="e.g. the hobbit tolkien" oninput="onSearchInput()" onkeydown="if(event.key==='Enter')runBookSearch()" style="flex:1;">
+            </div>
+          </div>
+          <div id="search-results" style="margin-top:4px;max-height:300px;overflow-y:auto;"></div>
         </div>
 
         <!-- Batch settings -->
@@ -979,13 +993,16 @@ async function togglePin(btn) {
 function switchModalTab(tab) {
   document.getElementById('tab-scan').style.display = tab === 'scan' ? 'block' : 'none';
   document.getElementById('tab-manual').style.display = tab === 'manual' ? 'block' : 'none';
+  document.getElementById('tab-search').style.display = tab === 'search' ? 'block' : 'none';
   document.getElementById('tab-btn-scan').classList.toggle('on', tab === 'scan');
   document.getElementById('tab-btn-manual').classList.toggle('on', tab === 'manual');
+  document.getElementById('tab-btn-search').classList.toggle('on', tab === 'search');
   if (tab === 'scan') {
     if (isDesktop) initDesktopScan(); else startScanner();
   } else {
     stopDesktopPolling(); stopScanner();
   }
+  if (tab === 'search') document.getElementById('search-query').focus();
 }
 
 // ── Toast ─────────────────────────────────────────────────
@@ -1170,6 +1187,58 @@ function closeAddModal() {
 function addManualIsbn() {
   const val = document.getElementById('manual-isbn').value.trim();
   if (val) { appendQueue(val); document.getElementById('manual-isbn').value = ''; }
+}
+
+// ── Title search ──────────────────────────────────────────
+let searchDebounce = null;
+let searchSeq = 0;
+function onSearchInput() {
+  clearTimeout(searchDebounce);
+  searchDebounce = setTimeout(runBookSearch, 350);
+}
+async function runBookSearch() {
+  clearTimeout(searchDebounce);
+  const q = document.getElementById('search-query').value.trim();
+  const box = document.getElementById('search-results');
+  if (q.length < 2) { box.innerHTML = ''; return; }
+  const seq = ++searchSeq;
+  box.innerHTML = `<div class="d-queue-empty-msg">Searching…</div>`;
+  try {
+    const res = await fetch(`/books/search?q=${encodeURIComponent(q)}`);
+    if (seq !== searchSeq) return; // a newer search superseded this one
+    if (!res.ok) { box.innerHTML = `<div class="d-queue-empty-msg">Search failed. Try again.</div>`; return; }
+    const results = await res.json();
+    if (!results.length) { box.innerHTML = `<div class="d-queue-empty-msg">No matches found.</div>`; return; }
+    box.innerHTML = '';
+    for (const b of results) {
+      const inQueue = b.isbn && scanQueue.includes(b.isbn);
+      const meta = [b.authors?.join(', '), b.first_publish_year].filter(Boolean).join(' · ');
+      const row = document.createElement('div');
+      row.className = 'd-queue-chip';
+      row.innerHTML = `
+        <div class="d-queue-chip-cover" style="background:var(--ink-blue);display:flex;align-items:center;justify-content:center;">
+          ${b.cover_url ? `<img src="${b.cover_url}" style="width:100%;height:100%;object-fit:cover;" onerror="this.remove()">`
+            : `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(244,238,226,0.6)" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"/></svg>`}
+        </div>
+        <div style="flex:1;min-width:0;">
+          <div class="d-queue-chip-title">${b.title || 'Untitled'}</div>
+          <div class="d-queue-chip-isbn">${meta || '—'}</div>
+        </div>
+        <button class="f-btn f-btn--ink add-result-btn" style="padding:0 14px;" ${b.isbn ? '' : 'disabled title="No ISBN available"'}>${inQueue ? 'Added' : 'Add'}</button>
+      `;
+      const btn = row.querySelector('.add-result-btn');
+      if (b.isbn) {
+        btn.onclick = () => {
+          if (scanQueue.includes(b.isbn)) return;
+          appendQueue(b.isbn);
+          btn.textContent = 'Added';
+        };
+      }
+      box.appendChild(row);
+    }
+  } catch {
+    if (seq === searchSeq) box.innerHTML = `<div class="d-queue-empty-msg">Connection error.</div>`;
+  }
 }
 
 function updateQueueBadge() {

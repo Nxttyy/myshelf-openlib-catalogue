@@ -27,6 +27,50 @@ async def fetch_book_by_isbn(isbn: str) -> dict:
         return response.json()
 
 
+async def search_books(query: str, limit: int = 12) -> list[dict]:
+    """
+    Search Open Library by free-text query (title and/or author).
+
+    Uses the Search API (separate from the Volumes/ISBN API): each result is a
+    *work* with edition metadata. We return lightweight dicts for display; when
+    the user picks one, its `isbn` is fed to the existing get_or_create_book flow
+    to fetch and persist full metadata.
+
+    Endpoint: GET https://openlibrary.org/search.json?q={query}
+    """
+    params = {
+        "q": query,
+        "fields": "key,title,author_name,first_publish_year,cover_i,isbn,edition_count",
+        "limit": limit,
+    }
+    async with httpx.AsyncClient(timeout=15.0) as client:
+        response = await client.get(settings.OPENLIBRARY_SEARCH_URL, params=params)
+        response.raise_for_status()
+        docs = response.json().get("docs", [])
+
+    results: list[dict] = []
+    for doc in docs:
+        isbns = doc.get("isbn") or []
+        cover_id = doc.get("cover_i")
+        results.append(
+            {
+                "key": doc.get("key"),
+                "title": doc.get("title", ""),
+                "authors": doc.get("author_name", []),
+                "first_publish_year": doc.get("first_publish_year"),
+                "edition_count": doc.get("edition_count"),
+                # Representative ISBN — the bridge into the add-to-library flow.
+                "isbn": isbns[0] if isbns else None,
+                "cover_url": (
+                    f"{settings.OPENLIBRARY_COVERS_URL}/{cover_id}-M.jpg"
+                    if cover_id
+                    else None
+                ),
+            }
+        )
+    return results
+
+
 # ── Response cleaning helpers ────────────────────────────────────────────────
 
 

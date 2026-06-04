@@ -7,7 +7,7 @@ from uuid import UUID
 from pydantic import BaseModel
 from typing import Annotated
 
-from fastapi import APIRouter, HTTPException, Path, Depends
+from fastapi import APIRouter, HTTPException, Path, Query, Depends
 from httpx import HTTPStatusError, RequestError
 
 from sqlmodel import select
@@ -16,7 +16,7 @@ from app.auth import get_current_user
 from app.models.user import User
 from app.models.user_book import UserBook
 from app.schemas.book import BookRead
-from app.services.openlibrary import get_or_create_book
+from app.services.openlibrary import get_or_create_book, search_books
 
 router = APIRouter(prefix="/books", tags=["Books"])
 
@@ -66,6 +66,28 @@ async def lookup_isbn(
         )
 
     return book
+
+@router.get("/search")
+async def search_books_endpoint(
+    q: Annotated[str, Query(min_length=2, description="Title and/or author query")],
+    limit: Annotated[int, Query(ge=1, le=40)] = 12,
+):
+    """
+    Free-text book search via the Open Library Search API.
+
+    Returns lightweight results for display; the caller adds a chosen result to
+    the library by passing its `isbn` to the existing lookup/batch flow.
+    """
+    try:
+        return await search_books(q, limit)
+    except HTTPStatusError as exc:
+        raise HTTPException(
+            status_code=exc.response.status_code,
+            detail=f"Open Library returned {exc.response.status_code}",
+        )
+    except RequestError as exc:
+        raise HTTPException(status_code=502, detail=f"Failed to reach Open Library: {exc}")
+
 
 @router.post("/user_books/batch")
 async def batch_add_user_books(
