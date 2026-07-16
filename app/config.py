@@ -2,7 +2,7 @@ from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
-    APP_NAME: str = "Open Bookie"
+    APP_NAME: str = "Dora"
     # FIX: use env vars here
     DEBUG: bool = True
     OPENLIBRARY_BASE_URL: str = "https://openlibrary.org/api/volumes/brief/isbn"
@@ -31,7 +31,7 @@ class Settings(BaseSettings):
     SMTP_USER: str | None = None
     SMTP_PASSWORD: str | None = None
     EMAILS_FROM_EMAIL: str | None = "noreply@openbookie.com"
-    EMAILS_FROM_NAME: str | None = "Open Bookie"
+    EMAILS_FROM_NAME: str | None = "Dora"
 
     model_config = {"env_file": ".env", "env_file_encoding": "utf-8"}
 

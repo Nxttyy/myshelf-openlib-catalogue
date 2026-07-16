@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Morus</title>
+<title>Dora</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -26,6 +26,7 @@
   --font-mono:   'JetBrains Mono', 'SF Mono', Menlo, monospace;
   --ease-out:    cubic-bezier(0.2,0,0,1);
   --ease-io:     cubic-bezier(0.4,0,0.2,1);
+  --shadow-md:   0 6px 16px rgba(0,0,0,0.08),0 1px 3px rgba(0,0,0,0.05);
   --shadow-lg:   0 12px 32px rgba(0,0,0,0.08),0 2px 6px rgba(0,0,0,0.04);
   --shadow-xl:   0 24px 64px rgba(0,0,0,0.12),0 4px 12px rgba(0,0,0,0.06);
 }
@@ -211,6 +212,24 @@ main{max-width:1160px;margin:0 auto;padding:40px 28px 110px}
 .d-batch-row>div{flex:1}
 .d-batch-row .f-label{display:block;margin-bottom:6px}
 
+/* ── Ask Dora (dummy taste verdict in add dialog) ─────────── */
+.d-chip-taste{flex-direction:column;align-items:stretch}
+.d-chip-taste .top{display:flex;align-items:center;gap:10px}
+.d-chip-taste-slot:empty{display:none}
+.d-askdora{margin-top:9px;display:flex;align-items:center;justify-content:center;gap:7px;width:100%;border:none;cursor:pointer;background:transparent;box-shadow:inset 0 0 0 1px var(--hair-strong);border-radius:7px;padding:7px 0;font-family:var(--font-mono);font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink-soft);transition:color 120ms var(--ease-out),background 120ms var(--ease-out)}
+.d-askdora:hover{color:var(--ink);background:rgba(26,23,20,0.05)}
+.taste{margin-top:9px;padding-top:9px;border-top:1px dashed var(--hair-strong)}
+.taste .verdict{display:flex;align-items:center;gap:7px;font-size:12.5px;font-weight:600;letter-spacing:-0.01em}
+.taste .verdict .vdot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.taste .verdict.buy .vdot{background:#2E7D52}
+.taste .verdict.skip .vdot{background:#B23A48}
+.taste .verdict.hold .vdot{background:var(--amber)}
+.taste .srow{display:flex;align-items:center;justify-content:space-between;margin-top:6px}
+.taste .srow span:first-child{font-family:var(--font-mono);font-size:9px;letter-spacing:0.09em;text-transform:uppercase;color:var(--ink-faint)}
+.d-dots{display:inline-flex;gap:4px}
+.d-dots span{width:6px;height:6px;border-radius:50%;background:var(--hair-strong)}
+.d-dots span.on{background:var(--ink)}
+
 /* ── Camera / QR ─────────────────────────────────────────── */
 .f-cam{position:relative;aspect-ratio:4/3;border-radius:12px;overflow:hidden;background:radial-gradient(circle at 50% 40%,#2a2622,#131110)}
 #reader{position:absolute;inset:0;overflow:hidden}
@@ -254,6 +273,12 @@ main{max-width:1160px;margin:0 auto;padding:40px 28px 110px}
 .d-pin.pinned{opacity:1;transform:none;color:var(--amber-fg);background:var(--amber);box-shadow:0 4px 12px rgba(0,0,0,0.06)}
 .d-cell-pin-flag{font-family:var(--font-mono);font-size:8.5px;letter-spacing:0.06em;color:#9a6a13;display:inline-flex;align-items:center;gap:4px}
 
+/* ── Comment bubbles (profile shelf) ─────────────────────── */
+.d-bubble{position:absolute;left:2px;right:12px;top:-14px;z-index:3;background:#fff;border:1px solid var(--hair-strong);border-radius:10px;padding:9px 11px 8px;box-shadow:var(--shadow-md);pointer-events:none}
+.d-bubble .txt{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;font-size:11.5px;line-height:1.45;color:var(--ink-soft);letter-spacing:-0.005em}
+.d-bubble::after{content:"";position:absolute;bottom:-5.5px;left:22px;width:9px;height:9px;background:#fff;border-right:1px solid var(--hair-strong);border-bottom:1px solid var(--hair-strong);transform:rotate(45deg)}
+.d-cell:hover .d-bubble{opacity:0.25;transition:opacity 120ms var(--ease-out)}
+
 /* ── Share popover ───────────────────────────────────────── */
 .d-share-wrap{position:relative}
 .d-share-pop{position:absolute;top:calc(100% + 10px);right:0;z-index:50;width:300px;background:var(--paper);border-radius:12px;box-shadow:var(--shadow-xl);border:1px solid var(--hair);padding:16px;display:none}
@@ -287,6 +312,10 @@ main{max-width:1160px;margin:0 auto;padding:40px 28px 110px}
 
 <!-- ── Navbar ────────────────────────────────────────────── -->
 <nav class="d-nav">
+  <a class="d-logo" href="/" onclick="switchView('home');return false;">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--ink-blue)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 5.4v13.2"/><path d="M16 5.4v13.2"/><ellipse cx="12" cy="5.4" rx="4" ry="2"/><path d="M10.6 5.6a1.4 0.8 0 0 1 2.8 0"/><path d="M8 18.6a4 2 0 0 0 8 0"/><path d="M7.1 11.8h9.8"/><path d="M9.7 11.8c-.5 1-.3 2.2.2 3.2"/></svg>
+    Dora
+  </a>
   <div class="d-navlinks">
     <button class="d-navlink" data-nav="home" onclick="switchView('home')">Home</button>
     <button class="d-navlink" data-nav="books" onclick="switchView('books')">Explore</button>
@@ -316,9 +345,9 @@ main{max-width:1160px;margin:0 auto;padding:40px 28px 110px}
     <!-- Logged out hero -->
     <div class="d-hero">
       <div>
-        <div class="d-hero-label">Morus · A record of your books</div>
+        <div class="d-hero-label">Dora · A record of your books</div>
         <h1>Keep track of the books you own.</h1>
-        <p>Scan a barcode. Morus pulls the cover, author, and page count from Open Library and adds the book to your shelf.</p>
+        <p>Scan a barcode. Dora pulls the cover, author, and page count from Open Library and adds the book to your shelf.</p>
         <div class="hero-btns">
           <button class="f-btn f-btn--amber" onclick="openAddModal()" style="padding:13px 20px;font-size:14px;">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M7 12h10"/></svg>
@@ -332,7 +361,7 @@ main{max-width:1160px;margin:0 auto;padding:40px 28px 110px}
         {% set rots = [-11, 2, 12] %}{% set xs = [20, 100, 180] %}{% set ys = [30, 0, 50] %}{% set zs = [1,3,1] %}
         <div class="d-fan-book" style="left:{{ xs[loop.index0] }}px;top:{{ ys[loop.index0] }}px;transform:rotate({{ rots[loop.index0] }}deg);z-index:{{ zs[loop.index0] }};">
           <div class="d-cover-inner" style="width:140px;">
-            {% if b.covers %}<img class="d-cover-img" src="{{ b.covers[0].medium or b.covers[0].small or b.covers[0].large }}" alt="{{ b.title }}" loading="lazy">{% else %}<div class="d-cover-ph" style="background:{{ cover_bg(loop.index0) }};color:{{ cover_fg(loop.index0) }};"><div class="cp-shadow"></div><div class="cp-label"><span>Morus</span><span>{{ b.publish_date[:4] if b.publish_date else '—' }}</span></div><div class="cp-title">{{ b.title[:40] }}</div><div class="cp-rule" style="background:currentColor;"></div><div class="cp-author">{{ (b.authors[0].name if b.authors else 'Unknown')|truncate(20,true,'') }}</div></div>{% endif %}
+            {% if b.covers %}<img class="d-cover-img" src="{{ b.covers[0].medium or b.covers[0].small or b.covers[0].large }}" alt="{{ b.title }}" loading="lazy">{% else %}<div class="d-cover-ph" style="background:{{ cover_bg(loop.index0) }};color:{{ cover_fg(loop.index0) }};"><div class="cp-shadow"></div><div class="cp-label"><span>Dora</span><span>{{ b.publish_date[:4] if b.publish_date else '—' }}</span></div><div class="cp-title">{{ b.title[:40] }}</div><div class="cp-rule" style="background:currentColor;"></div><div class="cp-author">{{ (b.authors[0].name if b.authors else 'Unknown')|truncate(20,true,'') }}</div></div>{% endif %}
           </div>
         </div>
         {% endfor %}
@@ -342,15 +371,15 @@ main{max-width:1160px;margin:0 auto;padding:40px 28px 110px}
     <div class="d-colophon">
       <div class="aside">
         <div class="berry">
-          <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.55" stroke-linecap="round" stroke-linejoin="round"><g fill="currentColor" stroke="none"><circle cx="10.7" cy="9.4" r="1.5"/><circle cx="13.3" cy="9.4" r="1.5"/><circle cx="9.5" cy="11.7" r="1.5"/><circle cx="12" cy="11.7" r="1.5"/><circle cx="14.5" cy="11.7" r="1.5"/><circle cx="9.6" cy="14" r="1.5"/><circle cx="12" cy="14" r="1.5"/><circle cx="14.4" cy="14" r="1.5"/><circle cx="10.4" cy="16.2" r="1.5"/><circle cx="13.6" cy="16.2" r="1.5"/><circle cx="12" cy="18.2" r="1.5"/></g><path d="M12 7.6 9.9 4.8" stroke-width="1.5"/><path d="M12 7.6V4.1" stroke-width="1.5"/><path d="m12 7.6 2.1-2.8" stroke-width="1.5"/></svg>
+          <svg width="72" height="72" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 5.4v13.2"/><path d="M16 5.4v13.2"/><ellipse cx="12" cy="5.4" rx="4" ry="2"/><path d="M10.6 5.6a1.4 0.8 0 0 1 2.8 0"/><path d="M8 18.6a4 2 0 0 0 8 0"/><path d="M7.1 11.8h9.8"/><path d="M9.7 11.8c-.5 1-.3 2.2.2 3.2"/></svg>
         </div>
         <div class="f-label cap" style="margin-top:8px;max-width:180px;">A note on why this exists</div>
       </div>
       <div class="essay">
-        <p>Morus keeps a record of the books I own — read, reading, and not yet started. That's the whole idea.</p>
-        <p>The catalogue data comes from <a href="https://openlibrary.org" target="_blank" rel="noreferrer">Open Library</a>, the free and editable record of the world's books. Covers, page counts, publishers — all of it. Morus is a front end for browsing and shelving it.</p>
+        <p>Dora keeps a record of the books I own — read, reading, and not yet started. That's the whole idea.</p>
+        <p>The catalogue data comes from <a href="https://openlibrary.org" target="_blank" rel="noreferrer">Open Library</a>, the free and editable record of the world's books. Covers, page counts, publishers — all of it. Dora is a front end for browsing and shelving it.</p>
         <p>It's free and open source. No tracking, no ads. I built it for myself and put it online in case it's useful to you. The code, and the rest of my work, is at <a href="https://nty.et" target="_blank" rel="noreferrer">nty.et</a>.</p>
-        <p style="font-size:13px;color:var(--ink-faint);">Morus is the Latin name for the mulberry — the tree in the story of Pyramus and Thisbe.</p>
+        <p style="font-size:13px;color:var(--ink-faint);">The name Dora is borrowed twice: from Freud's most famous case study, and from the explorer. Both kept careful notes.</p>
         <div class="meta">
           <a href="https://nty.et" target="_blank" rel="noreferrer">nty.et</a>
           <a href="https://openlibrary.org" target="_blank" rel="noreferrer">Open Library</a>
@@ -372,7 +401,7 @@ main{max-width:1160px;margin:0 auto;padding:40px 28px 110px}
             {% else %}
             <div class="d-cover-ph" style="background:{{ cover_bg(loop.index0) }};color:{{ cover_fg(loop.index0) }};">
               <div class="cp-shadow"></div>
-              <div class="cp-label"><span>Morus</span><span>{{ b.publish_date[:4] if b.publish_date else '—' }}</span></div>
+              <div class="cp-label"><span>Dora</span><span>{{ b.publish_date[:4] if b.publish_date else '—' }}</span></div>
               <div class="cp-title">{{ b.title[:40] }}</div>
               <div class="cp-rule" style="background:currentColor;"></div>
               <div class="cp-author">{{ (b.authors[0].name if b.authors else 'Unknown')|truncate(20,true,'') }}</div>
@@ -395,14 +424,14 @@ main{max-width:1160px;margin:0 auto;padding:40px 28px 110px}
     <div class="d-footer">
       <div>
         <div style="display:flex;align-items:center;gap:8px;font-weight:600;font-size:16px;letter-spacing:-0.03em;color:var(--ink);">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--ink-blue)" stroke-width="1.55" stroke-linecap="round" stroke-linejoin="round"><g fill="var(--ink-blue)" stroke="none"><circle cx="10.7" cy="9.4" r="1.5"/><circle cx="13.3" cy="9.4" r="1.5"/><circle cx="9.5" cy="11.7" r="1.5"/><circle cx="12" cy="11.7" r="1.5"/><circle cx="14.5" cy="11.7" r="1.5"/><circle cx="9.6" cy="14" r="1.5"/><circle cx="12" cy="14" r="1.5"/><circle cx="14.4" cy="14" r="1.5"/><circle cx="10.4" cy="16.2" r="1.5"/><circle cx="13.6" cy="16.2" r="1.5"/><circle cx="12" cy="18.2" r="1.5"/></g><path d="M12 7.6 9.9 4.8" stroke-width="1.5"/><path d="M12 7.6V4.1" stroke-width="1.5"/><path d="m12 7.6 2.1-2.8" stroke-width="1.5"/></svg>
-          Morus
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--ink-blue)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 5.4v13.2"/><path d="M16 5.4v13.2"/><ellipse cx="12" cy="5.4" rx="4" ry="2"/><path d="M10.6 5.6a1.4 0.8 0 0 1 2.8 0"/><path d="M8 18.6a4 2 0 0 0 8 0"/><path d="M7.1 11.8h9.8"/><path d="M9.7 11.8c-.5 1-.3 2.2.2 3.2"/></svg>
+          Dora
         </div>
         <div class="d-footer-fine">A record of the books you own. Built on Open Library, free and open source.</div>
       </div>
       <div class="d-footer-cols">
         <div class="d-footer-col">
-          <div class="f-label" style="margin-bottom:2px;">Morus</div>
+          <div class="f-label" style="margin-bottom:2px;">Dora</div>
           <button onclick="switchView('home')">Home</button>
           <button onclick="switchView('books')">Explore</button>
           <a href="/guide">User guide</a>
@@ -421,7 +450,7 @@ main{max-width:1160px;margin:0 auto;padding:40px 28px 110px}
     <div style="margin-bottom:28px;">
       <div class="f-label" style="margin-bottom:10px;">Community</div>
       <h1 style="font-weight:600;font-size:clamp(28px,5vw,48px);letter-spacing:-0.04em;margin:0;">Recently added</h1>
-      <p style="font-size:14px;color:var(--ink-soft);margin-top:10px;max-width:420px;">The newest books added across Morus. Click any cover for its record.</p>
+      <p style="font-size:14px;color:var(--ink-soft);margin-top:10px;max-width:420px;">The newest books added across Dora. Click any cover for its record.</p>
     </div>
     <div class="d-grid" id="explore-grid">
       {% set books = all_books %}
@@ -439,7 +468,7 @@ main{max-width:1160px;margin:0 auto;padding:40px 28px 110px}
       <div>
         <h1 class="d-profile-name">{{ user.firstname }} {{ user.lastname }}</h1>
         <div class="d-profile-handle">
-          <span id="handle-display">@<span id="handle-text">{{ user_handle }}</span> · morus/u/{{ user_handle }}</span>
+          <span id="handle-display">@<span id="handle-text">{{ user_handle }}</span> · dora.club/@{{ user_handle }}</span>
           <button id="handle-edit-btn" onclick="startEditUsername()" title="Edit username" style="background:none;border:none;color:var(--ink-faint);cursor:pointer;padding:0 4px;vertical-align:middle;">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5Z"/></svg>
           </button>
@@ -496,13 +525,14 @@ main{max-width:1160px;margin:0 auto;padding:40px 28px 110px}
       {% set st = ub.status or 'unread' %}
       <div class="d-cell" onclick="openDrawer('{{ b.id }}')">
         <div class="d-cover-wrap">
+          {% if ub.comment %}<div class="d-bubble"><span class="txt">{{ ub.comment }}</span></div>{% endif %}
           <div class="d-cover-inner">
             {% if b.covers %}
             <img class="d-cover-img" src="{{ b.covers[0].medium or b.covers[0].small or b.covers[0].large }}" alt="{{ b.title }}" loading="lazy">
             {% else %}
             <div class="d-cover-ph" style="background:{{ cover_bg(loop.index0) }};color:{{ cover_fg(loop.index0) }};">
               <div class="cp-shadow"></div>
-              <div class="cp-label"><span>Morus</span><span>{{ b.publish_date[:4] if b.publish_date else '—' }}</span></div>
+              <div class="cp-label"><span>Dora</span><span>{{ b.publish_date[:4] if b.publish_date else '—' }}</span></div>
               <div class="cp-title">{{ b.title[:40] }}</div>
               <div class="cp-rule" style="background:currentColor;"></div>
               <div class="cp-author">{{ (b.authors[0].name if b.authors else 'Unknown')|truncate(20,true,'') }}</div>
@@ -583,7 +613,7 @@ main{max-width:1160px;margin:0 auto;padding:40px 28px 110px}
         {% else %}
         <div class="d-cover-ph" style="background:{{ cover_bg(loop.index0) }};color:{{ cover_fg(loop.index0) }};height:165px;">
           <div class="cp-shadow"></div>
-          <div class="cp-label"><span>Morus</span><span>{{ b.publish_date[:4] if b.publish_date else '—' }}</span></div>
+          <div class="cp-label"><span>Dora</span><span>{{ b.publish_date[:4] if b.publish_date else '—' }}</span></div>
           <div class="cp-title">{{ b.title[:30] }}</div>
           <div class="cp-rule" style="background:currentColor;"></div>
           <div class="cp-author">{{ (b.authors[0].name if b.authors else '—')|truncate(16,true,'') }}</div>
@@ -939,7 +969,7 @@ async function saveUsername(btn) {
     if (res.ok) {
       const u = data.username || uname;
       document.getElementById('handle-text').textContent = u;
-      document.getElementById('handle-display').lastChild.textContent = ` · morus/u/${u}`;
+      document.getElementById('handle-display').lastChild.textContent = ` · dora.club/@${u}`;
       const link = document.getElementById('share-link-text');
       if (link) link.textContent = `/u/${u}`;
       cancelEditUsername();
@@ -1229,19 +1259,24 @@ async function runBookSearch() {
     for (const b of results) {
       const inQueue = queueHasKey(b.key);
       const meta = [b.authors?.join(', '), b.first_publish_year].filter(Boolean).join(' · ');
+      const seed = (b.isbns && b.isbns[0]) || b.title || b.key;
       const row = document.createElement('div');
-      row.className = 'd-queue-chip';
+      row.className = 'd-queue-chip d-chip-taste';
       row.innerHTML = `
-        <div class="d-queue-chip-cover" style="background:var(--ink-blue);display:flex;align-items:center;justify-content:center;">
-          ${b.cover_url ? `<img src="${b.cover_url}" style="width:100%;height:100%;object-fit:cover;" onerror="this.remove()">`
-            : `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(244,238,226,0.6)" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"/></svg>`}
+        <div class="top">
+          <div class="d-queue-chip-cover" style="background:var(--ink-blue);display:flex;align-items:center;justify-content:center;">
+            ${b.cover_url ? `<img src="${b.cover_url}" style="width:100%;height:100%;object-fit:cover;" onerror="this.remove()">`
+              : `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(244,238,226,0.6)" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"/></svg>`}
+          </div>
+          <div style="flex:1;min-width:0;">
+            <div class="d-queue-chip-title">${b.title || 'Untitled'}</div>
+            <div class="d-queue-chip-isbn">${meta || '—'}</div>
+          </div>
+          <button class="f-btn f-btn--ink add-result-btn" style="padding:0 14px;flex-shrink:0;">${inQueue ? 'Added' : 'Add'}</button>
         </div>
-        <div style="flex:1;min-width:0;">
-          <div class="d-queue-chip-title">${b.title || 'Untitled'}</div>
-          <div class="d-queue-chip-isbn">${meta || '—'}</div>
-        </div>
-        <button class="f-btn f-btn--ink add-result-btn" style="padding:0 14px;">${inQueue ? 'Added' : 'Add'}</button>
+        <div class="d-chip-taste-slot"></div>
       `;
+      mountAskDora(row, seed);
       const btn = row.querySelector('.add-result-btn');
       btn.onclick = () => {
         if (queueHasKey(b.key)) return;
@@ -1284,22 +1319,68 @@ function queueToEntries(is_public, status) {
   );
 }
 
-function makeChip(key, coverHtml, title, sub) {
+// ── Ask Dora (dummy taste engine) ─────────────────────────
+// Placeholder only — deterministic canned verdicts keyed off the book, no
+// real recommendation data yet. Mirrors the design's tasteFor().
+const DORA_ICON = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 5.4v13.2"/><path d="M16 5.4v13.2"/><ellipse cx="12" cy="5.4" rx="4" ry="2"/><path d="M10.6 5.6a1.4 0.8 0 0 1 2.8 0"/><path d="M8 18.6a4 2 0 0 0 8 0"/><path d="M7.1 11.8h9.8"/><path d="M9.7 11.8c-.5 1-.3 2.2.2 3.2"/></svg>`;
+const DORA_VERDICTS = [
+  { kind:'buy',  verdict:'Must-buy, perfect comfort read',    familiarity:5, adventure:4 },
+  { kind:'buy',  verdict:'Buy it, stretches you gently',      familiarity:4, adventure:5 },
+  { kind:'buy',  verdict:'Buy, a confident new direction',    familiarity:3, adventure:5 },
+  { kind:'hold', verdict:'Borrow first, then decide slowly',  familiarity:3, adventure:2 },
+  { kind:'skip', verdict:'Skip, too far from taste',          familiarity:1, adventure:2 },
+  { kind:'skip', verdict:'Skip, you own better already',      familiarity:5, adventure:1 },
+];
+function doraTaste(seed) {
+  let h = 0; const s = String(seed || '');
+  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
+  return DORA_VERDICTS[h % DORA_VERDICTS.length];
+}
+function doraDots(n) {
+  let out = '';
+  for (let i = 1; i <= 5; i++) out += `<span class="${i <= n ? 'on' : ''}"></span>`;
+  return `<span class="d-dots">${out}</span>`;
+}
+function doraTasteHtml(seed) {
+  const t = doraTaste(seed);
+  return `<div class="taste f-rise">
+      <div class="verdict ${t.kind}"><span class="vdot"></span>${t.verdict}</div>
+      <div class="srow"><span>Familiarity to taste</span>${doraDots(t.familiarity)}</div>
+      <div class="srow"><span>Adventure, right direction</span>${doraDots(t.adventure)}</div>
+    </div>`;
+}
+// Wire an "Ask Dora" button inside a chip's .d-chip-taste-slot; on click it
+// expands into the (dummy) verdict for that book.
+function mountAskDora(chip, seed) {
+  const slot = chip.querySelector('.d-chip-taste-slot');
+  if (!slot) return;
+  slot.innerHTML = `<button class="d-askdora" type="button">${DORA_ICON} Ask Dora: buy or skip?</button>`;
+  slot.querySelector('.d-askdora').onclick = (e) => {
+    e.stopPropagation();
+    slot.innerHTML = doraTasteHtml(seed);
+  };
+}
+
+function makeChip(key, coverHtml, title, sub, seed) {
   document.getElementById('queue-empty').style.display = 'none';
   const list = document.getElementById('scan-queue');
   const chip = document.createElement('div');
-  chip.className = 'd-queue-chip';
+  chip.className = 'd-queue-chip d-chip-taste';
   chip.innerHTML = `
-    <div class="d-queue-chip-cover" style="background:var(--ink-blue);display:flex;align-items:center;justify-content:center;">${coverHtml}</div>
-    <div style="flex:1;min-width:0;">
-      <div class="d-queue-chip-title">${title}</div>
-      <div class="d-queue-chip-isbn">${sub}</div>
+    <div class="top">
+      <div class="d-queue-chip-cover" style="background:var(--ink-blue);display:flex;align-items:center;justify-content:center;">${coverHtml}</div>
+      <div style="flex:1;min-width:0;">
+        <div class="d-queue-chip-title">${title}</div>
+        <div class="d-queue-chip-isbn">${sub}</div>
+      </div>
+      <button class="f-iconbtn" style="width:28px;height:28px;flex-shrink:0;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
     </div>
-    <button class="f-iconbtn" style="width:28px;height:28px;">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
-    </button>
+    <div class="d-chip-taste-slot"></div>
   `;
-  chip.querySelector('button').onclick = () => removeQueueItem(key, chip);
+  chip.querySelector('.top .f-iconbtn').onclick = () => removeQueueItem(key, chip);
+  mountAskDora(chip, seed || key);
   list.prepend(chip);
   return chip;
 }
@@ -1341,7 +1422,7 @@ function appendSearchResult(b) {
     ? `<img src="${b.cover_url}" style="width:100%;height:100%;object-fit:cover;" onerror="this.remove()">`
     : BOOK_ICON;
   const sub = [b.authors?.join(', '), b.first_publish_year].filter(Boolean).join(' · ') || (b.isbn || '—');
-  makeChip(b.key, cover, b.title || 'Untitled', sub);
+  makeChip(b.key, cover, b.title || 'Untitled', sub, (b.isbns && b.isbns[0]) || b.title || b.key);
   scanQueue.push({
     key: b.key,
     book: {

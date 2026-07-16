@@ -14,7 +14,7 @@
       {% else %}
       <div class="d-cover-ph" style="background:{{ cover_bg(idx) }};color:{{ cover_fg(idx) }};">
         <div class="cp-shadow"></div>
-        <div class="cp-label"><span>Morus</span><span>{{ b.publish_date[:4] if b.publish_date else '—' }}</span></div>
+        <div class="cp-label"><span>Dora</span><span>{{ b.publish_date[:4] if b.publish_date else '—' }}</span></div>
         <div class="cp-title">{{ b.title[:40] }}</div>
         <div class="cp-rule" style="background:currentColor;"></div>
         <div class="cp-author">{{ (b.authors[0].name if b.authors else 'Unknown')|truncate(20,true,'') }}</div>
@@ -39,7 +39,7 @@
         {% else %}
         <div class="d-cover-ph" style="background:{{ cover_bg(idx) }};color:{{ cover_fg(idx) }};height:165px;">
           <div class="cp-shadow"></div>
-          <div class="cp-label"><span>Morus</span><span>{{ b.publish_date[:4] if b.publish_date else '—' }}</span></div>
+          <div class="cp-label"><span>Dora</span><span>{{ b.publish_date[:4] if b.publish_date else '—' }}</span></div>
           <div class="cp-title">{{ b.title[:30] }}</div>
           <div class="cp-rule" style="background:currentColor;"></div>
           <div class="cp-author">{{ (b.authors[0].name if b.authors else '—')|truncate(16,true,'') }}</div>

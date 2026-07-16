@@ -1,5 +1,5 @@
 """
-Open Bookie — FastAPI application entry point.
+Dora — FastAPI application entry point.
 """
 
 from contextlib import asynccontextmanager

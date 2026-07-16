@@ -14,7 +14,7 @@ from app.models.book import Book
 # ── Open Library API ─────────────────────────────────────────────────────────
 
 # Identify ourselves per Open Library's API etiquette (descriptive UA + contact).
-_USER_AGENT = f"Morus/0.1 (+mailto:{settings.CONTACT_EMAIL})"
+_USER_AGENT = f"Dora/0.1 (+mailto:{settings.CONTACT_EMAIL})"
 _DEFAULT_HEADERS = {"User-Agent": _USER_AGENT}
 
 

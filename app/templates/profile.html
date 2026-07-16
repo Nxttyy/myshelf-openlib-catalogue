@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>{{ profile_user.firstname }} {{ profile_user.lastname }} · Morus</title>
+<title>{{ profile_user.firstname }} {{ profile_user.lastname }} · Dora</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -15,6 +15,7 @@
   --font-sans:'Inter Tight',-apple-system,system-ui,sans-serif;
   --font-mono:'JetBrains Mono','SF Mono',Menlo,monospace;
   --ease-out:cubic-bezier(0.2,0,0,1);
+  --shadow-md:0 6px 16px rgba(0,0,0,0.08),0 1px 3px rgba(0,0,0,0.05);
   --shadow-xl:0 24px 64px rgba(0,0,0,0.12),0 4px 12px rgba(0,0,0,0.06);
 }
 *,*::before,*::after{box-sizing:border-box}
@@ -65,10 +66,18 @@ main{max-width:1160px;margin:0 auto;padding:40px 28px 80px}
 @keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 .f-btn{font-family:var(--font-sans);font-weight:600;font-size:13px;letter-spacing:-0.01em;border:none;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;border-radius:7px;padding:9px 15px;white-space:nowrap;transition:transform 120ms var(--ease-out),background 120ms var(--ease-out);text-decoration:none}
 .f-btn--ink{background:var(--ink);color:var(--paper)}
+.d-bubble{position:absolute;left:2px;right:12px;top:-14px;z-index:3;background:#fff;border:1px solid var(--hair-strong);border-radius:10px;padding:9px 11px 8px;box-shadow:var(--shadow-md);pointer-events:none}
+.d-bubble .txt{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;font-size:11.5px;line-height:1.45;color:var(--ink-soft);letter-spacing:-0.005em}
+.d-bubble::after{content:"";position:absolute;bottom:-5.5px;left:22px;width:9px;height:9px;background:#fff;border-right:1px solid var(--hair-strong);border-bottom:1px solid var(--hair-strong);transform:rotate(45deg)}
+.d-cell:hover .d-bubble{opacity:0.25;transition:opacity 120ms var(--ease-out)}
 </style>
 </head>
 <body>
 <nav class="d-nav">
+  <a href="/" style="display:flex;align-items:center;gap:8px;font-weight:600;font-size:17px;letter-spacing:-0.03em;text-decoration:none;color:var(--ink);flex-shrink:0;margin-right:12px;">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--ink-blue)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 5.4v13.2"/><path d="M16 5.4v13.2"/><ellipse cx="12" cy="5.4" rx="4" ry="2"/><path d="M10.6 5.6a1.4 0.8 0 0 1 2.8 0"/><path d="M8 18.6a4 2 0 0 0 8 0"/><path d="M7.1 11.8h9.8"/><path d="M9.7 11.8c-.5 1-.3 2.2.2 3.2"/></svg>
+    Dora
+  </a>
   <div class="d-navlinks">
     <a class="d-navlink" href="/">Home</a>
     <a class="d-navlink" href="/#books">Explore</a>
@@ -106,13 +115,14 @@ main{max-width:1160px;margin:0 auto;padding:40px 28px 80px}
     {% set st = ub.status or 'unread' %}
     <div class="d-cell">
       <div class="d-cover-wrap">
+        {% if ub.comment %}<div class="d-bubble"><span class="txt">{{ ub.comment }}</span></div>{% endif %}
         <div class="d-cover-inner">
           {% if b.covers %}
           <img class="d-cover-img" src="{{ b.covers[0].medium or b.covers[0].small or b.covers[0].large }}" alt="{{ b.title }}" loading="lazy">
           {% else %}
           <div class="d-cover-ph" style="background:{{ cover_bg(loop.index0) }};color:{{ cover_fg(loop.index0) }};">
             <div class="cp-shadow"></div>
-            <div class="cp-label"><span>Morus</span><span>{{ b.publish_date[:4] if b.publish_date else '—' }}</span></div>
+            <div class="cp-label"><span>Dora</span><span>{{ b.publish_date[:4] if b.publish_date else '—' }}</span></div>
             <div class="cp-title">{{ b.title[:40] }}</div>
             <div class="cp-rule" style="background:currentColor;"></div>
             <div class="cp-author">{{ (b.authors[0].name if b.authors else 'Unknown')|truncate(20,true,'') }}</div>
