@@ -264,6 +264,24 @@ main{max-width:1160px;margin:0 auto;padding:40px 28px 110px}
 .empty-state{padding:64px 0;text-align:center;color:var(--ink-faint)}
 .empty-state .f-label{margin-bottom:8px}
 .empty-state p{font-size:14px}
+.d-viewseg{display:flex;background:var(--paper-2);border-radius:8px;padding:3px;gap:2px}
+.d-viewseg button{border:none;cursor:pointer;border-radius:6px;padding:7px 12px;font-family:var(--font-mono);font-size:10px;letter-spacing:0.06em;text-transform:uppercase;background:transparent;color:var(--ink-soft);transition:all 120ms var(--ease-out)}
+.d-viewseg button.on{background:var(--ink);color:var(--paper)}
+.d-hauls{display:flex;flex-direction:column;margin-top:14px}
+.d-haul{display:grid;grid-template-columns:20px 1fr;gap:0 20px}
+.d-haul .rail{display:flex;flex-direction:column;align-items:center;padding-top:5px}
+.d-haul .rail .dot{width:9px;height:9px;border-radius:50%;background:var(--amber);box-shadow:0 0 0 3px rgba(224,162,62,0.22);flex-shrink:0}
+.d-haul .rail .line{flex:1;width:1px;background:var(--hair-strong);margin-top:10px}
+.d-haul .body{padding-bottom:52px;min-width:0}
+.d-haul h3{font-size:19px;font-weight:600;letter-spacing:-0.02em;margin:7px 0 3px}
+.d-haul .sub{font-size:12.5px;color:var(--ink-faint)}
+.d-haul .pile{display:flex;align-items:flex-end;margin-top:20px;padding:0 30px 40px 8px;overflow-x:auto}
+.d-haul .pcell{position:relative;cursor:pointer;margin-right:-30px;flex-shrink:0;transform:rotate(var(--rot));transition:transform 180ms var(--ease-out)}
+.d-haul .pcell:hover{transform:rotate(0deg) translateY(-10px);z-index:40 !important}
+.d-haul .pcell .pmeta{position:absolute;top:calc(100% + 10px);left:50%;transform:translateX(-50%);white-space:nowrap;background:var(--ink);color:var(--paper);border-radius:7px;padding:6px 11px;opacity:0;pointer-events:none;transition:opacity 120ms var(--ease-out);box-shadow:var(--shadow-md);display:flex;flex-direction:column;gap:2px;z-index:50}
+.d-haul .pcell .pmeta .t{font-size:11.5px;font-weight:600;letter-spacing:-0.01em}
+.d-haul .pcell .pmeta .a{font-family:var(--font-mono);font-size:9px;letter-spacing:0.07em;text-transform:uppercase;opacity:0.65}
+.d-haul .pcell:hover .pmeta{opacity:1}
 
 /* ── Pin button (profile grid hover) ─────────────────────── */
 .d-cover-wrap{position:relative}
@@ -511,8 +529,15 @@ main{max-width:1160px;margin:0 auto;padding:40px 28px 110px}
 
     <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:16px;">
       <div class="f-label">The collection</div>
-      <div class="f-label" style="color:var(--ink-faint);">Hover a cover to pin it</div>
+      <div style="display:flex;align-items:center;gap:16px;">
+        <div class="f-label" style="color:var(--ink-faint);" id="collection-hint">Hover a cover to pin it</div>
+        <div class="d-viewseg">
+          <button class="on" onclick="switchShelfMode('shelf', this)">Shelf</button>
+          <button onclick="switchShelfMode('hauls', this)">Hauls</button>
+        </div>
+      </div>
     </div>
+    <div id="shelf-view">
     <div class="d-grid">
       {% for item in user_books %}
       {% set b = item.book %}
@@ -550,6 +575,34 @@ main{max-width:1160px;margin:0 auto;padding:40px 28px 110px}
         </div>
       </div>
       {% endfor %}
+    </div>
+    </div>
+    <div id="hauls-view" style="display:none;">
+      <div class="d-hauls">
+        {% for entry in hauls %}
+        <div class="d-haul">
+          <div class="rail"><span class="dot"></span>{% if not loop.last %}<span class="line"></span>{% endif %}</div>
+          <div class="body">
+            <span class="f-label">Haul № {{ '%02d'|format(entry.number) }} · {{ entry.date_display }}</span>
+            <h3>{{ entry.heading }}</h3>
+            <div class="sub">{{ entry.books|length }} {{ 'book' if entry.books|length == 1 else 'books' }} · {{ entry.total_pages|default(0) }} pages</div>
+            <div class="pile">
+              {% for b in entry.books %}
+              <div class="pcell" style="--rot:{{ (((loop.index0 % 3) - 1) * 2.4) }}deg;z-index:{{ loop.index }};" onclick="openDrawer('{{ b.id }}')">
+                {{ cover3d(b, loop.index0, tilt=False, width='116px') }}
+                <div class="pmeta"><span class="t">{{ b.title }}</span><span class="a">{{ b.authors[0].name if b.authors else 'Unknown' }}</span></div>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+        {% else %}
+        <div class="empty-state">
+          <div class="f-label" style="margin-bottom:8px;">No hauls yet</div>
+          <p>Books you scan or add together will show up here as a haul.</p>
+        </div>
+        {% endfor %}
+      </div>
     </div>
   </div>
   {% endif %}
@@ -809,6 +862,15 @@ function switchView(view) {
   document.querySelectorAll('.d-navlink').forEach(l => { l.classList.toggle('on', l.dataset.nav === view); });
   document.querySelectorAll('.f-tab').forEach(t => { t.classList.toggle('active', t.dataset.tab === view); });
   history.replaceState(null, '', '#' + view);
+}
+
+// ── Shelf / Hauls toggle (profile) ────────────────────────
+function switchShelfMode(mode, btn) {
+  document.querySelectorAll('.d-viewseg button').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  document.getElementById('shelf-view').style.display = mode === 'shelf' ? '' : 'none';
+  document.getElementById('hauls-view').style.display = mode === 'hauls' ? '' : 'none';
+  document.getElementById('collection-hint').style.display = mode === 'shelf' ? '' : 'none';
 }
 
 // ── Library filter chips ──────────────────────────────────
