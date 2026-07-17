@@ -225,6 +225,7 @@ main{max-width:1160px;margin:0 auto;padding:40px 28px 110px}
 .taste .verdict.skip .vdot{background:#B23A48}
 .taste .verdict.hold .vdot{background:var(--amber)}
 .taste .srow{display:flex;align-items:center;justify-content:space-between;margin-top:6px}
+.taste .reason{margin-top:7px;font-size:11.5px;line-height:1.45;color:var(--ink-soft)}
 .taste .srow span:first-child{font-family:var(--font-mono);font-size:9px;letter-spacing:0.09em;text-transform:uppercase;color:var(--ink-faint)}
 .d-dots{display:inline-flex;gap:4px}
 .d-dots span{width:6px;height:6px;border-radius:50%;background:var(--hair-strong)}
@@ -1259,7 +1260,6 @@ async function runBookSearch() {
     for (const b of results) {
       const inQueue = queueHasKey(b.key);
       const meta = [b.authors?.join(', '), b.first_publish_year].filter(Boolean).join(' · ');
-      const seed = (b.isbns && b.isbns[0]) || b.title || b.key;
       const row = document.createElement('div');
       row.className = 'd-queue-chip d-chip-taste';
       row.innerHTML = `
@@ -1276,7 +1276,12 @@ async function runBookSearch() {
         </div>
         <div class="d-chip-taste-slot"></div>
       `;
-      mountAskDora(row, seed);
+      mountAskDora(row, () => ({
+        title: b.title || '',
+        authors: b.authors || [],
+        isbn: (b.isbns && b.isbns[0]) || null,
+        context: b.first_publish_year ? `First published ${b.first_publish_year}` : null,
+      }));
       const btn = row.querySelector('.add-result-btn');
       btn.onclick = () => {
         if (queueHasKey(b.key)) return;
@@ -1319,49 +1324,74 @@ function queueToEntries(is_public, status) {
   );
 }
 
-// ── Ask Dora (dummy taste engine) ─────────────────────────
-// Placeholder only — deterministic canned verdicts keyed off the book, no
-// real recommendation data yet. Mirrors the design's tasteFor().
+// ── Ask Dora (real taste engine) ───────────────────────────
+// POST /dora/ask fires an agent workflow that profiles the signed-in user's
+// library and grades the candidate book; we then poll /dora/ask/{run_id}
+// until the verdict comes back (typically 10–30s).
 const DORA_ICON = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 5.4v13.2"/><path d="M16 5.4v13.2"/><ellipse cx="12" cy="5.4" rx="4" ry="2"/><path d="M10.6 5.6a1.4 0.8 0 0 1 2.8 0"/><path d="M8 18.6a4 2 0 0 0 8 0"/><path d="M7.1 11.8h9.8"/><path d="M9.7 11.8c-.5 1-.3 2.2.2 3.2"/></svg>`;
-const DORA_VERDICTS = [
-  { kind:'buy',  verdict:'Must-buy, perfect comfort read',    familiarity:5, adventure:4 },
-  { kind:'buy',  verdict:'Buy it, stretches you gently',      familiarity:4, adventure:5 },
-  { kind:'buy',  verdict:'Buy, a confident new direction',    familiarity:3, adventure:5 },
-  { kind:'hold', verdict:'Borrow first, then decide slowly',  familiarity:3, adventure:2 },
-  { kind:'skip', verdict:'Skip, too far from taste',          familiarity:1, adventure:2 },
-  { kind:'skip', verdict:'Skip, you own better already',      familiarity:5, adventure:1 },
-];
-function doraTaste(seed) {
-  let h = 0; const s = String(seed || '');
-  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
-  return DORA_VERDICTS[h % DORA_VERDICTS.length];
-}
 function doraDots(n) {
   let out = '';
   for (let i = 1; i <= 5; i++) out += `<span class="${i <= n ? 'on' : ''}"></span>`;
   return `<span class="d-dots">${out}</span>`;
 }
-function doraTasteHtml(seed) {
-  const t = doraTaste(seed);
+function doraEsc(s) {
+  const d = document.createElement('span');
+  d.textContent = s == null ? '' : String(s);
+  return d.innerHTML;
+}
+function doraTasteHtml(v) {
   return `<div class="taste f-rise">
-      <div class="verdict ${t.kind}"><span class="vdot"></span>${t.verdict}</div>
-      <div class="srow"><span>Familiarity to taste</span>${doraDots(t.familiarity)}</div>
-      <div class="srow"><span>Adventure, right direction</span>${doraDots(t.adventure)}</div>
+      <div class="verdict ${v.kind}"><span class="vdot"></span>${doraEsc(v.verdict)}</div>
+      <div class="srow"><span>Familiarity to taste</span>${doraDots(v.familiarity_to_taste)}</div>
+      <div class="srow"><span>Adventure, right direction</span>${doraDots(v.adventure_in_the_right_direction)}</div>
+      ${v.reason ? `<div class="reason">${doraEsc(v.reason)}</div>` : ''}
     </div>`;
 }
-// Wire an "Ask Dora" button inside a chip's .d-chip-taste-slot; on click it
-// expands into the (dummy) verdict for that book.
-function mountAskDora(chip, seed) {
+// Wire an "Ask Dora" button inside a chip's .d-chip-taste-slot. getCandidate
+// is called at click time and must return {title, authors, isbn, context}.
+function mountAskDora(chip, getCandidate) {
   const slot = chip.querySelector('.d-chip-taste-slot');
   if (!slot) return;
-  slot.innerHTML = `<button class="d-askdora" type="button">${DORA_ICON} Ask Dora: buy or skip?</button>`;
-  slot.querySelector('.d-askdora').onclick = (e) => {
-    e.stopPropagation();
-    slot.innerHTML = doraTasteHtml(seed);
+
+  const showButton = (label) => {
+    slot.innerHTML = `<button class="d-askdora" type="button">${DORA_ICON} ${label}</button>`;
+    slot.querySelector('.d-askdora').onclick = (e) => { e.stopPropagation(); run(); };
   };
+
+  async function run() {
+    const candidate = getCandidate();
+    if (!candidate.title) return showButton('Ask Dora: buy or skip?');
+    slot.innerHTML = `<div class="d-askdora" style="cursor:default">${DORA_ICON} Dora is reading your shelves…</div>`;
+    try {
+      const res = await fetch('/dora/ask', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(candidate),
+      });
+      if (res.status === 401) return showButton('Sign in to ask Dora');
+      if (!res.ok) return showButton('Dora couldn’t decide — retry?');
+      const { run_id } = await res.json();
+      for (let n = 0; n < 40; n++) {
+        await new Promise(r => setTimeout(r, 3000));
+        const pr = await fetch(`/dora/ask/${run_id}`);
+        if (!pr.ok) return showButton('Dora couldn’t decide — retry?');
+        const data = await pr.json();
+        if (data.status === 'completed' && data.verdict) {
+          slot.innerHTML = doraTasteHtml(data.verdict);
+          return;
+        }
+        if (data.status === 'failed') return showButton('Dora couldn’t decide — retry?');
+      }
+      showButton('Dora took too long — retry?');
+    } catch {
+      showButton('Dora couldn’t decide — retry?');
+    }
+  }
+
+  showButton('Ask Dora: buy or skip?');
 }
 
-function makeChip(key, coverHtml, title, sub, seed) {
+function makeChip(key, coverHtml, title, sub) {
   document.getElementById('queue-empty').style.display = 'none';
   const list = document.getElementById('scan-queue');
   const chip = document.createElement('div');
@@ -1380,7 +1410,16 @@ function makeChip(key, coverHtml, title, sub, seed) {
     <div class="d-chip-taste-slot"></div>
   `;
   chip.querySelector('.top .f-iconbtn').onclick = () => removeQueueItem(key, chip);
-  mountAskDora(chip, seed || key);
+  mountAskDora(chip, () => {
+    const item = scanQueue.find(i => i.key === key) || {};
+    const b = item.book || {};
+    return {
+      title: b.title || chip.querySelector('.d-queue-chip-title')?.textContent || '',
+      authors: b.authors || [],
+      isbn: (b.isbns && b.isbns[0]) || item.isbn || null,
+      context: b.first_publish_year ? `First published ${b.first_publish_year}` : null,
+    };
+  });
   list.prepend(chip);
   return chip;
 }
@@ -1422,7 +1461,7 @@ function appendSearchResult(b) {
     ? `<img src="${b.cover_url}" style="width:100%;height:100%;object-fit:cover;" onerror="this.remove()">`
     : BOOK_ICON;
   const sub = [b.authors?.join(', '), b.first_publish_year].filter(Boolean).join(' · ') || (b.isbn || '—');
-  makeChip(b.key, cover, b.title || 'Untitled', sub, (b.isbns && b.isbns[0]) || b.title || b.key);
+  makeChip(b.key, cover, b.title || 'Untitled', sub);
   scanQueue.push({
     key: b.key,
     book: {

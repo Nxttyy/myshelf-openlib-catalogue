@@ -15,6 +15,14 @@ class Settings(BaseSettings):
 
     # Auth
     SECRET_KEY: str
+    # Shared secret for the /mcp endpoint (Ask Dora agent access). If unset,
+    # the MCP endpoint rejects every request.
+    MCP_SECRET: str | None = None
+
+    # Ask Dora — FlowStudio agent workflow webhook. URL is the base webhook
+    # endpoint (without /trigger). If either is unset, /dora routes return 503.
+    DORA_WEBHOOK_URL: str | None = None
+    DORA_WEBHOOK_SECRET: str | None = None
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7  # 1 week
 
