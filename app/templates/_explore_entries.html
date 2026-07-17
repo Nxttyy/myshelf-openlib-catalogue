@@ -4,23 +4,12 @@
   GET /explore for subsequent pages (lazy loading).
   Context: books, explore_start (offset), user_book_ids, user.
 #}
+{% from '_cover3d.html' import cover3d %}
 {% for b in books %}
 {% set idx = explore_start + loop.index0 %}
 <div class="d-cell" onclick="openExploreDrawer('community-{{ b.id }}')">
   <div class="d-cover-wrap">
-    <div class="d-cover-inner">
-      {% if b.covers %}
-      <img class="d-cover-img" src="{{ b.covers[0].medium or b.covers[0].small or b.covers[0].large }}" alt="{{ b.title }}" loading="lazy">
-      {% else %}
-      <div class="d-cover-ph" style="background:{{ cover_bg(idx) }};color:{{ cover_fg(idx) }};">
-        <div class="cp-shadow"></div>
-        <div class="cp-label"><span>Dora</span><span>{{ b.publish_date[:4] if b.publish_date else '—' }}</span></div>
-        <div class="cp-title">{{ b.title[:40] }}</div>
-        <div class="cp-rule" style="background:currentColor;"></div>
-        <div class="cp-author">{{ (b.authors[0].name if b.authors else 'Unknown')|truncate(20,true,'') }}</div>
-      </div>
-      {% endif %}
-    </div>
+    {{ cover3d(b, idx) }}
   </div>
   <div class="d-cell-meta">
     <div class="d-cell-row">
@@ -33,19 +22,7 @@
 <div id="drawer-community-{{ b.id }}" style="display:none">
   <div class="d-drawer-cover-row">
     <div style="flex-shrink:0;">
-      <div class="d-cover-inner" style="width:110px;">
-        {% if b.covers %}
-        <img class="d-cover-img" src="{{ b.covers[0].medium or b.covers[0].large or b.covers[0].small }}" alt="{{ b.title }}">
-        {% else %}
-        <div class="d-cover-ph" style="background:{{ cover_bg(idx) }};color:{{ cover_fg(idx) }};height:165px;">
-          <div class="cp-shadow"></div>
-          <div class="cp-label"><span>Dora</span><span>{{ b.publish_date[:4] if b.publish_date else '—' }}</span></div>
-          <div class="cp-title">{{ b.title[:30] }}</div>
-          <div class="cp-rule" style="background:currentColor;"></div>
-          <div class="cp-author">{{ (b.authors[0].name if b.authors else '—')|truncate(16,true,'') }}</div>
-        </div>
-        {% endif %}
-      </div>
+      {{ cover3d(b, idx, width='110px') }}
     </div>
     <div style="flex:1;padding-top:2px;">
       <h2 class="d-drawer-book-title">{{ b.title }}</h2>

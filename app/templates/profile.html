@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+{% from '_cover3d.html' import cover3d %}<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -71,6 +71,7 @@ main{max-width:1160px;margin:0 auto;padding:40px 28px 80px}
 .d-bubble::after{content:"";position:absolute;bottom:-5.5px;left:22px;width:9px;height:9px;background:#fff;border-right:1px solid var(--hair-strong);border-bottom:1px solid var(--hair-strong);transform:rotate(45deg)}
 .d-cell:hover .d-bubble{opacity:0.25;transition:opacity 120ms var(--ease-out)}
 </style>
+{% include '_cover3d_assets.html' %}
 </head>
 <body>
 <nav class="d-nav">
@@ -116,19 +117,7 @@ main{max-width:1160px;margin:0 auto;padding:40px 28px 80px}
     <div class="d-cell">
       <div class="d-cover-wrap">
         {% if ub.comment %}<div class="d-bubble"><span class="txt">{{ ub.comment }}</span></div>{% endif %}
-        <div class="d-cover-inner">
-          {% if b.covers %}
-          <img class="d-cover-img" src="{{ b.covers[0].medium or b.covers[0].small or b.covers[0].large }}" alt="{{ b.title }}" loading="lazy">
-          {% else %}
-          <div class="d-cover-ph" style="background:{{ cover_bg(loop.index0) }};color:{{ cover_fg(loop.index0) }};">
-            <div class="cp-shadow"></div>
-            <div class="cp-label"><span>Dora</span><span>{{ b.publish_date[:4] if b.publish_date else '—' }}</span></div>
-            <div class="cp-title">{{ b.title[:40] }}</div>
-            <div class="cp-rule" style="background:currentColor;"></div>
-            <div class="cp-author">{{ (b.authors[0].name if b.authors else 'Unknown')|truncate(20,true,'') }}</div>
-          </div>
-          {% endif %}
-        </div>
+        {{ cover3d(b, loop.index0) }}
       </div>
       <div class="d-cell-meta">
         <div class="d-cell-row">

@@ -1,0 +1,44 @@
+<!-- 3D cover styles + global tilt handler (see _cover3d.html macro) -->
+<style>
+.cv3{perspective:1000px;width:100%}
+.cv3-obj{position:relative;width:100%;aspect-ratio:2/3;transform-style:preserve-3d;transition:transform 420ms var(--ease-out)}
+.cv3.on .cv3-obj{transition:transform 80ms linear}
+.cv3-spine{position:absolute;left:0;top:0;height:100%;width:var(--cv-th,14px);transform:rotateY(-90deg) translateZ(calc(var(--cv-th,14px)/2)) translateX(calc(var(--cv-th,14px)/-2));transform-origin:left center;display:flex;align-items:center;justify-content:center;box-shadow:inset -8px 0 14px rgba(0,0,0,0.28);overflow:hidden}
+.cv3-spine .sp{writing-mode:vertical-rl;transform:rotate(180deg);font-weight:600;font-size:9.5px;letter-spacing:-0.01em;white-space:nowrap;opacity:0.92}
+.cv3-face{position:absolute;inset:0;border-radius:4px;overflow:hidden;backface-visibility:hidden;background:var(--paper-2);box-shadow:0 6px 16px rgba(0,0,0,0.18),inset 0 0 0 1px rgba(255,255,255,0.04);transition:box-shadow 300ms var(--ease-out)}
+.cv3.on .cv3-face{box-shadow:0 22px 40px rgba(0,0,0,0.32),inset 0 0 0 1px rgba(255,255,255,0.06)}
+.cv3-face .d-cover-img{width:100%;height:100%;object-fit:cover;display:block}
+.cv3-face .d-cover-ph{position:absolute;inset:0}
+.cv3-bind{position:absolute;top:0;bottom:0;left:0;width:11%;background:linear-gradient(90deg,rgba(0,0,0,0.18),transparent);pointer-events:none}
+.cv3-glare{position:absolute;inset:0;pointer-events:none;background:linear-gradient(105deg,transparent 30%,rgba(255,255,255,0.22) 48%,transparent 62%);transform:translateX(-200%);opacity:0;transition:opacity 300ms,transform 120ms linear}
+.cv3.on .cv3-glare{opacity:1}
+</style>
+<script>
+/* Pointer-tracking tilt for .cv3-tilt covers: turn 20° to reveal the spine,
+   tilt toward the pointer, sweep the glare. Delegated on document so covers
+   added later (explore lazy-load, drawer innerHTML) just work. */
+(function () {
+  if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  let cur = null;
+  function reset(el) {
+    el.classList.remove('on');
+    const o = el.querySelector('.cv3-obj'); if (o) o.style.transform = '';
+    const g = el.querySelector('.cv3-glare'); if (g) g.style.transform = '';
+  }
+  document.addEventListener('pointermove', (e) => {
+    const el = e.target.closest && e.target.closest('.cv3-tilt');
+    if (cur && cur !== el) { reset(cur); cur = null; }
+    if (!el) return;
+    cur = el;
+    const r = el.getBoundingClientRect();
+    const px = (e.clientX - r.left) / r.width - 0.5;
+    const py = (e.clientY - r.top) / r.height - 0.5;
+    el.classList.add('on');
+    el.querySelector('.cv3-obj').style.transform =
+      'rotateX(' + (-py * 14).toFixed(2) + 'deg) rotateY(' + (px * 18 + 20).toFixed(2) + 'deg) translateZ(6px)';
+    const g = el.querySelector('.cv3-glare');
+    if (g) g.style.transform = 'translateX(' + (px * 54).toFixed(1) + '%)';
+  }, { passive: true });
+  document.documentElement.addEventListener('pointerleave', () => { if (cur) { reset(cur); cur = null; } });
+})();
+</script>

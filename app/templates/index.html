@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+{% from '_cover3d.html' import cover3d %}<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -308,6 +308,7 @@ main{max-width:1160px;margin:0 auto;padding:40px 28px 110px}
 .d-footer-col a:hover,.d-footer-col button:hover{color:var(--ink)}
 .d-footer-fine{font-family:var(--font-mono);font-size:10px;color:var(--ink-faint);letter-spacing:0.04em;max-width:220px;line-height:1.6;margin-top:12px}
 </style>
+{% include '_cover3d_assets.html' %}
 </head>
 <body>
 
@@ -361,9 +362,7 @@ main{max-width:1160px;margin:0 auto;padding:40px 28px 110px}
         {% for b in all_books[:3] %}
         {% set rots = [-11, 2, 12] %}{% set xs = [20, 100, 180] %}{% set ys = [30, 0, 50] %}{% set zs = [1,3,1] %}
         <div class="d-fan-book" style="left:{{ xs[loop.index0] }}px;top:{{ ys[loop.index0] }}px;transform:rotate({{ rots[loop.index0] }}deg);z-index:{{ zs[loop.index0] }};">
-          <div class="d-cover-inner" style="width:140px;">
-            {% if b.covers %}<img class="d-cover-img" src="{{ b.covers[0].medium or b.covers[0].small or b.covers[0].large }}" alt="{{ b.title }}" loading="lazy">{% else %}<div class="d-cover-ph" style="background:{{ cover_bg(loop.index0) }};color:{{ cover_fg(loop.index0) }};"><div class="cp-shadow"></div><div class="cp-label"><span>Dora</span><span>{{ b.publish_date[:4] if b.publish_date else '—' }}</span></div><div class="cp-title">{{ b.title[:40] }}</div><div class="cp-rule" style="background:currentColor;"></div><div class="cp-author">{{ (b.authors[0].name if b.authors else 'Unknown')|truncate(20,true,'') }}</div></div>{% endif %}
-          </div>
+          {{ cover3d(b, loop.index0, width='140px') }}
         </div>
         {% endfor %}
       </div>
@@ -396,19 +395,7 @@ main{max-width:1160px;margin:0 auto;padding:40px 28px 110px}
       {% for b in all_books[:12] %}
       <div class="d-cell" onclick="openExploreDrawer('community-{{ b.id }}')">
         <div class="d-cover-wrap">
-          <div class="d-cover-inner">
-            {% if b.covers %}
-            <img class="d-cover-img" src="{{ b.covers[0].medium or b.covers[0].small or b.covers[0].large }}" alt="{{ b.title }}" loading="lazy">
-            {% else %}
-            <div class="d-cover-ph" style="background:{{ cover_bg(loop.index0) }};color:{{ cover_fg(loop.index0) }};">
-              <div class="cp-shadow"></div>
-              <div class="cp-label"><span>Dora</span><span>{{ b.publish_date[:4] if b.publish_date else '—' }}</span></div>
-              <div class="cp-title">{{ b.title[:40] }}</div>
-              <div class="cp-rule" style="background:currentColor;"></div>
-              <div class="cp-author">{{ (b.authors[0].name if b.authors else 'Unknown')|truncate(20,true,'') }}</div>
-            </div>
-            {% endif %}
-          </div>
+          {{ cover3d(b, loop.index0) }}
         </div>
         <div class="d-cell-meta">
           <div class="d-cell-row">
@@ -527,19 +514,7 @@ main{max-width:1160px;margin:0 auto;padding:40px 28px 110px}
       <div class="d-cell" onclick="openDrawer('{{ b.id }}')">
         <div class="d-cover-wrap">
           {% if ub.comment %}<div class="d-bubble"><span class="txt">{{ ub.comment }}</span></div>{% endif %}
-          <div class="d-cover-inner">
-            {% if b.covers %}
-            <img class="d-cover-img" src="{{ b.covers[0].medium or b.covers[0].small or b.covers[0].large }}" alt="{{ b.title }}" loading="lazy">
-            {% else %}
-            <div class="d-cover-ph" style="background:{{ cover_bg(loop.index0) }};color:{{ cover_fg(loop.index0) }};">
-              <div class="cp-shadow"></div>
-              <div class="cp-label"><span>Dora</span><span>{{ b.publish_date[:4] if b.publish_date else '—' }}</span></div>
-              <div class="cp-title">{{ b.title[:40] }}</div>
-              <div class="cp-rule" style="background:currentColor;"></div>
-              <div class="cp-author">{{ (b.authors[0].name if b.authors else 'Unknown')|truncate(20,true,'') }}</div>
-            </div>
-            {% endif %}
-          </div>
+          {{ cover3d(b, loop.index0) }}
           <button class="d-pin {{ 'pinned' if ub.is_pinned else '' }}" data-ub-id="{{ ub.id }}" data-pinned="{{ 'true' if ub.is_pinned else 'false' }}"
             title="{{ 'Unpin' if ub.is_pinned else 'Pin to top' }}" aria-label="{{ 'Unpin' if ub.is_pinned else 'Pin to top' }}"
             onclick="event.stopPropagation();togglePin(this)">
@@ -608,19 +583,7 @@ main{max-width:1160px;margin:0 auto;padding:40px 28px 110px}
 <div id="drawer-{{ b.id }}" style="display:none" data-ub-id="{{ ub.id }}" data-status="{{ st }}" data-is-public="{{ 'true' if ub.is_public else 'false' }}">
   <div class="d-drawer-cover-row">
     <div style="flex-shrink:0;">
-      <div class="d-cover-inner" style="width:110px;">
-        {% if b.covers %}
-        <img class="d-cover-img" src="{{ b.covers[0].medium or b.covers[0].large or b.covers[0].small }}" alt="{{ b.title }}">
-        {% else %}
-        <div class="d-cover-ph" style="background:{{ cover_bg(loop.index0) }};color:{{ cover_fg(loop.index0) }};height:165px;">
-          <div class="cp-shadow"></div>
-          <div class="cp-label"><span>Dora</span><span>{{ b.publish_date[:4] if b.publish_date else '—' }}</span></div>
-          <div class="cp-title">{{ b.title[:30] }}</div>
-          <div class="cp-rule" style="background:currentColor;"></div>
-          <div class="cp-author">{{ (b.authors[0].name if b.authors else '—')|truncate(16,true,'') }}</div>
-        </div>
-        {% endif %}
-      </div>
+      {{ cover3d(b, loop.index0, width='110px') }}
     </div>
     <div style="flex:1;padding-top:2px;">
       <h2 class="d-drawer-book-title">{{ b.title }}</h2>

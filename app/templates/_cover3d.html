@@ -1,0 +1,35 @@
+{#
+  3D book cover (ported from the Folio design's covers.jsx).
+  A cover is a 3D object: front face (real cover image, or the typographic
+  placeholder jacket) + a spine revealed when the book turns on hover.
+  Pointer-tracking tilt + glare are wired globally in _cover3d_assets.html
+  via delegation, so covers inside lazily-loaded fragments and innerHTML
+  copies (detail drawer) work without re-hydration.
+
+  Usage:  {% from '_cover3d.html' import cover3d %}
+          {{ cover3d(b, loop.index0) }}
+          {{ cover3d(b, idx, width='110px') }}
+#}
+{% macro cover3d(b, idx, tilt=True, width=None) %}
+{% set th = ((b.number_of_pages or 300) / 48) %}
+{% set th = 8 if th < 8 else (22 if th > 22 else th) %}
+<div class="cv3{{ ' cv3-tilt' if tilt }}" style="--cv-th:{{ '%.0f'|format(th) }}px;{% if width %}width:{{ width }};{% endif %}">
+  <div class="cv3-obj">
+    <div class="cv3-spine" style="background:{{ cover_bg(idx) }};color:{{ cover_fg(idx) }};"><span class="sp">{{ b.title|truncate(26, true, '') }}</span></div>
+    <div class="cv3-face">
+      {% if b.covers %}
+      <img class="d-cover-img" src="{{ b.covers[0].medium or b.covers[0].small or b.covers[0].large }}" alt="{{ b.title }}" loading="lazy">
+      {% else %}
+      <div class="d-cover-ph" style="background:{{ cover_bg(idx) }};color:{{ cover_fg(idx) }};">
+        <div class="cp-label"><span>Dora</span><span>{{ b.publish_date[:4] if b.publish_date else '—' }}</span></div>
+        <div class="cp-title">{{ b.title[:40] }}</div>
+        <div class="cp-rule" style="background:currentColor;"></div>
+        <div class="cp-author">{{ (b.authors[0].name if b.authors else 'Unknown')|truncate(20, true, '') }}</div>
+      </div>
+      {% endif %}
+      <div class="cv3-bind"></div>
+      <div class="cv3-glare"></div>
+    </div>
+  </div>
+</div>
+{% endmacro %}
