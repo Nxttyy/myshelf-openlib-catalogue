@@ -41,6 +41,15 @@ class Settings(BaseSettings):
     EMAILS_FROM_EMAIL: str | None = "noreply@openbookie.com"
     EMAILS_FROM_NAME: str | None = "Dora"
 
+    # S3-compatible object storage — comment photo uploads. Any endpoint that
+    # speaks the S3 API works (AWS, MinIO, R2, B2, Wasabi, ...). Photo upload
+    # routes return 503 if any of these are unset.
+    S3_ENDPOINT_URL: str | None = None
+    S3_REGION: str | None = None
+    S3_BUCKET: str | None = None
+    S3_ACCESS_KEY: str | None = None
+    S3_SECRET_KEY: str | None = None
+
     model_config = {"env_file": ".env", "env_file_encoding": "utf-8"}
 
 

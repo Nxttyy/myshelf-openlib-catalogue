@@ -10,6 +10,8 @@ from app.auth import get_current_user
 from app.db import SessionDep
 from app.models.book import Book
 from app.models.user import User
+from app.models.user_book_image import UserBookImage
+from app.services import storage
 from app.services.openlibrary import get_or_create_book
 from sqlmodel import select
 
@@ -27,6 +29,28 @@ _COVER_PALETTES = [
 
 templates.env.globals["cover_bg"] = lambda i: _COVER_PALETTES[i % len(_COVER_PALETTES)][0]
 templates.env.globals["cover_fg"] = lambda i: _COVER_PALETTES[i % len(_COVER_PALETTES)][1]
+
+
+async def _attach_images(session: SessionDep, items: list[dict]) -> None:
+    """Attach item["images"] (uploaded comment photos, ordered) to each
+    {"user_book", "book"} entry, keyed off UserBook.id."""
+    for item in items:
+        item["images"] = []
+    if not items or not storage.storage_configured():
+        return
+    ub_ids = [item["user_book"].id for item in items]
+    result = await session.exec(
+        select(UserBookImage)
+        .where(UserBookImage.user_book_id.in_(ub_ids), UserBookImage.status == "uploaded")
+        .order_by(UserBookImage.position)
+    )
+    by_ub: dict = {}
+    for img in result.all():
+        by_ub.setdefault(img.user_book_id, []).append(
+            {"id": str(img.id), "url": storage.presigned_get_url(img.s3_key), "position": img.position}
+        )
+    for item in items:
+        item["images"] = by_ub.get(item["user_book"].id, [])
 
 
 @router.get("/")
@@ -75,6 +99,7 @@ async def index(
         )
         user_books_result = await session.exec(stmt)
         user_books = [{"user_book": ub, "book": b} for ub, b in user_books_result.all()]
+        await _attach_images(session, user_books)
         n_reading = sum(1 for item in user_books if item["user_book"].status == "reading")
         n_read    = sum(1 for item in user_books if item["user_book"].status == "read")
         n_unread  = len(user_books) - n_reading - n_read
@@ -210,6 +235,7 @@ async def public_profile_page(
     )
     result = await session.exec(stmt)
     public_books = [{"user_book": ub, "book": b} for ub, b in result.all()]
+    await _attach_images(session, public_books)
 
     n_reading = sum(1 for item in public_books if item["user_book"].status == "reading")
     n_read    = sum(1 for item in public_books if item["user_book"].status == "read")

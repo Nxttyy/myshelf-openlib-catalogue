@@ -1,4 +1,4 @@
-{% from '_cover3d.html' import cover3d %}<!DOCTYPE html>
+{% from '_cover3d.html' import cover3d %}{% from '_photo_notes.html' import photo_thumbs, photo_fan %}<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -70,6 +70,13 @@ main{max-width:1160px;margin:0 auto;padding:40px 28px 80px}
 .d-bubble .txt{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;font-size:11.5px;line-height:1.45;color:var(--ink-soft);letter-spacing:-0.005em}
 .d-bubble::after{content:"";position:absolute;bottom:-5.5px;left:22px;width:9px;height:9px;background:#fff;border-right:1px solid var(--hair-strong);border-bottom:1px solid var(--hair-strong);transform:rotate(45deg)}
 .d-cell:hover .d-bubble{opacity:0.25;transition:opacity 120ms var(--ease-out)}
+.d-bubble .prints{display:inline-flex;align-items:center;gap:7px;margin-top:6px;font-family:var(--font-mono);font-size:9px;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink-faint);pointer-events:auto;cursor:zoom-in}
+.d-bubble .txt+.prints{margin-top:7px}
+.d-bubble .fan{position:relative;width:17px;height:14px;flex-shrink:0}
+.d-bubble .fan i{position:absolute;left:3px;top:1px;width:10px;height:12px;background:var(--paper-2);border:1px solid var(--hair-strong);border-radius:1.5px;box-shadow:0 1px 2px rgba(20,18,16,0.12)}
+.d-bubble .fan i:nth-child(1){transform:rotate(-10deg);left:0}
+.d-bubble .fan i:nth-child(2){transform:rotate(2deg);background:var(--paper)}
+.d-bubble .fan i:nth-child(3){transform:rotate(12deg);left:6px;background:var(--amber);border-color:transparent}
 </style>
 {% include '_cover3d_assets.html' %}
 </head>
@@ -116,7 +123,18 @@ main{max-width:1160px;margin:0 auto;padding:40px 28px 80px}
     {% set st = ub.status or 'unread' %}
     <div class="d-cell">
       <div class="d-cover-wrap">
-        {% if ub.comment %}<div class="d-bubble"><span class="txt">{{ ub.comment }}</span></div>{% endif %}
+        {% if ub.comment or item.images %}
+        <div class="d-bubble">
+          {% if ub.comment %}<span class="txt">{{ ub.comment }}</span>{% endif %}
+          {% if item.images %}
+          <span class="prints" title="View photos" onclick="PhotoNotes.openLightbox(this.closest('.d-cover-wrap').querySelector('.d-photo'))">
+            <span class="fan"><i></i><i></i><i></i></span>
+            {{ item.images|length }} {{ 'photo' if item.images|length == 1 else 'photos' }}
+          </span>
+          {% endif %}
+        </div>
+        {% endif %}
+        {% if item.images %}<div style="display:none;">{{ photo_thumbs(ub.id, item.images, editable=False) }}</div>{% endif %}
         {{ cover3d(b, loop.index0) }}
       </div>
       <div class="d-cell-meta">
@@ -143,5 +161,6 @@ main{max-width:1160px;margin:0 auto;padding:40px 28px 80px}
     {% endfor %}
   </div>
 </main>
+{% include '_photo_notes_assets.html' %}
 </body>
 </html>

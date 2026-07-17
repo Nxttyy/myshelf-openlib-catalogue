@@ -1,4 +1,4 @@
-{% from '_cover3d.html' import cover3d %}<!DOCTYPE html>
+{% from '_cover3d.html' import cover3d %}{% from '_photo_notes.html' import photo_thumbs, photo_fan %}<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -279,6 +279,13 @@ main{max-width:1160px;margin:0 auto;padding:40px 28px 110px}
 .d-bubble .txt{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;font-size:11.5px;line-height:1.45;color:var(--ink-soft);letter-spacing:-0.005em}
 .d-bubble::after{content:"";position:absolute;bottom:-5.5px;left:22px;width:9px;height:9px;background:#fff;border-right:1px solid var(--hair-strong);border-bottom:1px solid var(--hair-strong);transform:rotate(45deg)}
 .d-cell:hover .d-bubble{opacity:0.25;transition:opacity 120ms var(--ease-out)}
+.d-bubble .prints{display:inline-flex;align-items:center;gap:7px;margin-top:6px;font-family:var(--font-mono);font-size:9px;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink-faint)}
+.d-bubble .txt+.prints{margin-top:7px}
+.d-bubble .fan{position:relative;width:17px;height:14px;flex-shrink:0}
+.d-bubble .fan i{position:absolute;left:3px;top:1px;width:10px;height:12px;background:var(--paper-2);border:1px solid var(--hair-strong);border-radius:1.5px;box-shadow:0 1px 2px rgba(20,18,16,0.12)}
+.d-bubble .fan i:nth-child(1){transform:rotate(-10deg);left:0}
+.d-bubble .fan i:nth-child(2){transform:rotate(2deg);background:var(--paper)}
+.d-bubble .fan i:nth-child(3){transform:rotate(12deg);left:6px;background:var(--amber);border-color:transparent}
 
 /* ── Share popover ───────────────────────────────────────── */
 .d-share-wrap{position:relative}
@@ -513,7 +520,12 @@ main{max-width:1160px;margin:0 auto;padding:40px 28px 110px}
       {% set st = ub.status or 'unread' %}
       <div class="d-cell" onclick="openDrawer('{{ b.id }}')">
         <div class="d-cover-wrap">
-          {% if ub.comment %}<div class="d-bubble"><span class="txt">{{ ub.comment }}</span></div>{% endif %}
+          {% if ub.comment or item.images %}
+          <div class="d-bubble">
+            {% if ub.comment %}<span class="txt">{{ ub.comment }}</span>{% endif %}
+            {{ photo_fan(item.images) }}
+          </div>
+          {% endif %}
           {{ cover3d(b, loop.index0) }}
           <button class="d-pin {{ 'pinned' if ub.is_pinned else '' }}" data-ub-id="{{ ub.id }}" data-pinned="{{ 'true' if ub.is_pinned else 'false' }}"
             title="{{ 'Unpin' if ub.is_pinned else 'Pin to top' }}" aria-label="{{ 'Unpin' if ub.is_pinned else 'Pin to top' }}"
@@ -573,6 +585,7 @@ main{max-width:1160px;margin:0 auto;padding:40px 28px 110px}
   </div>
   <div class="d-drawer-body" id="drawer-body"></div>
 </div>
+{% include '_photo_notes_assets.html' %}
 
 <!-- Pre-rendered drawer contents for user books -->
 {% if user %}
@@ -637,6 +650,7 @@ main{max-width:1160px;margin:0 auto;padding:40px 28px 110px}
     </select>
   </div>
   <textarea class="f-textarea drawer-comment-textarea" rows="3" placeholder="Add a note about this book…">{{ ub.comment or '' }}</textarea>
+  {{ photo_thumbs(ub.id, item.images, editable=True, book_id=b.id) }}
   <button class="f-btn f-btn--amber f-btn--block" style="margin-top:10px;" onclick="saveDrawerChanges()">
     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 6 9 17l-5-5"/></svg>
     Save changes
