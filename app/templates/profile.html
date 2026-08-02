@@ -1,4 +1,4 @@
-{% from '_cover3d.html' import cover3d %}{% from '_photo_notes.html' import photo_thumbs, photo_fan %}<!DOCTYPE html>
+{% from '_cover3d.html' import cover3d %}{% from '_photo_notes.html' import photo_thumbs, photo_fan %}{% from '_book_detail.html' import book_detail, shelf_action %}<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -40,7 +40,7 @@ main{max-width:1160px;margin:0 auto;padding:40px 28px 80px}
 .d-stat-label{font-family:var(--font-mono);font-size:8.5px;letter-spacing:0.14em;text-transform:uppercase;color:var(--ink-faint);margin-top:7px}
 .f-label{font-family:var(--font-mono);font-size:9px;font-weight:500;letter-spacing:0.18em;text-transform:uppercase;color:var(--ink-faint)}
 .d-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,168px));gap:36px 20px}
-.d-cell{cursor:default}
+.d-cell{cursor:pointer}
 .d-cover-wrap{position:relative}
 .d-cover-inner{border-radius:4px;overflow:hidden;aspect-ratio:2/3;box-shadow:0 6px 16px rgba(0,0,0,0.18)}
 .d-cover-img{width:100%;height:100%;object-fit:cover;display:block}
@@ -121,13 +121,13 @@ main{max-width:1160px;margin:0 auto;padding:40px 28px 80px}
     {% set b = item.book %}
     {% set ub = item.user_book %}
     {% set st = ub.status or 'unread' %}
-    <div class="d-cell">
+    <div class="d-cell" onclick="openBookDrawer('{{ b.id }}')">
       <div class="d-cover-wrap">
         {% if ub.comment or item.images %}
         <div class="d-bubble">
           {% if ub.comment %}<span class="txt">{{ ub.comment }}</span>{% endif %}
           {% if item.images %}
-          <span class="prints" title="View photos" onclick="PhotoNotes.openLightbox(this.closest('.d-cover-wrap').querySelector('.d-photo'))">
+          <span class="prints" title="View photos" onclick="event.stopPropagation();PhotoNotes.openLightbox(this.closest('.d-cover-wrap').querySelector('.d-photo'))">
             <span class="fan"><i></i><i></i><i></i></span>
             {{ item.images|length }} {{ 'photo' if item.images|length == 1 else 'photos' }}
           </span>
@@ -153,6 +153,14 @@ main{max-width:1160px;margin:0 auto;padding:40px 28px 80px}
         <div class="d-cell-author">{{ b.authors[0].name if b.authors else 'Unknown' }}</div>
       </div>
     </div>
+    <div id="drawer-book-{{ b.id }}" style="display:none">
+      {{ book_detail(b, loop.index0, user, user_book_ids, contributors) }}
+      {% if ub.comment %}
+      <div class="f-label" style="margin-bottom:8px;">{{ profile_user.firstname }}'s note</div>
+      <div class="d-drawer-note"><span class="txt">{{ ub.comment }}</span></div>
+      {% endif %}
+      {{ shelf_action(b, user, user_book_ids) }}
+    </div>
     {% else %}
     <div class="empty-state" style="grid-column:1/-1;">
       <div class="f-label" style="margin-bottom:8px;">No public books yet</div>
@@ -162,5 +170,6 @@ main{max-width:1160px;margin:0 auto;padding:40px 28px 80px}
   </div>
 </main>
 {% include '_photo_notes_assets.html' %}
+{% include '_book_drawer.html' %}
 </body>
 </html>

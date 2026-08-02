@@ -299,6 +299,13 @@ async def public_profile_page(
         session, [item["book"] for item in public_books]
     )
 
+    # The *viewer's* shelf, so the drawer can say "on your shelf" vs "add".
+    viewer_book_ids: set = set()
+    if current_user:
+        viewer_book_ids = set((await session.exec(
+            select(UserBook.book_id).where(UserBook.user_id == current_user.id)
+        )).all())
+
     n_reading = sum(1 for item in public_books if item["user_book"].status == "reading")
     n_read    = sum(1 for item in public_books if item["user_book"].status == "read")
     n_unread  = len(public_books) - n_reading - n_read
@@ -311,6 +318,7 @@ async def public_profile_page(
             "handle": handle,
             "public_books": public_books,
             "contributors": contributors,
+            "user_book_ids": viewer_book_ids,
             "n_reading": n_reading,
             "n_read": n_read,
             "n_unread": n_unread,

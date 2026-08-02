@@ -1,0 +1,84 @@
+{#
+  Catalogue record for one book — the body of the detail drawer.
+
+  Shared by the Explore grid (index.html) and public profile pages so the two
+  can't drift apart. Rendered into a hidden div per book; the drawer copies that
+  div's innerHTML when opened.
+
+  Usage:  {% from '_book_detail.html' import book_detail %}
+          {{ book_detail(b, loop.index0, user, user_book_ids, contributors) }}
+#}
+{% from '_cover3d.html' import cover3d %}
+
+{% macro book_detail(b, idx, user, user_book_ids, contributors, can_edit=False) %}
+  <div class="d-drawer-cover-row">
+    <div style="flex-shrink:0;">
+      {{ cover3d(b, idx, width='110px') }}
+    </div>
+    <div style="flex:1;padding-top:2px;">
+      <h2 class="d-drawer-book-title">{{ b.title }}</h2>
+      {% if b.subtitle %}<div class="d-drawer-book-sub">{{ b.subtitle }}</div>{% endif %}
+      <div class="d-drawer-book-author">{{ b.authors|map(attribute='name')|join(', ') if b.authors else 'Unknown' }}</div>
+      {% if b.by_statement %}<div class="d-drawer-book-byline" style="font-size:12px;color:var(--ink-faint);margin-top:3px;">{{ b.by_statement }}</div>{% endif %}
+    </div>
+  </div>
+
+  {% if b.description %}
+  <p class="d-drawer-desc" style="font-size:13px;line-height:1.55;color:var(--ink-soft);margin:14px 0 0;white-space:pre-line;">{{ b.description|truncate(600, true, '…') }}</p>
+  {% endif %}
+
+  {% if b.subjects %}
+  <div class="f-pills">
+    {% for s in b.subjects[:6] %}<span class="f-pill">{{ s.name }}</span>{% endfor %}
+  </div>
+  {% endif %}
+
+  <div class="f-metagrid">
+    <div class="f-metacell"><div class="k">Published</div><div class="v">{{ b.publish_date or '—' }}</div></div>
+    <div class="f-metacell"><div class="k">Pages</div><div class="v">{{ b.number_of_pages or '—' }}</div></div>
+    <div class="f-metacell"><div class="k">Publisher</div><div class="v">{{ b.publishers|map(attribute='name')|join(', ') if b.publishers else '—' }}</div></div>
+    <div class="f-metacell"><div class="k">ISBN</div><div class="v" title="{{ b.isbns|join(', ') }}" style="font-family:var(--font-mono);font-size:11px;">{{ b.isbns[0] if b.isbns else '—' }}{% if b.isbns|length > 1 %} <span style="color:var(--ink-faint);">+{{ b.isbns|length - 1 }}</span>{% endif %}</div></div>
+  </div>
+
+  {% if b.source == 'manual' %}
+  {% set handle = (contributors or {}).get(b.created_by_user_id) %}
+  <div class="d-manual-credit">
+    Added by hand{% if handle %} by <a href="/u/{{ handle }}">@{{ handle }}</a>{% endif %} — this book isn't in Open Library.
+    {%- if can_edit and user and b.created_by_user_id == user.id %} <a href="#" onclick="event.preventDefault();openEditManualBook('{{ b.id }}')">Edit details</a>{% endif %}
+  </div>
+  {% endif %}
+
+  {% if b.identifiers or b.openbook_url or b.isbns %}
+  <div class="f-label" style="margin-bottom:8px;">Find this edition</div>
+  <div class="f-links">
+    {% if b.openbook_url %}<a href="{{ b.openbook_url }}" target="_blank" class="f-link">Open Library <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg></a>{% endif %}
+    {% if b.archive_id %}<a href="https://archive.org/details/{{ b.archive_id }}" target="_blank" class="f-link">Read · Archive.org <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg></a>{% else %}<a href="https://archive.org/search?query={{ (b.isbns[0] if b.isbns else b.title)|urlencode }}" target="_blank" class="f-link">Archive.org <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg></a>{% endif %}
+    {% for isbn in b.isbns[:1] %}
+    <a href="https://www.amazon.com/s?k={{ isbn }}" target="_blank" class="f-link">Amazon <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg></a>
+    {% endfor %}
+    {% for k, vals in b.identifiers.items() %}{% if k == 'goodreads' %}{% for v in vals[:1] %}<a href="https://www.goodreads.com/book/show/{{ v }}" target="_blank" class="f-link">Goodreads <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg></a>{% endfor %}{% endif %}{% if k == 'google' %}{% for v in vals[:1] %}<a href="https://books.google.com/books?id={{ v }}" target="_blank" class="f-link">Google Books <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg></a>{% endfor %}{% endif %}{% endfor %}
+  </div>
+  {% endif %}
+{% endmacro %}
+
+
+{#
+  The shelf call-to-action that closes out the drawer: sign in, already-shelved,
+  or add. `user_book_ids` is the *viewer's* shelf, not the page owner's.
+#}
+{% macro shelf_action(b, user, user_book_ids) %}
+  <div class="f-rule"></div>
+  {% if not user %}
+  <a href="/login" class="f-btn f-btn--ghost f-btn--block" style="text-decoration:none;justify-content:center;">Sign in to add to your shelf</a>
+  {% elif b.id in (user_book_ids or []) %}
+  <div class="f-btn f-btn--ghost f-btn--block" style="justify-content:center;opacity:0.7;cursor:default;">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 6 9 17l-5-5"/></svg>
+    On your shelf
+  </div>
+  {% else %}
+  <button class="f-btn f-btn--amber f-btn--block add-shelf-btn" onclick="addToShelf('{{ b.id }}', this)">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg>
+    Add to my shelf
+  </button>
+  {% endif %}
+{% endmacro %}
