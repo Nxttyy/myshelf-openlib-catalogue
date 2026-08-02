@@ -23,6 +23,15 @@ class PresignedUpload(BaseModel):
     fields: dict
 
 
+class PresignedCoverUpload(BaseModel):
+    """Same presigned POST, minus the image row — a manual book's cover is
+    uploaded before the book exists, so there's nothing to reference yet."""
+
+    key: str
+    upload_url: str
+    fields: dict
+
+
 class UserBookImageRead(BaseModel):
     id: UUID
     url: str

@@ -55,6 +55,18 @@ async def _attach_images(session: SessionDep, items: list[dict]) -> None:
         item["images"] = by_ub.get(item["user_book"].id, [])
 
 
+async def _contributor_handles(session: SessionDep, books) -> dict:
+    """Map user id → handle for the people who typed manual entries in, so the
+    catalogue can credit them. Empty for pages with no manual books."""
+    ids = {b.created_by_user_id for b in books if b.created_by_user_id}
+    if not ids:
+        return {}
+    rows = (await session.exec(
+        select(User.id, User.username, User.email).where(User.id.in_(ids))
+    )).all()
+    return {uid: (username or email.split("@")[0]) for uid, username, email in rows}
+
+
 def _build_hauls(user_books: list[dict], window: timedelta = timedelta(days=2)) -> list[dict]:
     """Group user_books into "hauls" for the timeline view — consecutive
     additions within `window` of each other, newest first. Purely a display
@@ -152,6 +164,9 @@ async def index(
     context: dict = {
         "isbn": isbn,
         "all_books": all_books,
+        "contributors": await _contributor_handles(
+            session, list(all_books) + [item["book"] for item in user_books]
+        ),
         "user_books": user_books,
         "hauls": hauls,
         "user_book_ids": user_book_ids,
@@ -201,6 +216,7 @@ async def explore_page(
             "books": books,
             "explore_start": offset,
             "user_book_ids": user_book_ids,
+            "contributors": await _contributor_handles(session, books),
             "user": current_user,
         },
     )
@@ -279,6 +295,9 @@ async def public_profile_page(
     result = await session.exec(stmt)
     public_books = [{"user_book": ub, "book": b} for ub, b in result.all()]
     await _attach_images(session, public_books)
+    contributors = await _contributor_handles(
+        session, [item["book"] for item in public_books]
+    )
 
     n_reading = sum(1 for item in public_books if item["user_book"].status == "reading")
     n_read    = sum(1 for item in public_books if item["user_book"].status == "read")
@@ -291,6 +310,7 @@ async def public_profile_page(
             "profile_user": profile_user,
             "handle": handle,
             "public_books": public_books,
+            "contributors": contributors,
             "n_reading": n_reading,
             "n_read": n_read,
             "n_unread": n_unread,

@@ -49,6 +49,13 @@
     <div class="f-metacell"><div class="k">ISBN</div><div class="v" title="{{ b.isbns|join(', ') }}" style="font-family:var(--font-mono);font-size:11px;">{{ b.isbns[0] if b.isbns else '—' }}{% if b.isbns|length > 1 %} <span style="color:var(--ink-faint);">+{{ b.isbns|length - 1 }}</span>{% endif %}</div></div>
   </div>
 
+  {% if b.source == 'manual' %}
+  {% set handle = (contributors or {}).get(b.created_by_user_id) %}
+  <div class="d-manual-credit">
+    Added by hand{% if handle %} by <a href="/u/{{ handle }}">@{{ handle }}</a>{% endif %} — this book isn't in Open Library.
+  </div>
+  {% endif %}
+
   {% if b.identifiers or b.openbook_url or b.isbns %}
   <div class="f-label" style="margin-bottom:8px;">Find this edition</div>
   <div class="f-links">

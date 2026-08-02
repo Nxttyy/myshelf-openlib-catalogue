@@ -212,6 +212,36 @@ main{max-width:1160px;margin:0 auto;padding:40px 28px 110px}
 .d-batch-row>div{flex:1}
 .d-batch-row .f-label{display:block;margin-bottom:6px}
 
+/* ── Manual entry (create a book by hand) ─────────────────── */
+/* Four tabs no longer fit 380px — let the strip scroll instead of squeezing. */
+.f-seg--scroll{max-width:none;overflow-x:auto;scrollbar-width:none}
+.f-seg--scroll::-webkit-scrollbar{display:none}
+.f-seg--scroll button{flex:0 0 auto}
+.d-create-top{display:flex;gap:14px;align-items:flex-start}
+.d-cover-col{display:flex;flex-direction:column;gap:6px;width:76px;flex-shrink:0}
+.d-cover-cam{width:100%;border:1px solid var(--hair-strong);background:transparent;color:var(--ink-soft);border-radius:7px;cursor:pointer;padding:5px 0;font-family:var(--font-mono);font-size:9px;letter-spacing:0.08em;text-transform:uppercase;display:flex;align-items:center;justify-content:center;gap:4px;transition:border-color 120ms,color 120ms}
+.d-cover-cam:hover{border-color:var(--amber);color:var(--ink)}
+.d-cover-pick{width:76px;height:114px;flex-shrink:0;border-radius:4px;border:1.5px dashed var(--hair-strong);background:var(--paper-2);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;color:var(--ink-faint);font-size:9.5px;font-family:var(--font-mono);letter-spacing:0.06em;text-transform:uppercase;text-align:center;padding:6px;overflow:hidden;position:relative;transition:border-color 120ms,color 120ms}
+.d-cover-pick:hover{border-color:var(--amber);color:var(--ink-soft)}
+.d-cover-pick img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.d-cover-pick.has{border-style:solid;border-color:var(--hair)}
+.d-cover-clear{position:absolute;top:4px;right:4px;z-index:2;width:20px;height:20px;border-radius:50%;border:none;background:rgba(20,18,16,0.72);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0}
+.d-cover-busy{position:absolute;inset:0;z-index:3;background:rgba(20,18,16,0.55);color:#fff;display:flex;align-items:center;justify-content:center;font-size:9px;letter-spacing:0.08em}
+.d-create-more{margin-top:4px;border-top:1px solid var(--hair);padding-top:10px}
+.d-create-more>summary{cursor:pointer;list-style:none;font-family:var(--font-mono);font-size:9.5px;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink-faint);padding:2px 0;user-select:none}
+.d-create-more>summary::-webkit-details-marker{display:none}
+.d-create-more>summary:hover{color:var(--ink)}
+.d-create-more[open]>summary{margin-bottom:10px;color:var(--ink)}
+.d-create-grid{display:flex;gap:8px}
+.d-create-grid>div{flex:1;min-width:0}
+.d-dupes{margin:-4px 0 12px}
+.d-dupe-note{font-size:11.5px;color:var(--ink-soft);margin-bottom:6px}
+.d-tag-manual{font-family:var(--font-mono);font-size:8.5px;letter-spacing:0.1em;text-transform:uppercase;background:var(--paper-2);border:1px solid var(--hair-strong);color:var(--ink-faint);border-radius:5px;padding:2px 6px;display:inline-block}
+.d-results-head{font-family:var(--font-mono);font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--ink-faint);margin:12px 0 7px}
+.d-results-head:first-child{margin-top:4px}
+.d-manual-credit{font-size:12px;line-height:1.5;color:var(--ink-soft);background:var(--paper-2);border:1px solid var(--hair);border-radius:8px;padding:9px 11px;margin-bottom:14px}
+.d-manual-credit a{color:var(--ink);text-decoration:underline;text-underline-offset:2px}
+
 /* ── Ask Dora (dummy taste verdict in add dialog) ─────────── */
 .d-chip-taste{flex-direction:column;align-items:stretch}
 .d-chip-taste .top{display:flex;align-items:center;gap:10px}
@@ -677,6 +707,14 @@ main{max-width:1160px;margin:0 auto;padding:40px 28px 110px}
     <div class="f-metacell"><div class="k">ISBN</div><div class="v" title="{{ b.isbns|join(', ') }}" style="font-family:var(--font-mono);font-size:11px;">{{ b.isbns[0] if b.isbns else '—' }}{% if b.isbns|length > 1 %} <span style="color:var(--ink-faint);">+{{ b.isbns|length - 1 }}</span>{% endif %}</div></div>
   </div>
 
+  {% if b.source == 'manual' %}
+  {% set handle = (contributors or {}).get(b.created_by_user_id) %}
+  <div class="d-manual-credit">
+    Added by hand{% if handle %} by <a href="/u/{{ handle }}">@{{ handle }}</a>{% endif %} — this book isn't in Open Library.
+    {%- if user and b.created_by_user_id == user.id %} <a href="#" onclick="event.preventDefault();openEditManualBook('{{ b.id }}')">Edit details</a>{% endif %}
+  </div>
+  {% endif %}
+
   {% if b.identifiers or b.openbook_url or b.isbns %}
   <div class="f-label" style="margin-bottom:8px;">Find this edition</div>
   <div class="f-links">
@@ -726,7 +764,7 @@ main{max-width:1160px;margin:0 auto;padding:40px 28px 110px}
       </button>
     </div>
     <div class="d-dialog-tabs-row">
-      <div class="f-seg">
+      <div class="f-seg f-seg--scroll">
         <button class="on modal-tab" id="tab-btn-scan" onclick="switchModalTab('scan')">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M7 12h10"/></svg>
           Scan barcode
@@ -738,6 +776,10 @@ main{max-width:1160px;margin:0 auto;padding:40px 28px 110px}
         <button class="modal-tab" id="tab-btn-search" onclick="switchModalTab('search')">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
           Search title
+        </button>
+        <button class="modal-tab" id="tab-btn-create" onclick="switchModalTab('create')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+          Add by hand
         </button>
       </div>
     </div>
@@ -793,6 +835,75 @@ main{max-width:1160px;margin:0 auto;padding:40px 28px 110px}
             </div>
           </div>
           <div id="search-results" style="margin-top:4px;max-height:300px;overflow-y:auto;"></div>
+        </div>
+        <!-- Add-by-hand tab: for books with no copy to scan and no Open
+             Library record. The entry joins the shared catalogue. -->
+        <div id="tab-create" class="tab-content" style="display:none;padding-top:4px;">
+          <div class="d-create-top">
+            <div class="d-cover-col">
+              <label class="d-cover-pick" id="create-cover-pick" title="Choose a cover image">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+                <span id="create-cover-label">Cover<br>photo</span>
+                <input type="file" id="create-cover-input" accept="image/jpeg,image/png,image/webp,image/heic" onchange="pickManualCover(this)" style="display:none;">
+              </label>
+              <button type="button" class="d-cover-cam" id="create-cover-cam" onclick="openCoverCamera()">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3Z"/><circle cx="12" cy="13" r="3.2"/></svg>
+                Camera
+              </button>
+            </div>
+            <div style="flex:1;min-width:0;">
+              <div class="f-field">
+                <label class="f-label" for="create-title">Title</label>
+                <input type="text" id="create-title" class="f-input" placeholder="Required" oninput="onManualTitleInput()" autocomplete="off">
+              </div>
+              <div class="f-field" style="margin-bottom:0;">
+                <label class="f-label" for="create-authors">Author(s)</label>
+                <input type="text" id="create-authors" class="f-input" placeholder="Separate with commas" autocomplete="off">
+              </div>
+            </div>
+          </div>
+
+          <div id="create-dupes" class="d-dupes" style="display:none;margin-top:12px;"></div>
+
+          <details class="d-create-more">
+            <summary>More details — all optional</summary>
+            <div class="f-field">
+              <label class="f-label" for="create-subtitle">Subtitle</label>
+              <input type="text" id="create-subtitle" class="f-input" autocomplete="off">
+            </div>
+            <div class="d-create-grid">
+              <div class="f-field">
+                <label class="f-label" for="create-publisher">Publisher</label>
+                <input type="text" id="create-publisher" class="f-input" autocomplete="off">
+              </div>
+              <div class="f-field">
+                <label class="f-label" for="create-year">Published</label>
+                <input type="text" id="create-year" class="f-input" placeholder="e.g. 1979" autocomplete="off">
+              </div>
+            </div>
+            <div class="d-create-grid">
+              <div class="f-field">
+                <label class="f-label" for="create-pages">Pages</label>
+                <input type="number" id="create-pages" class="f-input" min="1" autocomplete="off">
+              </div>
+              <div class="f-field">
+                <label class="f-label" for="create-isbn">ISBN</label>
+                <input type="text" id="create-isbn" class="f-input" placeholder="If it has one" autocomplete="off">
+              </div>
+            </div>
+            <div class="f-field">
+              <label class="f-label" for="create-subjects">Subjects</label>
+              <input type="text" id="create-subjects" class="f-input" placeholder="poetry, translation…" autocomplete="off">
+            </div>
+            <div class="f-field">
+              <label class="f-label" for="create-description">Description</label>
+              <textarea id="create-description" class="f-textarea" rows="3" placeholder="What is this book?"></textarea>
+            </div>
+          </details>
+
+          <button class="f-btn f-btn--ink" id="create-submit" style="width:100%;justify-content:center;margin-top:2px;" onclick="submitManualForm()">Add to queue</button>
+          <button class="f-btn f-btn--ghost" id="create-cancel-edit" style="width:100%;justify-content:center;margin-top:8px;display:none;" onclick="cancelManualEdit()">Cancel</button>
+          <p style="font-size:11.5px;color:var(--ink-faint);line-height:1.5;margin-top:10px;" id="create-hint">Saved to the shared catalogue, so anyone searching for it later will find your entry. You can edit it afterwards.</p>
         </div>
 
         <!-- Batch settings -->
@@ -1076,22 +1187,30 @@ async function togglePin(btn) {
 }
 
 // ── Modal ─────────────────────────────────────────────────
+const MODAL_TABS = ['scan', 'manual', 'search', 'create'];
 function switchModalTab(tab) {
-  document.getElementById('tab-scan').style.display = tab === 'scan' ? 'block' : 'none';
-  document.getElementById('tab-manual').style.display = tab === 'manual' ? 'block' : 'none';
-  document.getElementById('tab-search').style.display = tab === 'search' ? 'block' : 'none';
-  document.getElementById('tab-btn-scan').classList.toggle('on', tab === 'scan');
-  document.getElementById('tab-btn-manual').classList.toggle('on', tab === 'manual');
-  document.getElementById('tab-btn-search').classList.toggle('on', tab === 'search');
+  for (const t of MODAL_TABS) {
+    document.getElementById('tab-' + t).style.display = t === tab ? 'block' : 'none';
+    const btn = document.getElementById('tab-btn-' + t);
+    btn.classList.toggle('on', t === tab);
+    // The strip scrolls on narrow screens — keep the active tab in view.
+    if (t === tab) btn.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+  }
   if (tab === 'scan') {
     if (isDesktop) initDesktopScan(); else startScanner();
   } else {
     stopDesktopPolling(); stopScanner();
   }
   if (tab === 'search') document.getElementById('search-query').focus();
+  if (tab === 'create') document.getElementById('create-title').focus();
 }
 
 // ── Toast ─────────────────────────────────────────────────
+// Queue a toast for after a full page reload, which a live toast wouldn't survive.
+function flashAfterReload(msg, kind) {
+  sessionStorage.setItem('flashToast', JSON.stringify({ msg, kind }));
+}
+
 let _tid = 0;
 function pushToast(msg, kind='ok') {
   const wrap = document.getElementById('toast-wrap');
@@ -1267,7 +1386,7 @@ function openAddModal() {
 function closeAddModal() {
   document.getElementById('add-modal').classList.remove('active');
   document.body.style.overflow = '';
-  stopDesktopPolling(); stopScanner();
+  stopDesktopPolling(); stopScanner(); closeCoverCamera();
 }
 
 function addManualIsbn() {
@@ -1282,6 +1401,36 @@ function onSearchInput() {
   clearTimeout(searchDebounce);
   searchDebounce = setTimeout(runBookSearch, 700);
 }
+// One result row, used for both Open Library hits and local-catalogue hits.
+// `spec` = {key, title, meta, cover_url, tag, askDora, onAdd}
+function makeResultRow(spec) {
+  const row = document.createElement('div');
+  row.className = 'd-queue-chip d-chip-taste';
+  row.innerHTML = `
+    <div class="top">
+      <div class="d-queue-chip-cover" style="background:var(--ink-blue);display:flex;align-items:center;justify-content:center;">
+        ${spec.cover_url ? `<img src="${doraEsc(spec.cover_url)}" style="width:100%;height:100%;object-fit:cover;" onerror="this.remove()">`
+          : BOOK_ICON}
+      </div>
+      <div style="flex:1;min-width:0;">
+        <div class="d-queue-chip-title">${doraEsc(spec.title || 'Untitled')}</div>
+        <div class="d-queue-chip-isbn">${doraEsc(spec.meta || '—')}</div>
+        ${spec.tag ? `<div style="margin-top:4px;"><span class="d-tag-manual">${doraEsc(spec.tag)}</span></div>` : ''}
+      </div>
+      <button class="f-btn f-btn--ink add-result-btn" style="padding:0 14px;flex-shrink:0;">${queueHasKey(spec.key) ? 'Added' : 'Add'}</button>
+    </div>
+    <div class="d-chip-taste-slot"></div>
+  `;
+  if (spec.askDora) mountAskDora(row, spec.askDora);
+  const btn = row.querySelector('.add-result-btn');
+  btn.onclick = () => {
+    if (queueHasKey(spec.key)) return;
+    spec.onAdd();
+    btn.textContent = 'Added';
+  };
+  return row;
+}
+
 async function runBookSearch() {
   clearTimeout(searchDebounce);
   const q = document.getElementById('search-query').value.trim();
@@ -1289,49 +1438,376 @@ async function runBookSearch() {
   if (q.length < 2) { box.innerHTML = ''; return; }
   const seq = ++searchSeq;
   box.innerHTML = `<div class="d-queue-empty-msg">Searching…</div>`;
-  try {
-    const res = await fetch(`/books/search?q=${encodeURIComponent(q)}`);
-    if (seq !== searchSeq) return; // a newer search superseded this one
-    if (!res.ok) { box.innerHTML = `<div class="d-queue-empty-msg">Search failed. Try again.</div>`; return; }
-    const results = await res.json();
-    if (!results.length) { box.innerHTML = `<div class="d-queue-empty-msg">No matches found.</div>`; return; }
-    box.innerHTML = '';
-    for (const b of results) {
-      const inQueue = queueHasKey(b.key);
-      const meta = [b.authors?.join(', '), b.first_publish_year].filter(Boolean).join(' · ');
-      const row = document.createElement('div');
-      row.className = 'd-queue-chip d-chip-taste';
-      row.innerHTML = `
-        <div class="top">
-          <div class="d-queue-chip-cover" style="background:var(--ink-blue);display:flex;align-items:center;justify-content:center;">
-            ${b.cover_url ? `<img src="${b.cover_url}" style="width:100%;height:100%;object-fit:cover;" onerror="this.remove()">`
-              : `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(244,238,226,0.6)" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"/></svg>`}
-          </div>
-          <div style="flex:1;min-width:0;">
-            <div class="d-queue-chip-title">${b.title || 'Untitled'}</div>
-            <div class="d-queue-chip-isbn">${meta || '—'}</div>
-          </div>
-          <button class="f-btn f-btn--ink add-result-btn" style="padding:0 14px;flex-shrink:0;">${inQueue ? 'Added' : 'Add'}</button>
-        </div>
-        <div class="d-chip-taste-slot"></div>
-      `;
-      mountAskDora(row, () => ({
-        title: b.title || '',
-        authors: b.authors || [],
-        isbn: (b.isbns && b.isbns[0]) || null,
-        context: b.first_publish_year ? `First published ${b.first_publish_year}` : null,
+
+  // Books other users typed in by hand exist only in our catalogue, so search
+  // both sources. A failure on either side shouldn't blank the other.
+  const [local, remote] = await Promise.all([
+    fetch(`/books/search/local?q=${encodeURIComponent(q)}`).then(r => r.ok ? r.json() : []).catch(() => null),
+    fetch(`/books/search?q=${encodeURIComponent(q)}`).then(r => r.ok ? r.json() : []).catch(() => null),
+  ]);
+  if (seq !== searchSeq) return;  // a newer search superseded this one
+
+  if (local === null && remote === null) {
+    box.innerHTML = `<div class="d-queue-empty-msg">Connection error.</div>`;
+    return;
+  }
+  const localResults = local || [], remoteResults = remote || [];
+  if (!localResults.length && !remoteResults.length) {
+    box.innerHTML = `<div class="d-queue-empty-msg">No matches found.<br>You can still add it by hand.</div>`;
+    return;
+  }
+
+  box.innerHTML = '';
+  if (localResults.length) {
+    const head = document.createElement('div');
+    head.className = 'd-results-head';
+    head.textContent = 'Already on Dora';
+    box.appendChild(head);
+    for (const b of localResults) {
+      box.appendChild(makeResultRow({
+        key: b.book_id,
+        title: b.title,
+        meta: [b.authors?.join(', '), b.publish_date].filter(Boolean).join(' · '),
+        cover_url: b.cover_url,
+        tag: b.source === 'manual' ? (b.added_by ? `Added by @${b.added_by}` : 'Community entry') : null,
+        askDora: () => ({ title: b.title || '', authors: b.authors || [], isbn: b.isbn || null, context: null }),
+        onAdd: () => appendCatalogueBook(b),
       }));
-      const btn = row.querySelector('.add-result-btn');
-      btn.onclick = () => {
-        if (queueHasKey(b.key)) return;
-        appendSearchResult(b);
-        btn.textContent = 'Added';
-      };
-      box.appendChild(row);
+    }
+  }
+  if (remoteResults.length) {
+    const head = document.createElement('div');
+    head.className = 'd-results-head';
+    head.textContent = localResults.length ? 'From Open Library' : '';
+    if (head.textContent) box.appendChild(head);
+    for (const b of remoteResults) {
+      box.appendChild(makeResultRow({
+        key: b.key,
+        title: b.title,
+        meta: [b.authors?.join(', '), b.first_publish_year].filter(Boolean).join(' · '),
+        cover_url: b.cover_url,
+        askDora: () => ({
+          title: b.title || '',
+          authors: b.authors || [],
+          isbn: (b.isbns && b.isbns[0]) || null,
+          context: b.first_publish_year ? `First published ${b.first_publish_year}` : null,
+        }),
+        onAdd: () => appendSearchResult(b),
+      }));
+    }
+  }
+}
+
+// ── Add a book by hand ────────────────────────────────────
+// For books with no copy to scan and no Open Library record. The cover is
+// uploaded as soon as it's picked (presign → POST to bucket); the catalogue row
+// itself is only created when the queue is saved, so an abandoned modal leaves
+// nothing behind.
+let manualCoverKey = null;
+
+function setCoverBusy(on) {
+  const pick = document.getElementById('create-cover-pick');
+  pick.querySelector('.d-cover-busy')?.remove();
+  if (on) pick.insertAdjacentHTML('beforeend', '<div class="d-cover-busy">Uploading…</div>');
+}
+
+function pickManualCover(input) {
+  const file = input.files && input.files[0];
+  input.value = '';
+  if (file) uploadManualCover(file);
+}
+
+// Shared by the file picker and the camera: preview immediately, then
+// presign → POST straight to the bucket. The key is handed to the create call.
+async function uploadManualCover(file) {
+  if (file.size > 10 * 1024 * 1024) return pushToast('Image is too large (max 10MB)', 'err');
+
+  const pick = document.getElementById('create-cover-pick');
+  const previewUrl = URL.createObjectURL(file);
+  pick.classList.add('has');
+  pick.querySelector('img')?.remove();
+  pick.insertAdjacentHTML('afterbegin', `<img src="${previewUrl}" alt="">`);
+  setCoverBusy(true);
+
+  try {
+    const pres = await fetch('/books/covers/presign', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ content_type: file.type, byte_size: file.size }),
+    });
+    if (pres.status === 401) { clearManualCover(); return pushToast('Sign in to upload a cover', 'err'); }
+    if (!pres.ok) { clearManualCover(); return pushToast('Could not start the upload', 'err'); }
+    const p = await pres.json();
+
+    const form = new FormData();
+    Object.entries(p.fields).forEach(([k, v]) => form.append(k, v));
+    form.append('file', file);
+    const up = await fetch(p.upload_url, { method: 'POST', body: form });
+    if (!up.ok) { clearManualCover(); return pushToast('Cover upload failed', 'err'); }
+
+    manualCoverKey = p.key;
+    setCoverBusy(false);
+    if (!pick.querySelector('.d-cover-clear')) {
+      pick.insertAdjacentHTML('beforeend',
+        `<button type="button" class="d-cover-clear" title="Remove cover" onclick="event.preventDefault();event.stopPropagation();clearManualCover()">
+           <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M18 6 6 18M6 6l12 12"/></svg>
+         </button>`);
     }
   } catch {
-    if (seq === searchSeq) box.innerHTML = `<div class="d-queue-empty-msg">Connection error.</div>`;
+    clearManualCover();
+    pushToast('Cover upload failed', 'err');
   }
+}
+
+function clearManualCover() {
+  manualCoverKey = null;
+  const pick = document.getElementById('create-cover-pick');
+  pick.classList.remove('has');
+  pick.querySelector('img')?.remove();
+  pick.querySelector('.d-cover-clear')?.remove();
+  setCoverBusy(false);
+}
+
+// Shoot the cover in-app instead of hunting for a file — same getUserMedia
+// sheet the comment-photo camera uses, reusing its overlay root and styles.
+// It renders above the add modal (z-index 71 vs the modal's 60).
+let coverCamStream = null;
+
+async function openCoverCamera() {
+  try {
+    coverCamStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+  } catch {
+    pushToast('Could not access the camera', 'err');
+    return;
+  }
+  document.getElementById('photo-overlay-root').innerHTML = `
+    <div class="d-cam-scrim" onclick="closeCoverCamera()"></div>
+    <div class="d-camsheet">
+      <div class="hd">
+        <span class="f-label">Camera · frame the cover</span>
+        <button class="f-iconbtn" style="width:30px;height:30px;" onclick="closeCoverCamera()" aria-label="Close camera"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
+      </div>
+      <div class="f-cam" id="cover-cam-viewport">
+        <video id="cover-cam-video" autoplay playsinline muted style="width:100%;height:100%;object-fit:cover;"></video>
+        <div class="f-reticle"><span class="c1"></span><span class="c2"></span></div>
+      </div>
+      <div class="ft">
+        <span class="caption" style="flex:1;font-size:12.5px;color:var(--ink-soft);">One shot becomes the cover</span>
+        <button class="d-shutter" onclick="snapCoverPhoto()" aria-label="Capture"><span></span></button>
+        <button class="f-btn f-btn--ink" style="padding:8px 16px;font-size:12.5px;margin-left:auto;" onclick="closeCoverCamera()">Cancel</button>
+      </div>
+    </div>`;
+  document.getElementById('cover-cam-video').srcObject = coverCamStream;
+}
+
+async function snapCoverPhoto() {
+  const video = document.getElementById('cover-cam-video');
+  if (!video || !video.videoWidth) return;
+  const canvas = document.createElement('canvas');
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+  canvas.getContext('2d').drawImage(video, 0, 0);
+  const viewport = document.getElementById('cover-cam-viewport');
+  if (viewport) {
+    const fl = document.createElement('div');
+    fl.className = 'lb-flash';
+    viewport.appendChild(fl);
+    setTimeout(() => fl.remove(), 260);
+  }
+  const blob = await new Promise(res => canvas.toBlob(res, 'image/jpeg', 0.9));
+  if (!blob) return;
+  closeCoverCamera();
+  // A second shot replaces the first; only one cover per book.
+  await uploadManualCover(new File([blob], 'cover.jpg', { type: 'image/jpeg' }));
+}
+
+function closeCoverCamera() {
+  if (coverCamStream) { coverCamStream.getTracks().forEach(t => t.stop()); coverCamStream = null; }
+  document.getElementById('photo-overlay-root').innerHTML = '';
+}
+
+// Live duplicate check — the catalogue is shared, so steer people to an
+// existing entry before they type a second copy of it.
+let manualDupeDebounce = null;
+let manualDupeSeq = 0;
+function onManualTitleInput() {
+  clearTimeout(manualDupeDebounce);
+  manualDupeDebounce = setTimeout(runManualDupeCheck, 600);
+}
+async function runManualDupeCheck() {
+  const q = document.getElementById('create-title').value.trim();
+  const box = document.getElementById('create-dupes');
+  if (q.length < 3) { box.style.display = 'none'; box.innerHTML = ''; return; }
+  const seq = ++manualDupeSeq;
+  try {
+    const res = await fetch(`/books/search/local?q=${encodeURIComponent(q)}&limit=3`);
+    if (seq !== manualDupeSeq || !res.ok) return;
+    const results = await res.json();
+    if (!results.length) { box.style.display = 'none'; box.innerHTML = ''; return; }
+    box.innerHTML = `<div class="d-dupe-note">Already on Dora — add one of these instead?</div>`;
+    for (const b of results) {
+      box.appendChild(makeResultRow({
+        key: b.book_id,
+        title: b.title,
+        meta: [b.authors?.join(', '), b.publish_date].filter(Boolean).join(' · '),
+        cover_url: b.cover_url,
+        tag: b.source === 'manual' ? (b.added_by ? `Added by @${b.added_by}` : 'Community entry') : null,
+        onAdd: () => { appendCatalogueBook(b); resetManualForm(); },
+      }));
+    }
+    box.style.display = '';
+  } catch {}
+}
+
+function splitList(value) {
+  return value.split(',').map(s => s.trim()).filter(Boolean);
+}
+
+function resetManualForm() {
+  for (const id of ['create-title','create-authors','create-subtitle','create-publisher',
+                    'create-year','create-pages','create-isbn','create-subjects','create-description']) {
+    document.getElementById(id).value = '';
+  }
+  clearManualCover();
+  const dupes = document.getElementById('create-dupes');
+  dupes.style.display = 'none'; dupes.innerHTML = '';
+  document.querySelector('.d-create-more').open = false;
+}
+
+function readManualForm() {
+  const title = document.getElementById('create-title').value.trim();
+  if (!title) { pushToast('A title is required', 'err'); document.getElementById('create-title').focus(); return null; }
+  const pagesRaw = parseInt(document.getElementById('create-pages').value, 10);
+  return {
+    title,
+    authors: splitList(document.getElementById('create-authors').value),
+    subtitle: document.getElementById('create-subtitle').value.trim() || null,
+    publishers: splitList(document.getElementById('create-publisher').value),
+    publish_date: document.getElementById('create-year').value.trim() || null,
+    number_of_pages: Number.isFinite(pagesRaw) ? pagesRaw : null,
+    isbns: splitList(document.getElementById('create-isbn').value),
+    subjects: splitList(document.getElementById('create-subjects').value),
+    description: document.getElementById('create-description').value.trim() || null,
+    cover_key: manualCoverKey,
+  };
+}
+
+function submitManualForm() {
+  if (manualEditBookId) saveManualEdit(); else addManualBook();
+}
+
+let manualDraftSeq = 0;
+function addManualBook() {
+  const draft = readManualForm();
+  if (!draft) return;
+
+  const coverImg = document.querySelector('#create-cover-pick img');
+  const key = 'manual:' + (++manualDraftSeq);
+  const cover = coverImg ? `<img src="${coverImg.src}" style="width:100%;height:100%;object-fit:cover;">` : BOOK_ICON;
+  const sub = draft.authors.join(', ') || 'Added by hand';
+  makeChip(key, cover, draft.title, sub);
+  scanQueue.push({ key, manual: draft });
+  updateQueueBadge();
+  pushToast('Added · ' + draft.title, 'ok');
+  resetManualForm();
+  document.getElementById('create-title').focus();
+}
+
+// ── Editing a manual entry you created ────────────────────
+let manualEditBookId = null;
+
+function setManualEditMode(on) {
+  manualEditBookId = on ? manualEditBookId : null;
+  document.getElementById('create-submit').textContent = on ? 'Save changes' : 'Add to queue';
+  document.getElementById('create-cancel-edit').style.display = on ? '' : 'none';
+  document.getElementById('create-hint').textContent = on
+    ? 'Corrections apply everywhere this book appears, including other readers’ shelves.'
+    : 'Saved to the shared catalogue, so anyone searching for it later will find your entry. You can edit it afterwards.';
+  // The duplicate check would just match the book being edited.
+  const dupes = document.getElementById('create-dupes');
+  if (on) { dupes.style.display = 'none'; dupes.innerHTML = ''; }
+}
+
+async function openEditManualBook(bookId) {
+  let b;
+  try {
+    const res = await fetch(`/books/${bookId}`);
+    if (!res.ok) return pushToast('Could not load this book', 'err');
+    b = await res.json();
+  } catch { return pushToast('Connection error', 'err'); }
+
+  closeDrawer();
+  // Switch tabs first so opening the modal doesn't spin the camera up.
+  switchModalTab('create');
+  openAddModal();
+  resetManualForm();
+
+  document.getElementById('create-title').value = b.title || '';
+  document.getElementById('create-authors').value = (b.authors || []).map(a => a.name).join(', ');
+  document.getElementById('create-subtitle').value = b.subtitle || '';
+  document.getElementById('create-publisher').value = (b.publishers || []).map(p => p.name).join(', ');
+  document.getElementById('create-year').value = b.publish_date || '';
+  document.getElementById('create-pages').value = b.number_of_pages || '';
+  document.getElementById('create-isbn').value = (b.isbns || []).join(', ');
+  document.getElementById('create-subjects').value = (b.subjects || []).map(s => s.name).join(', ');
+  document.getElementById('create-description').value = b.description || '';
+  if (b.subtitle || b.publishers?.length || b.publish_date || b.number_of_pages ||
+      b.isbns?.length || b.subjects?.length || b.description) {
+    document.querySelector('.d-create-more').open = true;
+  }
+
+  // Show the existing cover; leaving it untouched keeps it on save.
+  const existing = b.covers && b.covers[0] && (b.covers[0].medium || b.covers[0].small);
+  if (existing) {
+    const pick = document.getElementById('create-cover-pick');
+    pick.classList.add('has');
+    pick.insertAdjacentHTML('afterbegin', `<img src="${doraEsc(existing)}" alt="">`);
+  }
+
+  manualEditBookId = bookId;
+  setManualEditMode(true);
+}
+
+function cancelManualEdit() {
+  setManualEditMode(false);
+  resetManualForm();
+}
+
+async function saveManualEdit() {
+  const payload = readManualForm();
+  if (!payload) return;
+  const btn = document.getElementById('create-submit');
+  const orig = btn.textContent;
+  btn.textContent = 'Saving…';
+  try {
+    const res = await fetch(`/books/${manualEditBookId}`, {
+      method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) {
+      const detail = await res.json().catch(() => ({}));
+      btn.textContent = orig;
+      return pushToast(detail.detail || 'Could not save changes', 'err');
+    }
+    flashAfterReload('Book details updated', 'ok');
+    window.location.reload();
+  } catch {
+    btn.textContent = orig;
+    pushToast('Connection error', 'err');
+  }
+}
+
+// A book already in our catalogue (local search / duplicate suggestion) — no
+// lookup or creation needed, just shelve it by id.
+function appendCatalogueBook(b) {
+  if (queueHasKey(b.book_id)) return;
+  const cover = b.cover_url
+    ? `<img src="${doraEsc(b.cover_url)}" style="width:100%;height:100%;object-fit:cover;" onerror="this.remove()">`
+    : BOOK_ICON;
+  const sub = [b.authors?.join(', '), b.publish_date].filter(Boolean).join(' · ') || (b.isbn || '—');
+  makeChip(b.book_id, cover, b.title || 'Untitled', sub);
+  scanQueue.push({ key: b.book_id, book_id: b.book_id });
+  updateQueueBadge();
+  pushToast('Added · ' + (b.title || 'book'), 'ok');
 }
 
 function updateQueueBadge() {
@@ -1354,13 +1830,18 @@ function updateQueueBadge() {
 // Queue items are objects:
 //   ISBN (scan/manual):  { key: isbn, isbn }
 //   Search result:       { key: workKey, book: {key,title,authors,isbns,cover_url,first_publish_year} }
+//   Already in catalogue:{ key: bookId, book_id }
+//   Typed in by hand:    { key: 'manual:n', manual: {title, authors, …, cover_key} }
 function queueHasKey(key) { return scanQueue.some(i => i.key === key); }
 
 function queueToEntries(is_public, status) {
-  return scanQueue.map(i =>
-    i.book ? { book: i.book, is_public, status, comment: '' }
-           : { isbn: i.isbn, is_public, status, comment: '' }
-  );
+  return scanQueue.map(i => {
+    const base = { is_public, status, comment: '' };
+    if (i.manual)  return { ...base, manual: i.manual };
+    if (i.book_id) return { ...base, book_id: i.book_id };
+    if (i.book)    return { ...base, book: i.book };
+    return { ...base, isbn: i.isbn };
+  });
 }
 
 // ── Ask Dora (real taste engine) ───────────────────────────
@@ -1439,8 +1920,8 @@ function makeChip(key, coverHtml, title, sub) {
     <div class="top">
       <div class="d-queue-chip-cover" style="background:var(--ink-blue);display:flex;align-items:center;justify-content:center;">${coverHtml}</div>
       <div style="flex:1;min-width:0;">
-        <div class="d-queue-chip-title">${title}</div>
-        <div class="d-queue-chip-isbn">${sub}</div>
+        <div class="d-queue-chip-title">${doraEsc(title)}</div>
+        <div class="d-queue-chip-isbn">${doraEsc(sub)}</div>
       </div>
       <button class="f-iconbtn" style="width:28px;height:28px;flex-shrink:0;">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
@@ -1536,7 +2017,19 @@ async function saveBatchLibrary(btn) {
       method:'POST', headers:{'Content-Type':'application/json'},
       body:JSON.stringify({entries}),
     });
-    if (res.ok) { window.location.hash='#profile'; window.location.reload(); }
+    if (res.ok) {
+      const data = await res.json().catch(() => ({}));
+      const errors = data.errors || [];
+      if (errors.length && !data.added) {
+        // Nothing saved — keep the queue up so the reason is actionable.
+        pushToast(errors[0], 'err');
+        if (btn) btn.innerHTML = orig;
+        return;
+      }
+      // Survives the reload below, where a toast wouldn't.
+      if (errors.length) flashAfterReload(errors[0], 'err');
+      window.location.hash='#profile'; window.location.reload();
+    }
     else if (res.status === 401) {
       // Session lapsed — keep the queue and re-authenticate; it auto-saves on return.
       pushToast('Please sign in again to save', 'err');
@@ -1548,6 +2041,22 @@ async function saveBatchLibrary(btn) {
 }
 
 // ── Init ──────────────────────────────────────────────────
+// getUserMedia needs a secure context — over plain HTTP on a phone there's no
+// camera to offer, so don't show a button that can only fail.
+if (!navigator.mediaDevices?.getUserMedia) {
+  const camBtn = document.getElementById('create-cover-cam');
+  if (camBtn) camBtn.style.display = 'none';
+}
+
+const flashed = sessionStorage.getItem('flashToast');
+if (flashed) {
+  sessionStorage.removeItem('flashToast');
+  try {
+    const { msg, kind } = JSON.parse(flashed);
+    setTimeout(() => pushToast(msg, kind), 400);
+  } catch {}
+}
+
 const pendingScans = sessionStorage.getItem('pendingScanQueue');
 if (isLoggedIn && pendingScans) {
   scanQueue = JSON.parse(pendingScans);

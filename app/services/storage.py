@@ -53,12 +53,29 @@ def _client():
     )
 
 
-def new_key(content_type: str) -> str:
-    ext = {
+def _ext(content_type: str) -> str:
+    return {
         "image/jpeg": "jpg", "image/png": "png",
         "image/webp": "webp", "image/heic": "heic",
     }.get(content_type, "bin")
-    return f"comment-photos/{uuid.uuid4()}.{ext}"
+
+
+def new_key(content_type: str) -> str:
+    return f"comment-photos/{uuid.uuid4()}.{_ext(content_type)}"
+
+
+def new_cover_key(user_id, content_type: str) -> str:
+    """Key for a manually-uploaded book cover.
+
+    The uploader's id is in the path so the create endpoint can verify the key
+    it's handed was issued to *this* user — the cover is uploaded before the
+    book row exists, so there's no other record to check ownership against.
+    """
+    return f"book-covers/{user_id}/{uuid.uuid4()}.{_ext(content_type)}"
+
+
+def is_own_cover_key(key: str, user_id) -> bool:
+    return key.startswith(f"book-covers/{user_id}/")
 
 
 def presign_post(key: str, content_type: str) -> dict:

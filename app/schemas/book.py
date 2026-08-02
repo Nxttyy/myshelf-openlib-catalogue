@@ -38,8 +38,9 @@ class BookRead(BaseModel):
     id: UUID
     isbns: list[str] = []
     publish_dates: list[str] = []
-    openbook_url: str
-    openbook_key: str
+    # None on manually-created books — they have no Open Library record.
+    openbook_url: str | None = None
+    openbook_key: str | None = None
     title: str
     subtitle: str | None = None
     description: str | None = None
@@ -52,5 +53,26 @@ class BookRead(BaseModel):
     publish_date: str | None = None
     subjects: list[SubjectSchema] = []
     covers: list[CoverSchema] = []
+    source: str = "openlibrary"
 
     model_config = {"from_attributes": True}
+
+
+# ── Manual book creation ────────────────────────────────────────────────────
+
+class ManualBookCreate(BaseModel):
+    """A book a user types in themselves, for when there's no copy to scan and
+    no Open Library record to search. Only the title is required."""
+
+    title: str
+    subtitle: str | None = None
+    authors: list[str] = []
+    publishers: list[str] = []
+    publish_date: str | None = None
+    number_of_pages: int | None = None
+    description: str | None = None
+    isbns: list[str] = []
+    subjects: list[str] = []
+    by_statement: str | None = None
+    # Storage key returned by /books/covers/presign, once the bytes are uploaded.
+    cover_key: str | None = None

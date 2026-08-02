@@ -28,9 +28,11 @@ class Book(SQLModel, table=True):
         sa_column=Column(sa.dialects.postgresql.JSONB, nullable=False, server_default="[]"),
     )
 
-    # From record.data
-    openbook_url: str = Field(index=True)
-    openbook_key: str = Field(unique=True, index=True)
+    # From record.data — NULL on manually-created books, which have no Open
+    # Library record. Postgres allows many NULLs under a unique index, so
+    # openbook_key stays unique for the books that do have one.
+    openbook_url: str | None = Field(default=None, index=True)
+    openbook_key: str | None = Field(default=None, unique=True, index=True)
     title: str
     subtitle: str | None = None
     description: str | None = None
@@ -59,6 +61,17 @@ class Book(SQLModel, table=True):
         default_factory=list,
         sa_column=Column(sa.dialects.postgresql.JSONB, nullable=False, server_default="[]"),
     )
+
+    # ── Provenance ───────────────────────────────────────────────────────────
+    # "openlibrary" for catalogue records fetched from Open Library, "manual"
+    # for entries a user typed in themselves (no copy to scan, not in OL).
+    source: str = Field(default="openlibrary", index=True)
+    # Who submitted a manual entry — attribution, edit permission, rate limiting.
+    created_by_user_id: UUID | None = Field(default=None, foreign_key="users.id", index=True)
+    # Object key of an uploaded cover. The public URL in `covers` points at
+    # /books/{id}/cover, which redirects to a freshly presigned GET; the key is
+    # kept so the signature can be regenerated and the object deleted.
+    cover_s3_key: str | None = None
 
     created_at: datetime = Field(
         default_factory=datetime.utcnow,
