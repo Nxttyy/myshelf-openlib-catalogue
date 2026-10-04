@@ -3,8 +3,7 @@ from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
     APP_NAME: str = "Dora"
-    # FIX: use env vars here
-    DEBUG: bool = True
+    DEBUG: bool = False
     OPENLIBRARY_BASE_URL: str = "https://openlibrary.org/api/volumes/brief/isbn"
     OPENLIBRARY_SEARCH_URL: str = "https://openlibrary.org/search.json"
     OPENLIBRARY_COVERS_URL: str = "https://covers.openlibrary.org/b/id"

@@ -1,0 +1,48 @@
+:root{--ink-blue:#243B6B;--ink-blue-deep:#1B2230;--paper:#F4EEE2;--paper-2:#ECE4D3;--ink:#1A1714;--ink-soft:#4A443B;--ink-faint:#8C8473;--hair:rgba(26,23,20,0.14);--hair-strong:rgba(26,23,20,0.28);--amber:#E0A23E;--amber-fg:#231A0E;--font-sans:'Inter Tight',-apple-system,system-ui,sans-serif;--font-mono:'JetBrains Mono','SF Mono',Menlo,monospace;--ease-out:cubic-bezier(0.2,0,0,1)}
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0;padding:0;font-family:var(--font-sans);background:var(--paper);color:var(--ink);-webkit-font-smoothing:antialiased;min-height:100vh}
+.page{display:grid;min-height:100vh}
+@media(min-width:720px){.page{grid-template-columns:1fr 1fr}}
+/* Left band */
+.band{background:var(--ink-blue-deep);color:var(--paper);padding:48px 40px;display:flex;flex-direction:column;justify-content:flex-end;min-height:220px;position:relative}
+@media(max-width:719px){.band{display:none}}
+@media(min-width:720px){.band{min-height:100vh;padding:56px 52px}}
+.band-logo{display:flex;align-items:center;gap:8px;font-weight:600;font-size:16px;letter-spacing:-0.02em;position:absolute;top:28px;left:40px}
+@media(min-width:720px){.band-logo{top:40px;left:52px}}
+.band-logo-mark{width:24px;height:24px;border-radius:4px;background:rgba(244,238,226,0.15);display:grid;place-items:center}
+.band-label{font-family:var(--font-mono);font-size:9px;letter-spacing:0.18em;text-transform:uppercase;opacity:0.5;margin-bottom:20px}
+.band h1{font-weight:600;letter-spacing:-0.04em;line-height:0.97;font-size:clamp(32px,5vw,52px);margin:0;color:var(--paper)}
+.band p{font-size:13.5px;color:rgba(244,238,226,0.62);line-height:1.55;margin-top:14px;max-width:300px}
+/* Right form */
+.form-panel{padding:40px 28px;display:flex;align-items:center;justify-content:center}
+@media(min-width:720px){.form-panel{padding:64px 52px}}
+.form-inner{width:100%;max-width:360px}
+.form-title{font-size:22px;font-weight:600;letter-spacing:-0.03em;margin:0 0 28px}
+/* Inputs */
+.f-field{margin-bottom:14px}
+.f-label{font-family:var(--font-mono);font-size:9px;font-weight:500;letter-spacing:0.18em;text-transform:uppercase;color:var(--ink-faint);display:block;margin-bottom:7px}
+.f-input{width:100%;font-family:var(--font-sans);font-size:14px;color:var(--ink);background:var(--paper-2);border:1px solid var(--hair-strong);border-radius:9px;padding:12px 14px;transition:border-color 120ms,box-shadow 120ms}
+.f-input:focus{outline:none;border-color:var(--amber);box-shadow:0 0 0 3px rgba(224,162,62,0.18)}
+.f-input::placeholder{color:var(--ink-faint)}
+.pw-wrap{position:relative}
+.pw-wrap .f-input{padding-right:44px}
+.pw-toggle{position:absolute;right:4px;top:50%;transform:translateY(-50%);width:34px;height:34px;border:none;background:transparent;cursor:pointer;color:var(--ink-faint);display:grid;place-items:center;border-radius:6px}
+.pw-toggle:hover{color:var(--ink);background:rgba(26,23,20,0.06)}
+/* Buttons */
+.f-btn{font-family:var(--font-sans);font-weight:600;font-size:14px;letter-spacing:-0.01em;border:none;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:7px;border-radius:8px;padding:13px 16px;white-space:nowrap;transition:transform 120ms var(--ease-out),background 120ms var(--ease-out);width:100%}
+.f-btn:active{transform:scale(0.97)}
+.f-btn--amber{background:var(--amber);color:var(--amber-fg)}
+.f-btn--ghost{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 1px var(--hair-strong)}
+/* Divider */
+.divider{display:flex;align-items:center;gap:12px;margin:18px 0}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--hair-strong)}
+.divider span{font-family:var(--font-mono);font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--ink-faint)}
+/* Links */
+.form-links{margin-top:24px;font-size:13px;color:var(--ink-soft);text-align:center;display:flex;flex-direction:column;gap:10px}
+.form-links a{color:var(--ink);font-weight:600;text-decoration:none}
+.form-links a:hover{text-decoration:underline}
+/* Error */
+.form-error{background:rgba(52,30,28,0.08);border:1px solid rgba(214,93,74,0.3);color:#a83226;border-radius:8px;padding:11px 13px;font-size:13px;margin-bottom:18px}
+/* Forgot link */
+.forgot-link{font-family:var(--font-mono);font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink-blue);background:none;border:none;cursor:pointer;padding:0}
+.forgot-link:hover{text-decoration:underline}

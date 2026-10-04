@@ -34,8 +34,12 @@ from app.services.manual_book import (
     search_local_books,
 )
 from app.services.openlibrary import (
+    find_book_by_isbn,
     get_or_create_book,
     get_or_create_book_from_metadata,
+    normalize_isbn,
+    persist_fetched_book,
+    prefetch_isbns,
     search_books,
 )
 
@@ -286,7 +290,32 @@ async def batch_add_user_books(
     # Reasons entries were dropped, surfaced to the client so a rejected manual
     # entry (rate limit, missing title) doesn't just silently vanish.
     errors: list[str] = []
-    for entry in request_data.entries:
+
+    # Resolve plain-ISBN entries (scanned / typed) against the local DB first
+    # (fast, sequential — it's one query per entry on the shared session), then
+    # fetch every remaining cache-miss ISBN from Open Library concurrently.
+    # The session itself still commits one entry at a time below, but the slow
+    # part — N Open Library round trips — now overlaps instead of running
+    # one after another.
+    isbn_by_index: dict[int, str] = {}
+    for i, entry in enumerate(request_data.entries):
+        if entry.manual is None and entry.book_id is None and entry.book is None and entry.isbn:
+            try:
+                isbn_by_index[i] = normalize_isbn(entry.isbn)
+            except ValueError:
+                pass  # surfaced as a normal per-entry error in the main loop below
+
+    local_hits: dict[int, Book] = {}
+    miss_isbns: list[str] = []
+    for i, isbn in isbn_by_index.items():
+        existing = await find_book_by_isbn(session, isbn)
+        if existing:
+            local_hits[i] = existing
+        else:
+            miss_isbns.append(isbn)
+    prefetched = await prefetch_isbns(miss_isbns)
+
+    for i, entry in enumerate(request_data.entries):
         label = (
             (entry.manual and entry.manual.title.strip())
             or entry.isbn
@@ -306,7 +335,17 @@ async def batch_add_user_books(
             elif entry.book is not None:
                 book = await get_or_create_book_from_metadata(session, entry.book.model_dump())
             elif entry.isbn:
-                book = await get_or_create_book(session, entry.isbn)
+                if i in local_hits:
+                    book = local_hits[i]
+                elif i in isbn_by_index:
+                    raw = prefetched[isbn_by_index[i]]
+                    if isinstance(raw, Exception):
+                        raise raw
+                    book = await persist_fetched_book(session, raw)
+                else:
+                    # Invalid ISBN (failed normalize_isbn above) — let this
+                    # raise the same ValueError it always did.
+                    book = await get_or_create_book(session, entry.isbn)
             else:
                 continue
 

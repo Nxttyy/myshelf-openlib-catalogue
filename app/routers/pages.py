@@ -2,14 +2,16 @@
 Page routes — serves Jinja2 HTML templates.
 """
 
+import asyncio
 from datetime import timedelta
 
 from fastapi import APIRouter, Depends, Request, HTTPException
 from fastapi.templating import Jinja2Templates
 from httpx import HTTPStatusError, RequestError
+from sqlmodel.ext.asyncio.session import AsyncSession
 
 from app.auth import get_current_user
-from app.db import SessionDep
+from app.db import SessionDep, engine
 from app.models.book import Book
 from app.models.user import User
 from app.models.user_book_image import UserBookImage
@@ -31,6 +33,10 @@ _COVER_PALETTES = [
 
 templates.env.globals["cover_bg"] = lambda i: _COVER_PALETTES[i % len(_COVER_PALETTES)][0]
 templates.env.globals["cover_fg"] = lambda i: _COVER_PALETTES[i % len(_COVER_PALETTES)][1]
+
+# Cache-busting suffix for /static/* links (see main.py's Cache-Control
+# middleware). Bump this string whenever CSS/JS under app/static changes.
+templates.env.globals["static_version"] = "1"
 
 
 async def _attach_images(session: SessionDep, items: list[dict]) -> None:
@@ -120,17 +126,26 @@ async def index(
     selected_book: Book | None = None
     error: str | None = None
 
-    # 1. If ISBN provided, get/create and set as selected
+    # 1. If ISBN provided, get/create and set as selected. This may call out to
+    # Open Library, so it runs on its own DB session/connection concurrently
+    # with steps 2-3 below instead of blocking the rest of the page behind it
+    # (an AsyncSession can't run concurrent queries, hence the separate session).
+    isbn_task: asyncio.Task | None = None
     if isbn:
         isbn = isbn.strip()
-        try:
-            selected_book = await get_or_create_book(session, isbn)
-        except ValueError as exc:
-            error = str(exc)
-        except HTTPStatusError as exc:
-            error = f"Open Library returned HTTP {exc.response.status_code}"
-        except RequestError as exc:
-            error = f"Could not reach Open Library: {exc}"
+
+        async def _resolve_isbn(isbn: str) -> tuple[Book | None, str | None]:
+            async with AsyncSession(engine) as isbn_session:
+                try:
+                    return await get_or_create_book(isbn_session, isbn), None
+                except ValueError as exc:
+                    return None, str(exc)
+                except HTTPStatusError as exc:
+                    return None, f"Open Library returned HTTP {exc.response.status_code}"
+                except RequestError as exc:
+                    return None, f"Could not reach Open Library: {exc}"
+
+        isbn_task = asyncio.create_task(_resolve_isbn(isbn))
 
     # 2. Fetch the first page of community books (rest load lazily via /explore)
     all_books_result = await session.exec(
@@ -157,6 +172,9 @@ async def index(
         n_reading = sum(1 for item in user_books if item["user_book"].status == "reading")
         n_read    = sum(1 for item in user_books if item["user_book"].status == "read")
         n_unread  = len(user_books) - n_reading - n_read
+
+    if isbn_task is not None:
+        selected_book, error = await isbn_task
 
     user_handle = (current_user.username or current_user.email.split("@")[0]) if current_user else None
     user_book_ids = {item["book"].id for item in user_books}

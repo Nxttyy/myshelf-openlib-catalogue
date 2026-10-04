@@ -1,0 +1,7 @@
+:root{--ink-blue:#243B6B;--paper:#F4EEE2;--ink:#1A1714;--ink-soft:#4A443B;--amber:#E0A23E;--amber-fg:#231A0E;--font-sans:'Inter Tight',-apple-system,system-ui,sans-serif;--font-mono:'JetBrains Mono',monospace;--ease-out:cubic-bezier(0.2,0,0,1)}
+*{box-sizing:border-box}html,body{margin:0;padding:0;font-family:var(--font-sans);background:var(--paper);color:var(--ink);-webkit-font-smoothing:antialiased;min-height:100vh;display:flex;flex-direction:column}
+.page{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px 24px}
+.berry{color:var(--ink-blue);margin-bottom:22px}
+.big{font-weight:500;letter-spacing:-0.05em;font-variant-numeric:tabular-nums;line-height:0.85;font-size:96px;color:var(--ink-blue)}
+p{font-size:16px;color:var(--ink-soft);line-height:1.5;margin:14px 0 26px;max-width:360px}
+.f-btn{font-family:var(--font-sans);font-weight:600;font-size:13px;letter-spacing:-0.01em;border:none;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;border-radius:7px;padding:12px 20px;white-space:nowrap;text-decoration:none;background:var(--amber);color:var(--amber-fg)}

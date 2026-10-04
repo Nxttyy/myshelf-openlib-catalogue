@@ -4,6 +4,8 @@ Service layer for fetching and cleaning Open Library data.
 Flow: check local DB by ISBN → if not found → fetch from API → persist → return.
 """
 
+import asyncio
+
 import httpx
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
@@ -175,6 +177,62 @@ async def find_book_by_isbn(session: AsyncSession, isbn: str) -> Book | None:
     return result.first()
 
 
+def normalize_isbn(isbn: str) -> str:
+    """Sanity-check and normalise an ISBN so malformed barcodes (e.g.
+    "08/35110745", short/long scans) don't hit Open Library and 500."""
+    isbn = isbn.replace("-", "").replace(" ", "").strip().upper()
+    if len(isbn) not in (10, 13) or not isbn[:-1].isdigit() or isbn[-1] not in "0123456789X":
+        raise ValueError(f"Invalid ISBN: {isbn}")
+    return isbn
+
+
+async def prefetch_isbns(isbns: list[str]) -> dict[str, dict | Exception]:
+    """Concurrently fetch raw Open Library JSON for multiple ISBNs at once.
+
+    Batch-add flows (e.g. a haul of scanned books) previously called
+    `get_or_create_book` in a plain sequential loop, so N cache-miss ISBNs meant
+    N sequential Open Library round trips. This lets the network fetches for
+    those misses overlap; persisting to the DB still has to happen one at a
+    time on the shared session (see `persist_fetched_book`), but that part was
+    never the slow one.
+
+    Returns isbn -> raw JSON, or the exception raised while fetching it (the
+    caller decides whether/how to surface that per-entry).
+    """
+    unique = list(dict.fromkeys(isbns))
+    if not unique:
+        return {}
+    results = await asyncio.gather(
+        *(fetch_book_by_isbn(isbn) for isbn in unique), return_exceptions=True
+    )
+    return dict(zip(unique, results))
+
+
+async def persist_fetched_book(session: AsyncSession, raw: dict) -> Book:
+    """Persist a book from already-fetched Open Library JSON (see `prefetch_isbns`).
+
+    Same dedup-by-key + insert tail as `get_or_create_book`, split out so batch
+    callers can fetch concurrently and persist sequentially on one session.
+    """
+    books = clean_book_response(raw)
+    if not books:
+        raise ValueError("No records found")
+
+    # Handle duplicates by Open Library key (sometimes the same book is
+    # reached via a different ISBN).
+    new_book = books[0]
+    existing_by_key = (
+        await session.exec(select(Book).where(Book.openbook_key == new_book.openbook_key))
+    ).first()
+    if existing_by_key:
+        return existing_by_key
+
+    session.add(new_book)
+    await session.commit()
+    await session.refresh(new_book)
+    return new_book
+
+
 async def get_or_create_book(session: AsyncSession, isbn: str) -> Book:
     """
     Main entry point: look up a book by ISBN.
@@ -183,41 +241,14 @@ async def get_or_create_book(session: AsyncSession, isbn: str) -> Book:
     2. If not found → call Open Library API → persist
     3. Return the Book instance
     """
-    # 0. Normalise and sanity-check the ISBN so malformed barcodes (e.g.
-    #    "08/35110745", short/long scans) don't hit Open Library and 500.
-    isbn = isbn.replace("-", "").replace(" ", "").strip().upper()
-    if len(isbn) not in (10, 13) or not isbn[:-1].isdigit() or isbn[-1] not in "0123456789X":
-        raise ValueError(f"Invalid ISBN: {isbn}")
+    isbn = normalize_isbn(isbn)
 
-    # 1. Check DB first
     existing = await find_book_by_isbn(session, isbn)
     if existing:
         return existing
 
-    # 2. Fetch from Open Library
     raw = await fetch_book_by_isbn(isbn)
-    books = clean_book_response(raw)
-    print(books)
-
-    if not books:
-        raise ValueError(f"No records found for ISBN {isbn}")
-
-    # 3. Handle duplicates by Open Library key
-    # (Sometimes the same book is reached via a different ISBN)
-    new_book = books[0]
-    existing_by_key_result = await session.exec(
-        select(Book).where(Book.openbook_key == new_book.openbook_key)
-    )
-    existing_by_key = existing_by_key_result.first()
-    if existing_by_key:
-        return existing_by_key
-
-    # 4. Persist
-    session.add(new_book)
-    await session.commit()
-    await session.refresh(new_book)
-
-    return new_book
+    return await persist_fetched_book(session, raw)
 
 
 def _covers_from_url(cover_url: str | None) -> list[dict]:

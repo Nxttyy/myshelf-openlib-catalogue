@@ -1,0 +1,12 @@
+.cv3{perspective:1000px;width:100%}
+.cv3-obj{position:relative;width:100%;aspect-ratio:2/3;transform-style:preserve-3d;transition:transform 420ms var(--ease-out)}
+.cv3.on .cv3-obj{transition:transform 80ms linear}
+.cv3-spine{position:absolute;left:0;top:0;height:100%;width:var(--cv-th,14px);transform:rotateY(-90deg) translateZ(calc(var(--cv-th,14px)/2)) translateX(calc(var(--cv-th,14px)/-2));transform-origin:left center;display:flex;align-items:center;justify-content:center;box-shadow:inset -8px 0 14px rgba(0,0,0,0.28);overflow:hidden}
+.cv3-spine .sp{writing-mode:vertical-rl;transform:rotate(180deg);font-weight:600;font-size:9.5px;letter-spacing:-0.01em;white-space:nowrap;opacity:0.92}
+.cv3-face{position:absolute;inset:0;border-radius:4px;overflow:hidden;backface-visibility:hidden;background:var(--paper-2);box-shadow:0 6px 16px rgba(0,0,0,0.18),inset 0 0 0 1px rgba(255,255,255,0.04);transition:box-shadow 300ms var(--ease-out)}
+.cv3.on .cv3-face{box-shadow:0 22px 40px rgba(0,0,0,0.32),inset 0 0 0 1px rgba(255,255,255,0.06)}
+.cv3-face .d-cover-img{width:100%;height:100%;object-fit:cover;display:block}
+.cv3-face .d-cover-ph{position:absolute;inset:0}
+.cv3-bind{position:absolute;top:0;bottom:0;left:0;width:11%;background:linear-gradient(90deg,rgba(0,0,0,0.18),transparent);pointer-events:none}
+.cv3-glare{position:absolute;inset:0;pointer-events:none;background:linear-gradient(105deg,transparent 30%,rgba(255,255,255,0.22) 48%,transparent 62%);transform:translateX(-200%);opacity:0;transition:opacity 300ms,transform 120ms linear}
+.cv3.on .cv3-glare{opacity:1}

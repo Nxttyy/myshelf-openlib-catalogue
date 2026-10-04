@@ -4,10 +4,9 @@ Dora — FastAPI application entry point.
 
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
-
-from contextlib import asynccontextmanager
-
+from fastapi import FastAPI, Request
+from fastapi.staticfiles import StaticFiles
+from starlette.middleware.gzip import GZipMiddleware
 from starlette.middleware.sessions import SessionMiddleware
 
 from app.config import settings
@@ -32,6 +31,10 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+# Compresses HTML/CSS/JS/JSON responses — the page templates ship a lot of
+# text (inline-turned-external CSS/JS, book lists) that gzips down heavily.
+app.add_middleware(GZipMiddleware, minimum_size=500)
+
 app.add_middleware(
     SessionMiddleware,
     secret_key=settings.SECRET_KEY,
@@ -39,6 +42,20 @@ app.add_middleware(
     https_only=False,
     max_age=3600,
 )
+
+
+@app.middleware("http")
+async def add_static_cache_headers(request: Request, call_next):
+    """Static assets are versioned via a `?v=` query param (see
+    pages.py's `static_version` template global), so it's safe to tell the
+    browser to cache them for a year and never revalidate."""
+    response = await call_next(request)
+    if request.url.path.startswith("/static/"):
+        response.headers["Cache-Control"] = "public, max-age=31536000, immutable"
+    return response
+
+
+app.mount("/static", StaticFiles(directory="app/static"), name="static")
 
 app.mount("/mcp", secured_mcp_app())
 app.include_router(rest_router)
