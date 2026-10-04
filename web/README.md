@@ -4,7 +4,7 @@ React frontend for Dora. Replaces the Jinja templates in `app/templates` page by
 
 ## Dev
 
-Run FastAPI on :8000 as usual, then:
+Run the API (`../api`) on :8000 as usual, then:
 
 ```sh
 npm install
