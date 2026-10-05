@@ -8,7 +8,7 @@ import { defineConfig } from 'vite'
 // DORA_API overrides the backend address, e.g. to run a second copy on another port.
 const API_TARGET = process.env.DORA_API ?? 'http://localhost:8000'
 
-const API_PREFIXES = ['/books', '/auth', '/scan', '/dora', '/mobile-scan', '/static', '/health']
+const API_PREFIXES = ['/books', '/auth', '/profiles', '/scan', '/dora', '/mobile-scan', '/static', '/health']
 
 export default defineConfig({
   plugins: [react()],

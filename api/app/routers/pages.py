@@ -3,7 +3,6 @@ Page routes — serves Jinja2 HTML templates.
 """
 
 import asyncio
-from datetime import timedelta
 
 from fastapi import APIRouter, Depends, Request, HTTPException
 from fastapi.templating import Jinja2Templates
@@ -14,9 +13,8 @@ from app.auth import get_current_user
 from app.db import SessionDep, engine
 from app.models.book import Book
 from app.models.user import User
-from app.models.user_book_image import UserBookImage
-from app.services import storage
 from app.services.openlibrary import get_or_create_book
+from app.services.shelf import attach_images, build_hauls, contributor_handles
 from sqlmodel import select
 
 router = APIRouter(tags=["Pages"])
@@ -37,78 +35,6 @@ templates.env.globals["cover_fg"] = lambda i: _COVER_PALETTES[i % len(_COVER_PAL
 # Cache-busting suffix for /static/* links (see main.py's Cache-Control
 # middleware). Bump this string whenever CSS/JS under app/static changes.
 templates.env.globals["static_version"] = "1"
-
-
-async def _attach_images(session: SessionDep, items: list[dict]) -> None:
-    """Attach item["images"] (uploaded comment photos, ordered) to each
-    {"user_book", "book"} entry, keyed off UserBook.id."""
-    for item in items:
-        item["images"] = []
-    if not items or not storage.storage_configured():
-        return
-    ub_ids = [item["user_book"].id for item in items]
-    result = await session.exec(
-        select(UserBookImage)
-        .where(UserBookImage.user_book_id.in_(ub_ids), UserBookImage.status == "uploaded")
-        .order_by(UserBookImage.position)
-    )
-    by_ub: dict = {}
-    for img in result.all():
-        by_ub.setdefault(img.user_book_id, []).append(
-            {"id": str(img.id), "url": storage.presigned_get_url(img.s3_key), "position": img.position}
-        )
-    for item in items:
-        item["images"] = by_ub.get(item["user_book"].id, [])
-
-
-async def _contributor_handles(session: SessionDep, books) -> dict:
-    """Map user id → handle for the people who typed manual entries in, so the
-    catalogue can credit them. Empty for pages with no manual books."""
-    ids = {b.created_by_user_id for b in books if b.created_by_user_id}
-    if not ids:
-        return {}
-    rows = (await session.exec(
-        select(User.id, User.username, User.email).where(User.id.in_(ids))
-    )).all()
-    return {uid: (username or email.split("@")[0]) for uid, username, email in rows}
-
-
-def _build_hauls(user_books: list[dict], window: timedelta = timedelta(days=2)) -> list[dict]:
-    """Group user_books into "hauls" for the timeline view — consecutive
-    additions within `window` of each other, newest first. Purely a display
-    grouping over UserBook.created_at; no separate haul entity to maintain,
-    and it works retroactively over books added before this view existed."""
-    if not user_books:
-        return []
-
-    ordered = sorted(user_books, key=lambda item: item["user_book"].created_at, reverse=True)
-
-    groups: list[list[dict]] = [[ordered[0]]]
-    for item in ordered[1:]:
-        prev_time = groups[-1][-1]["user_book"].created_at
-        if prev_time - item["user_book"].created_at <= window:
-            groups[-1].append(item)
-        else:
-            groups.append([item])
-
-    total = len(groups)
-    out = []
-    for i, group in enumerate(groups):
-        books = [item["book"] for item in group]
-        times = [item["user_book"].created_at for item in group]
-        start, end = min(times), max(times)
-        heading = (
-            end.strftime("%b %d, %Y") if start.date() == end.date()
-            else f"{start.strftime('%b %d')} – {end.strftime('%b %d, %Y')}"
-        )
-        out.append({
-            "books": books,
-            "total_pages": sum(b.number_of_pages or 0 for b in books),
-            "date_display": end.strftime("%b %d, %Y"),
-            "heading": heading,
-            "number": total - i,
-        })
-    return out
 
 
 @router.get("/")
@@ -167,8 +93,8 @@ async def index(
         )
         user_books_result = await session.exec(stmt)
         user_books = [{"user_book": ub, "book": b} for ub, b in user_books_result.all()]
-        await _attach_images(session, user_books)
-        hauls = _build_hauls(user_books)
+        await attach_images(session, user_books)
+        hauls = build_hauls(user_books)
         n_reading = sum(1 for item in user_books if item["user_book"].status == "reading")
         n_read    = sum(1 for item in user_books if item["user_book"].status == "read")
         n_unread  = len(user_books) - n_reading - n_read
@@ -182,7 +108,7 @@ async def index(
     context: dict = {
         "isbn": isbn,
         "all_books": all_books,
-        "contributors": await _contributor_handles(
+        "contributors": await contributor_handles(
             session, list(all_books) + [item["book"] for item in user_books]
         ),
         "user_books": user_books,
@@ -234,7 +160,7 @@ async def explore_page(
             "books": books,
             "explore_start": offset,
             "user_book_ids": user_book_ids,
-            "contributors": await _contributor_handles(session, books),
+            "contributors": await contributor_handles(session, books),
             "user": current_user,
         },
     )
@@ -312,8 +238,8 @@ async def public_profile_page(
     )
     result = await session.exec(stmt)
     public_books = [{"user_book": ub, "book": b} for ub, b in result.all()]
-    await _attach_images(session, public_books)
-    contributors = await _contributor_handles(
+    await attach_images(session, public_books)
+    contributors = await contributor_handles(
         session, [item["book"] for item in public_books]
     )
 

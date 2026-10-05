@@ -3,7 +3,7 @@ from typing import Annotated
 
 from authlib.integrations.base_client.errors import MismatchingStateError
 from authlib.integrations.starlette_client import OAuth
-from fastapi import APIRouter, Depends, HTTPException, Request, status, Form
+from fastapi import APIRouter, Depends, HTTPException, Request, Response, status, Form
 from pydantic import BaseModel
 from fastapi.responses import RedirectResponse
 from sqlmodel import select
@@ -179,20 +179,108 @@ class MeRead(BaseModel):
     is_profile_public: bool
 
 
+def _me(user: User) -> MeRead:
+    return MeRead(
+        id=str(user.id),
+        firstname=user.firstname,
+        lastname=user.lastname,
+        email=user.email,
+        handle=user.username or user.email.split("@")[0],
+        is_profile_public=user.is_profile_public,
+    )
+
+
+def _set_session_cookie(response: Response, user: User) -> None:
+    """Same cookie the form login sets, so a session works in both UIs."""
+    token = create_access_token(data={"sub": user.email})
+    response.set_cookie(key="access_token", value=f"Bearer {token}", httponly=True)
+
+
 @router.get("/me", response_model=MeRead | None)
 async def me(current_user: User | None = Depends(get_current_user)):
     """The signed-in user, or null for guests (a 200 either way, so the
     web app can ask on every load without logging errors)."""
-    if current_user is None:
-        return None
-    return MeRead(
-        id=str(current_user.id),
-        firstname=current_user.firstname,
-        lastname=current_user.lastname,
-        email=current_user.email,
-        handle=current_user.username or current_user.email.split("@")[0],
-        is_profile_public=current_user.is_profile_public,
+    return _me(current_user) if current_user else None
+
+
+# ── JSON auth for the React app ─────────────────────────────────────────────
+# The form endpoints above redirect to Jinja pages; these return JSON instead.
+# They go away together with the forms at the switch-over.
+
+class LoginRequest(BaseModel):
+    email: str
+    password: str
+
+
+class SignupRequest(BaseModel):
+    firstname: str
+    lastname: str
+    email: str
+    password: str
+
+
+class ResetRequest(BaseModel):
+    email: str
+
+
+class PasswordReset(BaseModel):
+    token: str
+    new_password: str
+
+
+@router.post("/session", response_model=MeRead)
+async def create_session(body: LoginRequest, response: Response, session: SessionDep):
+    user = (await session.exec(select(User).where(User.email == body.email.strip()))).first()
+    if not user or not verify_password(body.password, user.password):
+        raise HTTPException(status_code=401, detail="That email and password don't match.")
+    _set_session_cookie(response, user)
+    return _me(user)
+
+
+@router.delete("/session", status_code=204)
+async def end_session(response: Response):
+    response.delete_cookie("access_token")
+
+
+@router.post("/account", response_model=MeRead, status_code=201)
+async def create_account(body: SignupRequest, response: Response, session: SessionDep):
+    email = body.email.strip()
+    if (await session.exec(select(User).where(User.email == email))).first():
+        raise HTTPException(status_code=409, detail="There's already an account with that email.")
+    user = User(
+        firstname=body.firstname.strip(),
+        lastname=body.lastname.strip(),
+        email=email,
+        password=get_password_hash(body.password),
+        username=await generate_unique_username(session, email.split("@")[0]),
     )
+    session.add(user)
+    await session.commit()
+    await session.refresh(user)
+    _set_session_cookie(response, user)
+    return _me(user)
+
+
+@router.post("/password-reset-requests", status_code=202)
+async def request_password_reset(body: ResetRequest, session: SessionDep):
+    """Always 202, whether or not the email has an account, so the response
+    can't be used to find out who has one."""
+    email = body.email.strip()
+    user = (await session.exec(select(User).where(User.email == email))).first()
+    if user:
+        send_reset_password_email(email_to=user.email, token=create_password_reset_token(email=email))
+    return {"ok": True}
+
+
+@router.post("/password-resets", status_code=204)
+async def reset_password_json(body: PasswordReset, session: SessionDep):
+    email = verify_password_reset_token(body.token)
+    user = (await session.exec(select(User).where(User.email == email))).first() if email else None
+    if not user:
+        raise HTTPException(status_code=400, detail="This reset link has expired or was already used.")
+    user.password = get_password_hash(body.new_password)
+    session.add(user)
+    await session.commit()
 
 
 class ProfileUpdate(BaseModel):

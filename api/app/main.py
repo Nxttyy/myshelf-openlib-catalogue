@@ -11,7 +11,7 @@ from starlette.middleware.sessions import SessionMiddleware
 
 from app.config import settings
 from app.mcp_server import mcp, rest_router, secured_mcp_app
-from app.routers import auth, book, dora, pages, scan
+from app.routers import auth, book, dora, pages, scan, web
 
 # Import models so SQLModel metadata registers all tables
 import app.models  # noqa: F401
@@ -61,6 +61,8 @@ app.mount("/mcp", secured_mcp_app())
 app.include_router(rest_router)
 
 app.include_router(pages.router)
+# before book.router: web.py's /books/recent etc. would otherwise match /books/{book_id}
+app.include_router(web.router)
 app.include_router(book.router)
 app.include_router(auth.router)
 app.include_router(scan.router)

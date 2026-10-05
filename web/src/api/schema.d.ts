@@ -202,6 +202,88 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/books/recent": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Recent Books
+         * @description Newest books across Dora, a page at a time (Explore, and the home page).
+         */
+        get: operations["recent_books_books_recent_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/books/user_books": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * My Shelf
+         * @description The signed-in user's whole shelf, including private books.
+         */
+        get: operations["my_shelf_books_user_books_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/books/{book_id}/entry": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Book Entry
+         * @description One book with the viewer's context, so a shared ?book= link can open
+         *     its record directly instead of waiting for a whole list to load.
+         */
+        get: operations["book_entry_books__book_id__entry_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/profiles/{handle}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Public Profile
+         * @description Someone's public shelf. 404 when the handle doesn't exist or the
+         *     profile is private, same as the /u/{handle} page.
+         */
+        get: operations["public_profile_profiles__handle__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/books/lookup/{isbn}": {
         parameters: {
             query?: never;
@@ -603,6 +685,79 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/auth/session": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Create Session */
+        post: operations["create_session_auth_session_post"];
+        /** End Session */
+        delete: operations["end_session_auth_session_delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/account": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Create Account */
+        post: operations["create_account_auth_account_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/password-reset-requests": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Request Password Reset
+         * @description Always 202, whether or not the email has an account, so the response
+         *     can't be used to find out who has one.
+         */
+        post: operations["request_password_reset_auth_password_reset_requests_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/password-resets": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Reset Password Json */
+        post: operations["reset_password_json_auth_password_resets_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/auth/profile": {
         parameters: {
             query?: never;
@@ -842,6 +997,23 @@ export interface components {
             /** New Password */
             new_password: string;
         };
+        /** BookEntryRead */
+        BookEntryRead: {
+            book: components["schemas"]["BookRead"];
+            /** Added By */
+            added_by?: string | null;
+            /**
+             * Can Edit
+             * @default false
+             */
+            can_edit: boolean;
+            /**
+             * On Shelf
+             * @default false
+             */
+            on_shelf: boolean;
+            shelf?: components["schemas"]["ShelfEntry"] | null;
+        };
         /**
          * BookRead
          * @description What the API returns for a book.
@@ -913,6 +1085,25 @@ export interface components {
              */
             source: string;
         };
+        /**
+         * CatalogEntry
+         * @description A book as anyone browsing the catalogue sees it.
+         */
+        CatalogEntry: {
+            book: components["schemas"]["BookRead"];
+            /** Added By */
+            added_by?: string | null;
+            /**
+             * Can Edit
+             * @default false
+             */
+            can_edit: boolean;
+            /**
+             * On Shelf
+             * @default false
+             */
+            on_shelf: boolean;
+        };
         /** CoverSchema */
         CoverSchema: {
             /** Small */
@@ -927,12 +1118,35 @@ export interface components {
             /** Detail */
             detail?: components["schemas"]["ValidationError"][];
         };
+        /**
+         * Haul
+         * @description Books added close together in time (see services/shelf.build_hauls).
+         */
+        Haul: {
+            /** Number */
+            number: number;
+            /** Heading */
+            heading: string;
+            /** Date Display */
+            date_display: string;
+            /** Total Pages */
+            total_pages: number;
+            /** User Book Ids */
+            user_book_ids: string[];
+        };
         /** ImagePresignRequest */
         ImagePresignRequest: {
             /** Content Type */
             content_type: string;
             /** Byte Size */
             byte_size: number;
+        };
+        /** LoginRequest */
+        LoginRequest: {
+            /** Email */
+            email: string;
+            /** Password */
+            password: string;
         };
         /**
          * ManualBookCreate
@@ -993,6 +1207,13 @@ export interface components {
             /** Is Profile Public */
             is_profile_public: boolean;
         };
+        /** PasswordReset */
+        PasswordReset: {
+            /** Token */
+            token: string;
+            /** New Password */
+            new_password: string;
+        };
         /** PresignBatchRequest */
         PresignBatchRequest: {
             /** Files */
@@ -1034,10 +1255,36 @@ export interface components {
             /** Is Profile Public */
             is_profile_public: boolean;
         };
+        /** PublicShelfRead */
+        PublicShelfRead: {
+            owner: components["schemas"]["ShelfOwner"];
+            counts: components["schemas"]["ShelfCounts"];
+            /** Entries */
+            entries: components["schemas"]["ShelfEntry"][];
+            /** Hauls */
+            hauls: components["schemas"]["Haul"][];
+            /**
+             * Viewer Book Ids
+             * @default []
+             */
+            viewer_book_ids: string[];
+        };
         /** PublisherSchema */
         PublisherSchema: {
             /** Name */
             name: string;
+        };
+        /** RecentPage */
+        RecentPage: {
+            /** Entries */
+            entries: components["schemas"]["CatalogEntry"][];
+            /** Next Offset */
+            next_offset?: number | null;
+        };
+        /** ResetRequest */
+        ResetRequest: {
+            /** Email */
+            email: string;
         };
         /** SearchBookMetadata */
         SearchBookMetadata: {
@@ -1059,6 +1306,85 @@ export interface components {
             cover_url?: string | null;
             /** First Publish Year */
             first_publish_year?: number | null;
+        };
+        /** ShelfCounts */
+        ShelfCounts: {
+            /** All */
+            all: number;
+            /** Reading */
+            reading: number;
+            /** Read */
+            read: number;
+            /** Unread */
+            unread: number;
+        };
+        /**
+         * ShelfEntry
+         * @description A book on someone's shelf, with that person's status, note and photos.
+         */
+        ShelfEntry: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Status */
+            status: string;
+            /** Is Public */
+            is_public: boolean;
+            /** Is Pinned */
+            is_pinned: boolean;
+            /** Comment */
+            comment?: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Images
+             * @default []
+             */
+            images: components["schemas"]["UserBookImageRead"][];
+            book: components["schemas"]["BookRead"];
+            /** Added By */
+            added_by?: string | null;
+            /**
+             * Can Edit
+             * @default false
+             */
+            can_edit: boolean;
+        };
+        /** ShelfOwner */
+        ShelfOwner: {
+            /** Handle */
+            handle: string;
+            /** Firstname */
+            firstname: string;
+            /** Lastname */
+            lastname: string;
+            /** Is Profile Public */
+            is_profile_public: boolean;
+        };
+        /** ShelfRead */
+        ShelfRead: {
+            owner: components["schemas"]["ShelfOwner"];
+            counts: components["schemas"]["ShelfCounts"];
+            /** Entries */
+            entries: components["schemas"]["ShelfEntry"][];
+            /** Hauls */
+            hauls: components["schemas"]["Haul"][];
+        };
+        /** SignupRequest */
+        SignupRequest: {
+            /** Firstname */
+            firstname: string;
+            /** Lastname */
+            lastname: string;
+            /** Email */
+            email: string;
+            /** Password */
+            password: string;
         };
         /** SubjectSchema */
         SubjectSchema: {
@@ -1439,6 +1765,119 @@ export interface operations {
                 };
                 content: {
                     "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    recent_books_books_recent_get: {
+        parameters: {
+            query?: {
+                offset?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RecentPage"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    my_shelf_books_user_books_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ShelfRead"];
+                };
+            };
+        };
+    };
+    book_entry_books__book_id__entry_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                book_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BookEntryRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    public_profile_profiles__handle__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                handle: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PublicShelfRead"];
                 };
             };
             /** @description Validation Error */
@@ -2099,6 +2538,154 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["MeRead"] | null;
+                };
+            };
+        };
+    };
+    create_session_auth_session_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LoginRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MeRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    end_session_auth_session_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    create_account_auth_account_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SignupRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MeRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    request_password_reset_auth_password_reset_requests_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ResetRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    reset_password_json_auth_password_resets_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PasswordReset"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
