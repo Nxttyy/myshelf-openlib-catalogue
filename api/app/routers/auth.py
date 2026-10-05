@@ -168,6 +168,33 @@ async def google_callback(request: Request, session: SessionDep):
     return response
 
 
+class MeRead(BaseModel):
+    """The signed-in user, as the web app needs it."""
+    id: str
+    firstname: str
+    lastname: str
+    email: str
+    # username, or the email's local part for accounts that never set one
+    handle: str
+    is_profile_public: bool
+
+
+@router.get("/me", response_model=MeRead | None)
+async def me(current_user: User | None = Depends(get_current_user)):
+    """The signed-in user, or null for guests (a 200 either way, so the
+    web app can ask on every load without logging errors)."""
+    if current_user is None:
+        return None
+    return MeRead(
+        id=str(current_user.id),
+        firstname=current_user.firstname,
+        lastname=current_user.lastname,
+        email=current_user.email,
+        handle=current_user.username or current_user.email.split("@")[0],
+        is_profile_public=current_user.is_profile_public,
+    )
+
+
 class ProfileUpdate(BaseModel):
     is_profile_public: bool
 

@@ -1,0 +1,84 @@
+/* App layer on top of the verbatim design CSS (tokens/styles/desktop.css).
+
+   The design draws the app inside a fixed-size browser frame (desktop) or
+   phone frame (mobile) that scrolls internally. A real site should scroll the
+   window instead: Back restores scroll position, the mobile browser toolbar
+   collapses, and overlays stay put. Everything here exists to make that
+   switch, plus the phone/desktop split. Breakpoint: 900px. */
+
+/* Theme: the design's default tweaks are "Navy + orange", which its app
+   shell applies to :root at runtime. The rest of the navy palette lives on
+   .th-navy in desktop.css. */
+:root {
+  --accent: #F2842F;
+  --accent-hover: #E57722;
+  --accent-press: #D96E1C;
+  --accent-fg: #141B2E;
+  --ink-blue: #253C6D;
+  --ink-blue-deep: #1A2B52;
+  --ink-blue-2: #30497D;
+  --ink-blue-3: #455B8A;
+
+  /* bottom tab bar: 7px top pad + 55px of tab + the bottom pad */
+  --tabbar-pad-b: max(22px, env(safe-area-inset-bottom));
+  --tabbar-h: calc(62px + var(--tabbar-pad-b));
+}
+
+html, body { margin: 0; background: #F5F0E6; }
+#root { min-height: 100vh; min-height: 100dvh; }
+select.f-select { background-image: none; }
+button { font: inherit; }
+
+/* ── Page scroll instead of the frame's inner scroll ───────── */
+.d-app {
+  position: relative; inset: auto;
+  min-height: 100vh; min-height: 100dvh;
+  overflow: visible;
+}
+.d-app.f-grain::before { position: fixed; }
+.d-scroll { overflow: visible; }
+
+/* Overlays were absolute inside the frame; pin them to the viewport. */
+.d-scrim, .d-drawer, .d-dialog, .d-lightbox, .d-camsheet,
+.f-scrim, .f-sheet, .d-toastwrap, .f-toastwrap { position: fixed; }
+
+/* ── Desktop ───────────────────────────────────────────────── */
+.d-nav { position: sticky; top: 0; }
+
+/* ── Phone ─────────────────────────────────────────────────── */
+.m-header {
+  position: sticky; top: 0; z-index: 30;
+  padding-top: calc(env(safe-area-inset-top) + 8px);
+  background: rgba(245,240,230,0.92); backdrop-filter: blur(8px);
+}
+.m-avatar {
+  width: 30px; height: 30px; border-radius: 6px; background: var(--ink-blue);
+  color: var(--paper); display: grid; place-items: center;
+  font-family: var(--font-mono); font-size: 11px; font-weight: 600; letter-spacing: 0.02em;
+}
+.f-tabbar {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 30;
+  padding-bottom: var(--tabbar-pad-b);
+}
+.f-toastwrap { top: calc(env(safe-area-inset-top) + 58px); }
+
+@media (max-width: 899.98px) {
+  .d-nav { display: none; }
+  .d-wrap { padding: 6px 18px 30px; }
+  .d-scroll { padding-bottom: var(--tabbar-h); }
+}
+@media (min-width: 900px) {
+  .m-header, .f-tabbar { display: none; }
+}
+
+/* Router links styled as the design's buttons (the design uses <button>). */
+a.d-navlink, a.f-btn, a.f-iconbtn, a.f-tab, a.d-avatar, a.home-link { text-decoration: none; }
+a.f-btn { display: inline-flex; }
+
+/* Visible keyboard focus everywhere (the design only styles inputs). */
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.f-input:focus-visible, .f-select:focus-visible, .f-textarea:focus-visible { outline: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 1ms !important; transition-duration: 1ms !important; }
+}

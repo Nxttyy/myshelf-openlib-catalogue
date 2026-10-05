@@ -582,6 +582,27 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/auth/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Me
+         * @description The signed-in user, or null for guests (a 200 either way, so the
+         *     web app can ask on every load without logging errors).
+         */
+        get: operations["me_auth_me_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/auth/profile": {
         parameters: {
             query?: never;
@@ -953,6 +974,24 @@ export interface components {
             by_statement?: string | null;
             /** Cover Key */
             cover_key?: string | null;
+        };
+        /**
+         * MeRead
+         * @description The signed-in user, as the web app needs it.
+         */
+        MeRead: {
+            /** Id */
+            id: string;
+            /** Firstname */
+            firstname: string;
+            /** Lastname */
+            lastname: string;
+            /** Email */
+            email: string;
+            /** Handle */
+            handle: string;
+            /** Is Profile Public */
+            is_profile_public: boolean;
         };
         /** PresignBatchRequest */
         PresignBatchRequest: {
@@ -2040,6 +2079,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": unknown;
+                };
+            };
+        };
+    };
+    me_auth_me_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MeRead"] | null;
                 };
             };
         };

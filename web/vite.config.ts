@@ -5,6 +5,9 @@ import { defineConfig } from 'vite'
 // single origin in dev, so the httponly `access_token` cookie just works
 // (no CORS, no SameSite juggling) — the same shape as production, where
 // FastAPI serves the built app.
+// DORA_API overrides the backend address, e.g. to run a second copy on another port.
+const API_TARGET = process.env.DORA_API ?? 'http://localhost:8000'
+
 const API_PREFIXES = ['/books', '/auth', '/scan', '/dora', '/mobile-scan', '/static', '/health']
 
 export default defineConfig({
@@ -12,7 +15,7 @@ export default defineConfig({
   server: {
     port: 5173,
     proxy: Object.fromEntries(
-      API_PREFIXES.map((p) => [p, { target: 'http://localhost:8000', changeOrigin: false }]),
+      API_PREFIXES.map((p) => [p, { target: API_TARGET, changeOrigin: false }]),
     ),
   },
 })
