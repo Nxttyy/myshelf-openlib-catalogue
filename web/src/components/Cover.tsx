@@ -12,7 +12,9 @@
 import { useEffect, useRef, useState, type CSSProperties, type PointerEvent } from 'react'
 import { PALETTES, type CoverData } from '../lib/covers'
 
-const shortTitle = (t: string) => t.replace(/:.*$/, '').trim()
+// Jackets show the main title only: no subtitle after a colon, no
+// "(Series Name)" in brackets. The design's sample titles never needed it.
+const shortTitle = (t: string) => t.replace(/:.*$/, '').replace(/\s*\([^)]*\)\s*/g, ' ').trim() || t
 
 function FaceContent({ b, w, ink, rule }: { b: CoverData; w: number; ink: string; rule: string }) {
   const u = w / 100 // 1 unit = 1% of width
@@ -26,10 +28,13 @@ function FaceContent({ b, w, ink, rule }: { b: CoverData; w: number; ink: string
   const ruleEl = (mt: number) => (
     <div style={{ height: Math.max(1, 0.8 * u), background: rule, marginTop: mt }} />
   )
-  const titleBlock = (align: 'left' | 'center', size: number) => (
+  // capped so a long real title can't push into the labels around it
+  const titleBlock = (align: 'left' | 'center', size: number, lines = 4) => (
     <div style={{
       fontWeight: 600, fontSize: size * u, lineHeight: 0.96,
       letterSpacing: '-0.04em', color: ink, textAlign: align, textWrap: 'balance',
+      display: '-webkit-box', WebkitLineClamp: lines, WebkitBoxOrient: 'vertical', overflow: 'hidden',
+      paddingBottom: '0.06em',
     }}>{title}</div>
   )
 
@@ -65,7 +70,7 @@ function FaceContent({ b, w, ink, rule }: { b: CoverData; w: number; ink: string
         <div style={{ fontWeight: 600, fontSize: 42 * u, lineHeight: 0.8, letterSpacing: '-0.06em', color: ink }}>{title[0]}</div>
         {ruleEl(5 * u)}
         <div style={{ flex: 1 }} />
-        {titleBlock('left', 13)}
+        {titleBlock('left', 13, 3)}
         <div style={{ ...labelStyle, marginTop: 6 * u }}>{lastName}</div>
       </div>
     )

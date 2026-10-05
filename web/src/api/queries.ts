@@ -1,7 +1,7 @@
 /* TanStack Query hooks for every page read and auth action.
    Keys: ['me'], ['shelf'], ['recent'], ['book', id], ['profile', handle]. */
 
-import { useInfiniteQuery, useMutation, useQuery, useQueryClient, type QueryClient } from '@tanstack/react-query'
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient, type InfiniteData, type QueryClient } from '@tanstack/react-query'
 import { api } from './client'
 import type { Me } from './me'
 import type {
@@ -29,12 +29,31 @@ export function useMyShelf(enabled = true) {
   })
 }
 
-/** One book with the viewer's context, for a ?book= link opened directly. */
+/** A book already loaded by some list, so its record can render instantly
+    while the full entry (with the viewer's shelf data) loads. */
+function cachedEntry(qc: QueryClient, bookId: string): BookEntryRead | undefined {
+  const shelf = qc.getQueryData<ShelfRead>(['shelf'])
+  const mine = shelf?.entries.find((e) => e.book.id === bookId)
+  if (mine) return { book: mine.book, added_by: mine.added_by, can_edit: mine.can_edit, on_shelf: true, shelf: mine }
+  for (const [, data] of qc.getQueriesData<InfiniteData<RecentPage>>({ queryKey: ['recent'] })) {
+    const hit = data?.pages.flatMap((p) => p.entries).find((e) => e.book.id === bookId)
+    if (hit) return { ...hit, shelf: null }
+  }
+  for (const [, data] of qc.getQueriesData<PublicShelfRead>({ queryKey: ['profile'] })) {
+    const hit = data?.entries.find((e) => e.book.id === bookId)
+    if (hit) return { book: hit.book, added_by: hit.added_by, can_edit: hit.can_edit, on_shelf: false, shelf: null }
+  }
+  return undefined
+}
+
+/** One book with the viewer's context (works for a pasted ?book= link too). */
 export function useBookEntry(bookId: string | null) {
+  const qc = useQueryClient()
   return useQuery({
     queryKey: ['book', bookId],
     queryFn: () => api.get<BookEntryRead>(`/books/${bookId}/entry`),
     enabled: !!bookId,
+    placeholderData: () => (bookId ? cachedEntry(qc, bookId) : undefined),
   })
 }
 
@@ -43,6 +62,22 @@ export function usePublicProfile(handle: string) {
   return useQuery({
     queryKey: ['profile', handle],
     queryFn: () => api.get<PublicShelfRead>(`/profiles/${encodeURIComponent(handle)}`),
+  })
+}
+
+// ── Shelf actions ────────────────────────────────────────────────────────
+
+/** Add a catalogue book to the signed-in user's shelf. */
+export function useAddToShelf() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (bookId: string) => api.post<{ ok: boolean; already: boolean }>(`/books/user_books/add/${bookId}`),
+    onSuccess: (_res, bookId) => {
+      qc.invalidateQueries({ queryKey: ['shelf'] })
+      qc.invalidateQueries({ queryKey: ['recent'] })
+      qc.invalidateQueries({ queryKey: ['book', bookId] })
+      qc.invalidateQueries({ queryKey: ['profile'] })
+    },
   })
 }
 

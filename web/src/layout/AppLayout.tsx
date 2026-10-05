@@ -2,17 +2,13 @@
    mobile design's header and bottom tab bar. Both render, CSS picks one
    (see styles/app.css), so a resize never remounts the page underneath. */
 
-import { Link, NavLink, Outlet, ScrollRestoration, useLocation, useSearchParams } from 'react-router'
+import { Link, NavLink, Outlet, ScrollRestoration, useLocation } from 'react-router'
 import { initials, useMe, type Me } from '../api/me'
 import { Icon } from '../components/Icon'
 import type { IconName } from '../components/icons'
+import { BookOverlay } from '../components/BookRecord'
 import { Logo } from '../components/Logo'
-
-/** Opens the add-a-book dialog. It's addressed by `?add` so Back closes it. */
-function useOpenAdd() {
-  const [, setParams] = useSearchParams()
-  return () => setParams((p) => { p.set('add', 'scan'); return p })
-}
+import { useOpenAdd } from '../lib/overlay'
 
 type ShellProps = { me: Me | null | undefined; queueCount: number; onAdd: () => void }
 
@@ -97,7 +93,9 @@ export default function AppLayout() {
       <MobileHeader me={me} queueCount={queueCount} onAdd={onAdd} />
       <main className="d-scroll"><div className="d-wrap"><Outlet /></div></main>
       <TabBar me={me} />
-      <ScrollRestoration />
+      <BookOverlay />
+      {/* keyed by path, so opening an overlay (a ?param change) keeps your place */}
+      <ScrollRestoration getKey={(loc) => loc.pathname} />
     </div>
   )
 }
