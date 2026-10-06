@@ -1,15 +1,18 @@
-fastapi[standard]>=0.115.0
-uvicorn>=0.30.0
-httpx>=0.27.0
-pydantic>=2.0.0
-pydantic-settings>=2.0.0
-sqlmodel>=0.0.22
-asyncpg>=0.30.0
-alembic>=1.14.0
-python-jose[cryptography]>=3.3.0
-bcrypt>=4.0.0
-python-multipart>=0.0.9
-authlib>=1.3.0
-itsdangerous>=2.1.2
-mcp>=1.28.0
-boto3>=1.34.0
+# Exact versions, so a fresh install (a new server, a rebuilt venv) runs what
+# was tested. Unpinned, `mcp` jumped to 2.x on a deploy and broke startup
+# (FastMCP was renamed). Bump deliberately: change a version, test, commit.
+fastapi[standard]==0.135.2
+uvicorn==0.42.0
+httpx==0.28.1
+pydantic==2.12.5
+pydantic-settings==2.13.1
+sqlmodel==0.0.37
+asyncpg==0.31.0
+alembic==1.18.4
+python-jose[cryptography]==3.5.0
+bcrypt==5.0.0
+python-multipart==0.0.22
+authlib==1.6.9
+itsdangerous==2.2.0
+mcp==1.28.1
+boto3==1.43.50

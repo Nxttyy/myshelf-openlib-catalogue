@@ -39,8 +39,10 @@ oauth.register(
         "scope": "openid email profile",
         # httpx's default 5s limit is too tight for this server's link to
         # Google: most connects take ~1s, but some take 3-20s (measured Oct
-        # 2026), and a timeout mid-sign-in used to surface as a 500.
-        "timeout": httpx.Timeout(40.0, connect=30.0),
+        # 2026), and a timeout mid-sign-in used to surface as a 500. A plain
+        # number (seconds, every phase) rather than httpx.Timeout: newer
+        # authlib uses the httpx2 fork, which rejects httpx's Timeout object.
+        "timeout": 40.0,
     },
 )
 
