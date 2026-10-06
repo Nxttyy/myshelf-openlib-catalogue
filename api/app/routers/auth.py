@@ -1,7 +1,11 @@
+import asyncio
+import logging
 from datetime import timedelta
 from typing import Annotated
+from urllib.parse import quote
 
-from authlib.integrations.base_client.errors import MismatchingStateError
+import httpx
+from authlib.integrations.base_client.errors import MismatchingStateError, OAuthError
 from authlib.integrations.starlette_client import OAuth
 from fastapi import APIRouter, Depends, HTTPException, Request, Response, status, Form
 from pydantic import BaseModel
@@ -25,14 +29,39 @@ from app.services.username import USERNAME_RE, generate_unique_username
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
+log = logging.getLogger(__name__)
+
 oauth = OAuth()
 oauth.register(
     name="google",
     client_id=settings.GOOGLE_CLIENT_ID,
     client_secret=settings.GOOGLE_CLIENT_SECRET,
     server_metadata_url="https://accounts.google.com/.well-known/openid-configuration",
-    client_kwargs={"scope": "openid email profile"},
+    client_kwargs={
+        "scope": "openid email profile",
+        # httpx's default 5s limit is too tight for this server's link to
+        # Google: most connects take ~1s, but some take 3-20s (measured Oct
+        # 2026), and a timeout mid-sign-in used to surface as a 500.
+        "timeout": httpx.Timeout(40.0, connect=30.0),
+    },
 )
+
+
+async def warm_google_oauth() -> None:
+    """Fetch Google's OpenID config and signing keys once at startup. authlib
+    caches both in memory, so a sign-in then needs only one call to Google
+    (the code exchange) instead of three. Best effort: if Google is slow or
+    unreachable now, the first sign-in fetches them instead."""
+    if not settings.GOOGLE_CLIENT_ID:
+        return
+    for attempt in range(3):
+        try:
+            await oauth.google.fetch_jwk_set()
+            log.info("Google sign-in: OpenID config and signing keys cached")
+            return
+        except Exception as exc:  # noqa: BLE001 - never block or crash startup
+            log.warning("Google sign-in: warm-up attempt %d failed: %r", attempt + 1, exc)
+            await asyncio.sleep(5 * (attempt + 1))
 
 
 @router.post("/register")
@@ -118,29 +147,63 @@ async def reset_password(
     return RedirectResponse(url="/login?error=Password updated successfully. Please log in.", status_code=303)
 
 
+def _frontend(path: str) -> str:
+    return settings.FRONTEND_URL.rstrip("/") + path
+
+
+def _google_failed(reason: str) -> RedirectResponse:
+    msg = f"Google sign-in didn't go through ({reason}). Please try again."
+    return RedirectResponse(url=_frontend("/login?error=" + quote(msg)), status_code=303)
+
+
 @router.get("/google")
-async def google_login(request: Request):
+async def google_login(request: Request, next: str | None = None):
     if not settings.GOOGLE_CLIENT_ID:
         raise HTTPException(status_code=500, detail="Google OAuth not configured")
     # Clear any stale OAuth state to prevent MismatchingStateError on retries
     for key in list(request.session.keys()):
         if key.startswith("_state_"):
             del request.session[key]
-    return await oauth.google.authorize_redirect(request, settings.GOOGLE_REDIRECT_URI)
+    # Where to go afterwards. Same-site paths only, so this can't become an
+    # open redirect to someone else's site.
+    if next and next.startswith("/") and not next.startswith("//"):
+        request.session["after_google"] = next
+    else:
+        request.session.pop("after_google", None)
+    try:
+        return await oauth.google.authorize_redirect(request, settings.GOOGLE_REDIRECT_URI)
+    except httpx.HTTPError as exc:
+        log.warning("Google sign-in: couldn't reach Google to start: %r", exc)
+        return _google_failed("couldn't reach Google")
 
 
 @router.get("/google/callback")
 async def google_callback(request: Request, session: SessionDep):
+    # Every failure here used to surface as a bare 500. Each one now logs the
+    # real reason and sends the user back to sign in with a readable message.
+    if request.query_params.get("error"):
+        # e.g. access_denied when the user cancels on Google's consent screen
+        log.info("Google sign-in: Google returned error=%s", request.query_params["error"])
+        return _google_failed("it was cancelled")
     try:
         token = await oauth.google.authorize_access_token(request)
     except MismatchingStateError:
-        return RedirectResponse(
-            url="/login?error=Google sign-in failed (session expired). Please try again.",
-            status_code=303,
-        )
+        log.warning("Google sign-in: state mismatch (session cookie missing or expired)")
+        return _google_failed("the sign-in session expired")
+    except OAuthError as exc:
+        log.warning("Google sign-in: OAuth error %s: %s", exc.error, exc.description)
+        return _google_failed("Google rejected the request")
+    except httpx.HTTPError as exc:
+        log.warning("Google sign-in: network error talking to Google: %r", exc)
+        return _google_failed("couldn't reach Google")
+    except Exception:
+        log.exception("Google sign-in: unexpected error while finishing sign-in")
+        return _google_failed("something went wrong on our side")
+
     user_info = token.get("userinfo")
-    if not user_info:
-        raise HTTPException(status_code=400, detail="Google authentication failed")
+    if not user_info or not user_info.get("email"):
+        log.warning("Google sign-in: no email in the userinfo Google returned: %r", user_info)
+        return _google_failed("Google didn't share an email address")
 
     email = user_info["email"]
     user_result = await session.exec(select(User).where(User.email == email))
@@ -149,8 +212,8 @@ async def google_callback(request: Request, session: SessionDep):
     if not user:
         # Create non-password user
         user = User(
-            firstname=user_info.get("given_name", ""),
-            lastname=user_info.get("family_name", ""),
+            firstname=user_info.get("given_name") or "",
+            lastname=user_info.get("family_name") or "",
             email=email,
             password="",  # No password for google users
             is_google_user=True,
@@ -161,9 +224,7 @@ async def google_callback(request: Request, session: SessionDep):
         await session.refresh(user)
 
     access_token = create_access_token(data={"sub": user.email})
-    
-    # Redirect to home with token in cookie or as a param (simulated here for simple app)
-    response = RedirectResponse(url="/")
+    response = RedirectResponse(url=_frontend(request.session.pop("after_google", "/")), status_code=303)
     response.set_cookie(key="access_token", value=f"Bearer {access_token}", httponly=True)
     return response
 

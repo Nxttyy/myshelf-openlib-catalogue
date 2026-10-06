@@ -35,7 +35,7 @@ export default function Login() {
 
   return (
     <AuthFrame label="Dora · sign in" title={<>Welcome<br />back.</>} sub="Your shelf and notes, where you left them.">
-      <GoogleButton />
+      <GoogleButton next={next} />
       <form onSubmit={submit}>
         <Field label="Email" id="email" type="email" autoComplete="email" required placeholder="you@example.com"
           value={email} onChange={(e) => setEmail(e.target.value)} />

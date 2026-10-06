@@ -28,7 +28,7 @@ export default function Register() {
 
   return (
     <AuthFrame label="Dora · create an account" title={<>Start your<br />shelf.</>} sub="Scan your books, track your reading, and share your shelf.">
-      <GoogleButton />
+      <GoogleButton next={next} />
       <form onSubmit={submit}>
         <div style={{ display: 'flex', gap: 10 }}>
           <div style={{ flex: 1 }}><Field label="First name" id="firstname" autoComplete="given-name" required placeholder="Jane" value={form.firstname} onChange={set('firstname')} /></div>

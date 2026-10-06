@@ -2,6 +2,7 @@
 Dora — FastAPI application entry point.
 """
 
+import asyncio
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
@@ -20,8 +21,11 @@ import app.models  # noqa: F401
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Startup / shutdown lifecycle."""
+    # In the background, so a slow link to Google never delays startup.
+    warm = asyncio.create_task(auth.warm_google_oauth())
     async with mcp.session_manager.run():
         yield
+    warm.cancel()
 
 
 app = FastAPI(

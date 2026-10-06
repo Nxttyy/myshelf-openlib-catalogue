@@ -29,6 +29,10 @@ class Settings(BaseSettings):
     GOOGLE_CLIENT_ID: str | None = None
     GOOGLE_CLIENT_SECRET: str | None = None
     GOOGLE_REDIRECT_URI: str = "http://localhost:8000/auth/google/callback"
+    # Where the browser lands after Google sign-in. Empty means this same
+    # server (production, where FastAPI serves the web app). In dev, set it to
+    # the Vite server, e.g. http://localhost:5173, so you return to the new UI.
+    FRONTEND_URL: str = ""
 
     # SMTP / Email
     SMTP_TLS: bool = True

@@ -40,10 +40,12 @@ export function AuthFrame({ label, title, sub, children }: Props) {
   )
 }
 
-export function GoogleButton() {
+/** `next` is a same-site path to return to after Google, e.g. /explore?book=… */
+export function GoogleButton({ next }: { next?: string }) {
+  const href = '/auth/google' + (next ? `?next=${encodeURIComponent(next)}` : '')
   return (
     <>
-      <a href="/auth/google" className="f-btn f-btn--block" style={{ background: 'var(--paper-2)', color: 'var(--ink)', boxShadow: 'inset 0 0 0 1px var(--hair-strong)', marginBottom: 18 }}>
+      <a href={href} className="f-btn f-btn--block" style={{ background: 'var(--paper-2)', color: 'var(--ink)', boxShadow: 'inset 0 0 0 1px var(--hair-strong)', marginBottom: 18 }}>
         <Icon name="google" size={18} sw={0} /> Continue with Google
       </a>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 18 }}>
