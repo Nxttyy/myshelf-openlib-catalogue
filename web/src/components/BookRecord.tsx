@@ -1,18 +1,23 @@
 /* A book's catalogue record, opened from any cover via ?book=<id>.
    Desktop: the design's DetailDrawer (folio/desktop.jsx), non-editable
    branch. Phone: the mobile design's DetailSheet (folio/screens.jsx).
-   Editing your own shelf entry (status, note, photos) arrives in phase 4. */
+   On your own copy the editable branch adds status, visibility, note and
+   photos, with an explicit Save (photos save as they upload). On someone's
+   public profile, their note and photos show read-only. */
 
-import { Link, useLocation } from 'react-router'
+import { useState } from 'react'
+import { Link, useLocation, useMatch } from 'react-router'
 import { useMe } from '../api/me'
-import { useAddToShelf, useBookEntry } from '../api/queries'
-import type { BookEntryRead } from '../api/types'
+import { useAddToShelf, useBookEntry, usePublicProfile } from '../api/queries'
+import { useUpdateShelfEntry } from '../api/shelf'
+import type { BookEntryRead, ShelfEntry } from '../api/types'
 import { coverFromBook } from '../lib/covers'
 import { editionLinks } from '../lib/links'
 import { useOverlay } from '../lib/overlay'
 import { useToast } from '../lib/toast'
 import { useIsDesktop } from '../lib/useMediaQuery'
 import { OnShelfBadge } from './CatalogGrid'
+import { PhotoNotes } from './PhotoNotes'
 import { Cover } from './Cover'
 import { Icon } from './Icon'
 import { BottomSheet, Drawer } from './Overlay'
@@ -27,8 +32,9 @@ export function BookOverlay() {
 function BookRecord({ id, onClose }: { id: string; onClose: () => void }) {
   const isDesktop = useIsDesktop()
   const { data, isError } = useBookEntry(id)
+  const theirs = useProfileEntry(id)
   const body = data
-    ? <RecordBody entry={data} desktop={isDesktop} />
+    ? <RecordBody entry={data} desktop={isDesktop} theirs={theirs} onSaved={onClose} />
     : <div style={{ padding: '40px 0', textAlign: 'center', color: 'var(--ink-faint)', fontSize: 14 }}>
         {isError ? "We couldn't find that book." : 'Loading…'}
       </div>
@@ -40,11 +46,29 @@ function BookRecord({ id, onClose }: { id: string; onClose: () => void }) {
       </BottomSheet>
 }
 
+/** On /u/:handle, that person's shelf entry for this book (note, photos). */
+function useProfileEntry(bookId: string): { handle: string; entry: ShelfEntry } | null {
+  const match = useMatch('/u/:handle')
+  const handle = match?.params.handle ?? ''
+  const { data } = usePublicProfile(handle, !!match)
+  const entry = data?.entries.find((e) => e.book.id === bookId)
+  return entry ? { handle, entry } : null
+}
+
 const notSet = 'Not set'
 const clip = (s: string, n: number) => (s.length > n ? s.slice(0, n).trimEnd() + '…' : s)
 
-function RecordBody({ entry, desktop }: { entry: BookEntryRead; desktop: boolean }) {
+type BodyProps = {
+  entry: BookEntryRead; desktop: boolean
+  theirs: { handle: string; entry: ShelfEntry } | null; onSaved: () => void
+}
+
+function RecordBody({ entry, desktop, theirs, onSaved }: BodyProps) {
   const b = entry.book
+  const mine = entry.shelf
+  // The badge follows the status select live, as in the design.
+  const [draftStatus, setDraftStatus] = useState(mine?.status)
+  const [pop, setPop] = useState(false)
   const authors = b.authors?.map((a) => a.name).join(', ') || 'Unknown'
   const meta: [string, string][] = [
     ['Published', b.publish_date || notSet],
@@ -52,8 +76,8 @@ function RecordBody({ entry, desktop }: { entry: BookEntryRead; desktop: boolean
     ['Publisher', b.publishers?.map((p) => p.name).join(', ') || notSet],
     ['ISBN', b.isbns?.[0] || notSet],
   ]
-  const status = entry.shelf?.status as ReadingStatus | undefined
-  const badge = status ? <StatusBadge status={status} /> : entry.on_shelf ? <OnShelfBadge /> : null
+  const status = (mine ? draftStatus : theirs?.entry.status) as ReadingStatus | undefined
+  const badge = status ? <StatusBadge status={status} animate={pop} /> : entry.on_shelf ? <OnShelfBadge /> : null
 
   return (
     <>
@@ -101,7 +125,57 @@ function RecordBody({ entry, desktop }: { entry: BookEntryRead; desktop: boolean
       </div>
 
       {desktop && entry.added_by && <div className="f-label" style={{ marginBottom: 18 }}>Added by @{entry.added_by}</div>}
-      <ShelfAction entry={entry} />
+
+      {theirs && !mine && (theirs.entry.comment || theirs.entry.images.length > 0) && (
+        <div style={{ marginBottom: 22 }}>
+          <div className="f-label" style={{ marginBottom: 9 }}>Note from @{theirs.handle}</div>
+          {theirs.entry.comment && <p style={{ fontSize: 14, color: 'var(--ink)', lineHeight: 1.55, margin: 0, whiteSpace: 'pre-wrap' }}>{theirs.entry.comment}</p>}
+          {theirs.entry.images.length > 0 && <PhotoNotes photos={theirs.entry.images} editable={false} context={b.title} />}
+        </div>
+      )}
+
+      {mine
+        ? <ShelfEditor key={mine.id} mine={mine} title={b.title} onStatus={(s) => { setDraftStatus(s); setPop(true); setTimeout(() => setPop(false), 400) }} onSaved={onSaved} />
+        : <ShelfAction entry={entry} />}
+    </>
+  )
+}
+
+/** Your copy: status, visibility, note (saved with the button) and photos
+    (saved as they upload, like before). */
+function ShelfEditor({ mine, title, onStatus, onSaved }: {
+  mine: ShelfEntry; title: string; onStatus: (s: string) => void; onSaved: () => void
+}) {
+  const [status, setStatus] = useState(mine.status)
+  const [isPublic, setIsPublic] = useState(mine.is_public)
+  const [comment, setComment] = useState(mine.comment ?? '')
+  const update = useUpdateShelfEntry()
+  const toast = useToast()
+
+  function save() {
+    update.mutate({ id: mine.id, patch: { status, is_public: isPublic, comment } }, {
+      onSuccess: () => { toast('Saved.'); setTimeout(onSaved, 600) },
+      onError: () => toast("Couldn't save. Try again.", 'err'),
+    })
+  }
+
+  return (
+    <>
+      <div className="f-label" style={{ marginBottom: 9 }}>Your shelf</div>
+      <div className="f-editrow">
+        <select className="f-select" aria-label="Reading status" value={status} onChange={(e) => { setStatus(e.target.value); onStatus(e.target.value) }}>
+          <option value="unread">Unread</option><option value="reading">Reading</option><option value="read">Read</option>
+        </select>
+        <select className="f-select" aria-label="Visibility" value={isPublic ? 'public' : 'private'} onChange={(e) => setIsPublic(e.target.value === 'public')}>
+          <option value="public">Public</option><option value="private">Only me</option>
+        </select>
+      </div>
+      <textarea className="f-textarea" rows={3} placeholder="Add a note about this book…" aria-label="Your note"
+        value={comment} onChange={(e) => setComment(e.target.value)} />
+      <PhotoNotes photos={mine.images} entryId={mine.id} editable context={title} />
+      <button className="f-btn f-btn--amber f-btn--block" style={{ marginTop: 14 }} onClick={save} disabled={update.isPending}>
+        <Icon name="check" size={15} sw={2.2} /> {update.isPending ? 'Saving…' : 'Save changes'}
+      </button>
     </>
   )
 }

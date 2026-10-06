@@ -14,7 +14,7 @@ export function useMe() {
 
 // Names can be empty (some Google accounts come through without one), so
 // fall back to the handle's first letter.
-export function initials(me: Me) {
-  const fromName = (me.firstname.trim()[0] ?? '') + (me.lastname.trim()[0] ?? '')
-  return (fromName || me.handle[0] || '?').toUpperCase()
+export function initials(p: Pick<Me, 'firstname' | 'lastname' | 'handle'>) {
+  const fromName = (p.firstname.trim()[0] ?? '') + (p.lastname.trim()[0] ?? '')
+  return (fromName || p.handle[0] || '?').toUpperCase()
 }

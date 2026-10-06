@@ -58,10 +58,11 @@ export function useBookEntry(bookId: string | null) {
 }
 
 /** Someone's public shelf. Errors with status 404 when private or missing. */
-export function usePublicProfile(handle: string) {
+export function usePublicProfile(handle: string, enabled = true) {
   return useQuery({
     queryKey: ['profile', handle],
     queryFn: () => api.get<PublicShelfRead>(`/profiles/${encodeURIComponent(handle)}`),
+    enabled: enabled && !!handle,
   })
 }
 

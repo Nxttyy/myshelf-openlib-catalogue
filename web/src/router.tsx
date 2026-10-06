@@ -5,7 +5,7 @@ import Explore from './routes/Explore'
 import Guide from './routes/Guide'
 import Home from './routes/Home'
 import NotFound from './routes/NotFound'
-import Placeholder from './routes/Placeholder'
+import { MyProfile, PublicProfile } from './routes/Profile'
 import ForgotPassword from './routes/auth/ForgotPassword'
 import Login from './routes/auth/Login'
 import Register from './routes/auth/Register'
@@ -20,8 +20,8 @@ const pages: RouteObject[] = [
   { index: true, element: <Home /> },
   { path: 'explore', element: <Explore /> },
   { path: 'guide', element: <Guide /> },
-  { path: 'profile', element: <Placeholder name="profile" /> },
-  { path: 'u/:handle', element: <Placeholder name="public profile" /> },
+  { path: 'profile', element: <MyProfile /> },
+  { path: 'u/:handle', element: <PublicProfile /> },
   { path: '*', element: <NotFound /> },
 ]
 

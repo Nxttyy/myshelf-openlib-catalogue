@@ -112,3 +112,43 @@ a.f-btn { display: inline-flex; }
   .auth-card .auth-close { top: 14px; }
   .auth-card .auth-form { padding: 28px 32px 32px; }
 }
+
+/* Photo overlays sit above the drawer/sheet they were opened from. */
+.d-lightbox { z-index: 80; }
+.m-cam-scrim { z-index: 79; }
+.d-camsheet { z-index: 80; max-width: calc(100vw - 32px); }
+.m-photo-pending { display: grid; place-items: center; cursor: default; background: var(--paper-2); animation: m-pulse 1.1s ease-in-out infinite; }
+@keyframes m-pulse { 50% { opacity: 0.55; } }
+.d-photo .rm { opacity: 1; } /* touch has no hover: keep remove visible */
+@media (hover: hover) { .d-photo .rm { opacity: 0; } .d-photo:hover .rm { opacity: 1; } }
+
+/* Phone shelf rows: one-line note preview, pinned flag colour from the design. */
+.m-card-note {
+  margin-top: 8px; font-size: 12px; line-height: 1.4; color: var(--ink-soft);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.m-card-photos {
+  display: inline-flex; align-items: center; gap: 3px; margin-right: 7px;
+  font-family: var(--font-mono); font-size: 10px; color: var(--ink-faint); vertical-align: -1px;
+}
+.f-card-idx.m-pinned { color: color-mix(in oklab, var(--amber), #000 40%); display: inline-flex; align-items: center; gap: 4px; }
+.f-card-idx.m-pinned svg { fill: currentColor; }
+/* touch has no hover: pins stay visible on the grid too */
+@media (hover: none) { .d-pin { opacity: 1; transform: none; } }
+/* hauls scroll sideways on narrow screens; give the rail less room */
+@media (max-width: 899.98px) { .d-haul { gap: 0 14px; } .d-haul .pile { padding-right: 18px; } }
+
+/* Profile header bits the design doesn't draw. */
+.m-handle-edit { background: none; border: none; color: var(--ink-faint); cursor: pointer; padding: 4px 6px; margin-left: 2px; vertical-align: -2px; border-radius: 6px; }
+.m-handle-edit:hover { color: var(--ink); background: rgba(26,23,20,0.05); }
+.m-handle-input {
+  font: inherit; color: var(--ink); width: 15ch; padding: 4px 8px; border-radius: 6px;
+  border: 1px solid var(--hair-strong); background: var(--paper-2);
+}
+.m-handle-input:focus { outline: none; border-color: var(--amber); }
+.m-share-pop { position: fixed; top: calc(env(safe-area-inset-top) + 64px); }
+.d-share-channels a.m-share-channel {
+  flex: 1; border: none; cursor: pointer; background: var(--paper-2); box-shadow: inset 0 0 0 1px var(--hair);
+  border-radius: 8px; padding: 9px 0; display: grid; place-items: center; color: var(--ink-soft);
+}
+.d-share-channels a.m-share-channel:hover { color: var(--ink); background: rgba(26,23,20,0.05); }
