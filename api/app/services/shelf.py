@@ -1,6 +1,5 @@
 """
-Shelf helpers shared by the Jinja pages (routers/pages.py) and the JSON
-endpoints the React app uses (routers/web.py).
+Shelf helpers behind the JSON endpoints the React app uses (routers/web.py).
 """
 
 from datetime import timedelta

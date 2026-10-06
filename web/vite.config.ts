@@ -1,3 +1,4 @@
+import basicSsl from '@vitejs/plugin-basic-ssl'
 import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
 
@@ -10,12 +11,24 @@ const API_TARGET = process.env.DORA_API ?? 'http://localhost:8000'
 
 const API_PREFIXES = ['/books', '/auth', '/profiles', '/scan', '/dora', '/mobile-scan', '/static', '/health']
 
+// `npm run dev:phone`: serve over HTTPS on the local network, because phone
+// cameras only work on secure pages. The certificate is self-signed, so the
+// phone shows a warning once; accept it to continue.
+const PHONE = !!process.env.PHONE
+
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), ...(PHONE ? [basicSsl()] : [])],
   server: {
     port: 5173,
+    host: PHONE ? true : undefined,
     proxy: Object.fromEntries(
-      API_PREFIXES.map((p) => [p, { target: API_TARGET, changeOrigin: false }]),
+      API_PREFIXES.map((p) => [p, {
+        target: API_TARGET,
+        changeOrigin: false,
+        // X-Forwarded-Proto lets the API build https:// links (the phone
+        // hand-off QR code) when the page itself was served over HTTPS.
+        xfwd: true,
+      }]),
     ),
   },
 })

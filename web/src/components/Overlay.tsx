@@ -12,11 +12,17 @@ function useOverlayBehaviour(onClose: () => void) {
   useEffect(() => {
     const key = (e: KeyboardEvent) => { if (e.key === 'Escape') close.current() }
     window.addEventListener('keydown', key)
-    const prev = document.body.style.overflow
-    document.body.style.overflow = 'hidden'
+    // Lock the page behind, padding the body by the scrollbar that just went
+    // away so nothing shifts sideways; overlays still cover the full width.
+    const body = document.body.style
+    const prev = { overflow: body.overflow, paddingRight: body.paddingRight }
+    const scrollbar = window.innerWidth - document.documentElement.clientWidth
+    body.overflow = 'hidden'
+    if (scrollbar > 0) body.paddingRight = `${scrollbar}px`
     return () => {
       window.removeEventListener('keydown', key)
-      document.body.style.overflow = prev
+      body.overflow = prev.overflow
+      body.paddingRight = prev.paddingRight
     }
   }, [])
 }

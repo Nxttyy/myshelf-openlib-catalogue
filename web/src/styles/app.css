@@ -27,7 +27,13 @@
 html, body { margin: 0; background: #F5F0E6; }
 #root { min-height: 100vh; min-height: 100dvh; }
 select.f-select { background-image: none; }
-button { font: inherit; }
+
+/* The design scrolls inside the app (.d-scroll) with a slim 10px scrollbar;
+   the real page scrolls the window, so give the window the same one. */
+html { scrollbar-width: thin; scrollbar-color: var(--hair-strong, rgba(37,60,109,0.3)) transparent; }
+html::-webkit-scrollbar { width: 10px; }
+html::-webkit-scrollbar-thumb { background: rgba(37,60,109,0.3); border-radius: 6px; border: 3px solid #F5F0E6; }
+html::-webkit-scrollbar-track { background: #F5F0E6; }
 
 /* ── Page scroll instead of the frame's inner scroll ───────── */
 .d-app {
@@ -75,7 +81,10 @@ button { font: inherit; }
 
 /* Router links styled as the design's buttons (the design uses <button>). */
 a.d-navlink, a.f-btn, a.f-iconbtn, a.f-tab, a.d-avatar, a.home-link { text-decoration: none; }
-a.f-btn { display: inline-flex; }
+a.f-btn { display: inline-flex; line-height: normal; } /* as <button>: no inherited line-height */
+/* The design's nav links are <button>s, which centre their content
+   vertically; as links they'd sit at the top of the stretched flex item. */
+a.d-navlink { display: flex; flex-direction: column; justify-content: center; line-height: normal; }
 
 /* Visible keyboard focus everywhere (the design only styles inputs). */
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
@@ -139,7 +148,11 @@ a.f-btn { display: inline-flex; }
 @media (max-width: 899.98px) { .d-haul { gap: 0 14px; } .d-haul .pile { padding-right: 18px; } }
 
 /* Profile header bits the design doesn't draw. */
-.m-handle-edit { background: none; border: none; color: var(--ink-faint); cursor: pointer; padding: 4px 6px; margin-left: 2px; vertical-align: -2px; border-radius: 6px; }
+.m-handle-edit {
+  background: none; border: none; color: var(--ink-faint); cursor: pointer; border-radius: 6px;
+  /* a comfortable tap target that doesn't make the handle line any taller */
+  padding: 6px; margin: -6px -6px -6px -2px; line-height: 0; vertical-align: -2px;
+}
 .m-handle-edit:hover { color: var(--ink); background: rgba(26,23,20,0.05); }
 .m-handle-input {
   font: inherit; color: var(--ink); width: 15ch; padding: 4px 8px; border-radius: 6px;
@@ -154,6 +167,9 @@ a.f-btn { display: inline-flex; }
 .d-share-channels a.m-share-channel:hover { color: var(--ink); background: rgba(26,23,20,0.05); }
 
 /* ── Add dialog ────────────────────────────────────────────── */
+/* The design's 1fr 1fr can't shrink below its content, so a long queued title
+   would widen one column; real titles are longer than the design's samples. */
+.d-dialog-cols { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
 .m-qr { width: 150px; height: 150px; display: grid; place-items: center; }
 .m-qr svg { width: 150px; height: 150px; display: block; }
 .m-cam-msg { position: absolute; inset: 0; display: grid; place-items: center; padding: 24px; text-align: center; color: var(--paper); font-size: 13px; line-height: 1.5; background: rgba(0,0,0,0.35); }

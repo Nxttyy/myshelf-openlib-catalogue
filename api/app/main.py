@@ -13,6 +13,7 @@ from starlette.middleware.sessions import SessionMiddleware
 from app.config import settings
 from app.mcp_server import mcp, rest_router, secured_mcp_app
 from app.routers import auth, book, dora, pages, scan, web
+from app.spa import mount_web_app
 
 # Import models so SQLModel metadata registers all tables
 import app.models  # noqa: F401
@@ -35,8 +36,7 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# Compresses HTML/CSS/JS/JSON responses — the page templates ship a lot of
-# text (inline-turned-external CSS/JS, book lists) that gzips down heavily.
+# Compresses the web app's JS/CSS and the API's JSON.
 app.add_middleware(GZipMiddleware, minimum_size=500)
 
 app.add_middleware(
@@ -50,11 +50,11 @@ app.add_middleware(
 
 @app.middleware("http")
 async def add_static_cache_headers(request: Request, call_next):
-    """Static assets are versioned via a `?v=` query param (see
-    pages.py's `static_version` template global), so it's safe to tell the
-    browser to cache them for a year and never revalidate."""
+    """Cache-forever for files whose URL changes when their content does:
+    the web app's hashed /assets/*, and /static/* (versioned via `?v=`, see
+    pages.py's `static_version`)."""
     response = await call_next(request)
-    if request.url.path.startswith("/static/"):
+    if request.url.path.startswith(("/static/", "/assets/")):
         response.headers["Cache-Control"] = "public, max-age=31536000, immutable"
     return response
 
@@ -76,3 +76,7 @@ app.include_router(dora.router)
 @app.get("/health", tags=["Health"])
 async def health():
     return {"status": "ok"}
+
+
+# Last: the web app's catch-all must come after every API route.
+mount_web_app(app)

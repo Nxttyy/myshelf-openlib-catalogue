@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from pydantic_settings import BaseSettings
 
 
@@ -33,6 +35,12 @@ class Settings(BaseSettings):
     # server (production, where FastAPI serves the web app). In dev, set it to
     # the Vite server, e.g. http://localhost:5173, so you return to the new UI.
     FRONTEND_URL: str = ""
+    # The site's public address, for links that leave the browser (emails).
+    # Set it in production, e.g. https://dora.you.et
+    PUBLIC_URL: str = "http://localhost:8000"
+    # The built web app (web/dist). When it exists, FastAPI serves it; in dev
+    # you use the Vite server instead and this folder may not exist yet.
+    WEB_DIST: str = str(Path(__file__).resolve().parents[2] / "web" / "dist")
 
     # SMTP / Email
     SMTP_TLS: bool = True

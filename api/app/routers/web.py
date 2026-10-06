@@ -1,7 +1,6 @@
 """
-JSON reads for the React app (web/). Each endpoint returns what a Jinja page
-in routers/pages.py renders server-side, so the two can run side by side
-until the switch-over.
+JSON reads for the React app (web/): the catalogue, your shelf, one book's
+record, and public profiles.
 
 Included before routers/book.py in main.py: these share its /books prefix,
 and /books/{book_id} would otherwise swallow /books/recent.

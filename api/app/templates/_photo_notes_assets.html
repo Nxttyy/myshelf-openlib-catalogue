@@ -1,9 +1,0 @@
-<!-- Photo strip: styles + vanilla JS for the add-menu, direct-to-S3 upload,
-     lightbox, and real camera capture. Pair with the photo_thumbs()/photo_fan()
-     macros in _photo_notes.html. Overlays (lightbox, camera sheet) render into
-     #photo-overlay-root, a fixed top-level sibling of the drawer — position:fixed
-     inside a transformed ancestor (the sliding .d-drawer) is scoped to that
-     ancestor, not the viewport, so they can't live inside the drawer body. -->
-<link rel="stylesheet" href="/static/css/photo-notes.css?v={{ static_version }}">
-<div id="photo-overlay-root"></div>
-<script src="/static/js/photo-notes.js?v={{ static_version }}"></script>

@@ -1,13 +1,11 @@
 import asyncio
 import logging
-from datetime import timedelta
-from typing import Annotated
 from urllib.parse import quote
 
 import httpx
 from authlib.integrations.base_client.errors import MismatchingStateError, OAuthError
 from authlib.integrations.starlette_client import OAuth
-from fastapi import APIRouter, Depends, HTTPException, Request, Response, status, Form
+from fastapi import APIRouter, Depends, HTTPException, Request, Response
 from pydantic import BaseModel
 from fastapi.responses import RedirectResponse
 from sqlmodel import select
@@ -23,7 +21,7 @@ from app.auth import (
 )
 from app.config import settings
 from app.db import SessionDep
-from app.models.user import Token, User, UserCreate, UserLogin
+from app.models.user import User
 from app.services.email import send_reset_password_email
 from app.services.username import USERNAME_RE, generate_unique_username
 
@@ -62,89 +60,6 @@ async def warm_google_oauth() -> None:
         except Exception as exc:  # noqa: BLE001 - never block or crash startup
             log.warning("Google sign-in: warm-up attempt %d failed: %r", attempt + 1, exc)
             await asyncio.sleep(5 * (attempt + 1))
-
-
-@router.post("/register")
-async def register(
-    session: SessionDep,
-    firstname: str = Form(...),
-    lastname: str = Form(...),
-    email: str = Form(...),
-    password: str = Form(...),
-):
-    # Check if user exists
-    existing = await session.exec(select(User).where(User.email == email))
-    if existing.first():
-        return RedirectResponse(url=f"/register?error=Email already registered", status_code=303)
-
-    # Create user
-    user = User(
-        firstname=firstname,
-        lastname=lastname,
-        email=email,
-        password=get_password_hash(password),
-        username=await generate_unique_username(session, email.split("@")[0]),
-    )
-    session.add(user)
-    await session.commit()
-    await session.refresh(user)
-
-    access_token = create_access_token(data={"sub": user.email})
-    response = RedirectResponse(url="/", status_code=303)
-    response.set_cookie(key="access_token", value=f"Bearer {access_token}", httponly=True)
-    return response
-
-
-@router.post("/login")
-async def login(
-    session: SessionDep,
-    username: str = Form(...),  # 'username' matches standard OAuth2 form, used for email here
-    password: str = Form(...),
-):
-    user_result = await session.exec(select(User).where(User.email == username))
-    user = user_result.first()
-    if not user or not verify_password(password, user.password):
-        return RedirectResponse(url=f"/login?error=Invalid credentials", status_code=303)
-
-    access_token = create_access_token(data={"sub": user.email})
-    response = RedirectResponse(url="/", status_code=303)
-    response.set_cookie(key="access_token", value=f"Bearer {access_token}", httponly=True)
-    return response
-
-
-@router.post("/password-recovery")
-async def recover_password(session: SessionDep, email: str = Form(...)):
-    user_result = await session.exec(select(User).where(User.email == email))
-    user = user_result.first()
-
-    if user:
-        password_reset_token = create_password_reset_token(email=email)
-        send_reset_password_email(email_to=user.email, token=password_reset_token)
-
-    # Always redirect to same page to avoid account enumeration
-    return RedirectResponse(url="/forgot-password?success=1", status_code=303)
-
-
-@router.post("/reset-password")
-async def reset_password(
-    session: SessionDep,
-    token: str = Form(...),
-    new_password: str = Form(...),
-):
-    email = verify_password_reset_token(token)
-    if not email:
-        return RedirectResponse(url="/login?error=Invalid or expired reset token", status_code=303)
-
-    user_result = await session.exec(select(User).where(User.email == email))
-    user = user_result.first()
-    if not user:
-        return RedirectResponse(url="/login?error=User not found", status_code=303)
-
-    user.password = get_password_hash(new_password)
-    session.add(user)
-    await session.commit()
-
-    return RedirectResponse(url="/login?error=Password updated successfully. Please log in.", status_code=303)
 
 
 def _frontend(path: str) -> str:
@@ -387,9 +302,3 @@ async def update_username(
     await session.commit()
     return {"ok": True, "username": uname}
 
-
-@router.get("/logout")
-async def logout():
-    response = RedirectResponse(url="/")
-    response.delete_cookie("access_token")
-    return response

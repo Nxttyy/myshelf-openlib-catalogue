@@ -34,7 +34,8 @@ function DesktopGrid({ entries, onOpen, startIndex = 1 }: Props) {
         <div className="d-cell" key={e.book.id} {...cellProps(e, onOpen)}>
           <Cover b={coverFromBook(e.book)} w={168} />
           <div className="meta">
-            <div className="row" style={{ marginBottom: 6 }}>
+            {/* min height of a status badge, so rows line up whether or not one shows */}
+            <div className="row" style={{ marginBottom: 6, minHeight: 14.5 }}>
               <span className="f-label" style={{ fontSize: 9 }}>№ {pad(startIndex + i)}</span>
               {e.on_shelf && <OnShelfBadge />}
             </div>

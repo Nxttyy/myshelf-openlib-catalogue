@@ -2,15 +2,31 @@
    mobile design's header and bottom tab bar. Both render, CSS picks one
    (see styles/app.css), so a resize never remounts the page underneath. */
 
-import { Link, NavLink, Outlet, ScrollRestoration, useLocation } from 'react-router'
+import { lazy, Suspense, useEffect } from 'react'
+import { Link, NavLink, Outlet, ScrollRestoration, useLocation, useSearchParams } from 'react-router'
 import { initials, useMe, type Me } from '../api/me'
 import { Icon } from '../components/Icon'
 import type { IconName } from '../components/icons'
 import { BookOverlay } from '../components/BookRecord'
-import { AddOverlay } from '../components/add/AddDialog'
 import { useQueue } from '../lib/queue'
 import { Logo } from '../components/Logo'
 import { useOpenAdd } from '../lib/overlay'
+import { pageImports } from '../router'
+
+// The add dialog (scanner, search, by-hand form) loads on first open, or
+// earlier when the browser is idle.
+const loadAddDialog = () => import('../components/add/AddDialog')
+const AddOverlay = lazy(() => loadAddDialog().then((m) => ({ default: m.AddOverlay })))
+
+/** Fetch the other pages' code once the first page has settled. */
+function usePrefetchPages() {
+  useEffect(() => {
+    const go = () => { Object.values(pageImports).forEach((load) => load()); loadAddDialog() }
+    const idle = window.requestIdleCallback ?? ((cb: () => void) => window.setTimeout(cb, 1500))
+    const id = idle(go)
+    return () => (window.cancelIdleCallback ?? window.clearTimeout)(id)
+  }, [])
+}
 
 type ShellProps = { me: Me | null | undefined; queueCount: number; onAdd: () => void }
 
@@ -86,6 +102,8 @@ function TabBar({ me }: { me: Me | null | undefined }) {
 
 export default function AppLayout() {
   const { data: me } = useMe()
+  const [params] = useSearchParams()
+  usePrefetchPages()
   const onAdd = useOpenAdd()
   const queueCount = useQueue().items.length
 
@@ -96,7 +114,7 @@ export default function AppLayout() {
       <main className="d-scroll"><div className="d-wrap"><Outlet /></div></main>
       <TabBar me={me} />
       <BookOverlay />
-      <AddOverlay />
+      {params.has('add') && <Suspense fallback={null}><AddOverlay /></Suspense>}
       {/* keyed by path, so opening an overlay (a ?param change) keeps your place */}
       <ScrollRestoration getKey={(loc) => loc.pathname} />
     </div>

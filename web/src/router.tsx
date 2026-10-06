@@ -1,40 +1,59 @@
-import { lazy, Suspense } from 'react'
+// The route table defines lazy page components; hot reload doesn't apply here.
+/* oxlint-disable react/only-export-components */
+import { lazy, Suspense, type ComponentType, type ReactNode } from 'react'
 import { createBrowserRouter, type RouteObject } from 'react-router'
 import AppLayout from './layout/AppLayout'
-import Explore from './routes/Explore'
-import Guide from './routes/Guide'
 import Home from './routes/Home'
-import NotFound from './routes/NotFound'
-import { MyProfile, PublicProfile } from './routes/Profile'
-import ForgotPassword from './routes/auth/ForgotPassword'
-import Login from './routes/auth/Login'
-import Register from './routes/auth/Register'
-import ResetPassword from './routes/auth/ResetPassword'
 
-// Mirrors the current Jinja pages (api/app/routers/pages.py). Views that used
-// to be #hash tabs on `/` are real history entries now, so Back works.
-// Explore lives at /explore because /books is an API prefix.
-// /mobile-scan/:token deliberately stays a standalone FastAPI page so phones
-// don't download the whole app just to scan.
+// Home ships in the first download (it's the landing page); every other page
+// is its own chunk. AppLayout prefetches them once the first page is idle,
+// so moving around still feels instant.
+export const pageImports = {
+  explore: () => import('./routes/Explore'),
+  guide: () => import('./routes/Guide'),
+  profile: () => import('./routes/Profile'),
+  notFound: () => import('./routes/NotFound'),
+  login: () => import('./routes/auth/Login'),
+  register: () => import('./routes/auth/Register'),
+  forgot: () => import('./routes/auth/ForgotPassword'),
+  reset: () => import('./routes/auth/ResetPassword'),
+}
+
+const Explore = lazy(pageImports.explore)
+const Guide = lazy(pageImports.guide)
+const MyProfile = lazy(() => pageImports.profile().then((m) => ({ default: m.MyProfile })))
+const PublicProfile = lazy(() => pageImports.profile().then((m) => ({ default: m.PublicProfile })))
+const NotFound = lazy(pageImports.notFound)
+const Login = lazy(pageImports.login)
+const Register = lazy(pageImports.register)
+const ForgotPassword = lazy(pageImports.forgot)
+const ResetPassword = lazy(pageImports.reset)
+
+const page = (C: ComponentType, fallback: ReactNode = null) => <Suspense fallback={fallback}><C /></Suspense>
+
+// Mirrors the old Jinja pages. Views that used to be #hash tabs on `/` are
+// real history entries now, so Back works. Explore lives at /explore because
+// /books is an API prefix. /mobile-scan/:token stays a standalone FastAPI
+// page so phones don't download the whole app just to scan.
 const pages: RouteObject[] = [
   { index: true, element: <Home /> },
-  { path: 'explore', element: <Explore /> },
-  { path: 'guide', element: <Guide /> },
-  { path: 'profile', element: <MyProfile /> },
-  { path: 'u/:handle', element: <PublicProfile /> },
-  { path: '*', element: <NotFound /> },
+  { path: 'explore', element: page(Explore) },
+  { path: 'guide', element: page(Guide) },
+  { path: 'profile', element: page(MyProfile) },
+  { path: 'u/:handle', element: page(PublicProfile) },
+  { path: '*', element: page(NotFound) },
 ]
 
 if (import.meta.env.DEV) {
   const Kit = lazy(() => import('./routes/Kit'))
-  pages.unshift({ path: 'dev/kit', element: <Suspense><Kit /></Suspense> })
+  pages.unshift({ path: 'dev/kit', element: page(Kit) })
 }
 
 export const router = createBrowserRouter([
   { path: '/', element: <AppLayout />, children: pages },
   // Full-screen, outside the shell: on phones the design's sign-in covers the tab bar.
-  { path: '/login', element: <Login /> },
-  { path: '/register', element: <Register /> },
-  { path: '/forgot-password', element: <ForgotPassword /> },
-  { path: '/reset-password', element: <ResetPassword /> },
+  { path: '/login', element: page(Login) },
+  { path: '/register', element: page(Register) },
+  { path: '/forgot-password', element: page(ForgotPassword) },
+  { path: '/reset-password', element: page(ResetPassword) },
 ])

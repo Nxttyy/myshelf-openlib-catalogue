@@ -21,12 +21,14 @@ def send_email(email_to: str, subject: str, html_content: str):
         server.send_message(message)
 
 def send_reset_password_email(email_to: str, token: str):
-    subject = "Password Reset - Open Bookie"
-    link = f"http://localhost:8000/reset-password?token={token}"
+    subject = "Reset your Dora password"
+    # FRONTEND_URL in dev (the Vite server), the site's public address otherwise.
+    base = (settings.FRONTEND_URL or settings.PUBLIC_URL).rstrip("/")
+    link = f"{base}/reset-password?token={token}"
     html_content = f"""
-    <p>We received a request to reset your password for your Open Bookie account.</p>
+    <p>We received a request to reset your password for your Dora account.</p>
     <p>Please click the link below to set a new password:</p>
     <p><a href="{link}">{link}</a></p>
-    <p>If you didn't request this, you can safely ignore this email.</p>
+    <p>The link works for one hour. If you didn't ask for this, you can ignore this email.</p>
     """
     send_email(email_to, subject, html_content)
