@@ -39,6 +39,17 @@ export function Drawer({ label, onClose, children }: { label: string; onClose: (
   )
 }
 
+/** The design's centered dialog (d-dialog); content supplies its own header. */
+export function Dialog({ label, onClose, children }: { label: string; onClose: () => void; children: ReactNode }) {
+  useOverlayBehaviour(onClose)
+  return (
+    <>
+      <div className="d-scrim" onClick={onClose} />
+      <div className="d-dialog" role="dialog" aria-modal="true" aria-label={label}>{children}</div>
+    </>
+  )
+}
+
 const DRAG_CLOSE_PX = 90
 
 export function BottomSheet({ label, onClose, children, maxHeight = '88%' }: {

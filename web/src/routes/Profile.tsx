@@ -3,7 +3,7 @@
    else's, the same layout read-only. */
 
 import { useEffect, useRef, useState } from 'react'
-import { Navigate, useNavigate, useParams } from 'react-router'
+import { Navigate, useLocation, useNavigate, useParams } from 'react-router'
 import { ApiError } from '../api/client'
 import { initials, useMe } from '../api/me'
 import { useLogout, useMyShelf, usePublicProfile } from '../api/queries'
@@ -20,12 +20,15 @@ type Filter = 'all' | 'reading' | 'unread' | 'read'
 type Mode = 'shelf' | 'hauls'
 
 export function MyProfile() {
+  const location = useLocation()
   const { data: me, isPending: meLoading } = useMe()
   const { data, isError } = useMyShelf(!!me)
   if (!meLoading && !me) return <Navigate to="/login?next=%2Fprofile" replace />
   if (isError) return <Message text="Couldn't load your shelf. Try again in a moment." />
   if (!data) return <Message text="Loading your shelf…" />
-  return <ProfileView owner={data.owner} counts={data.counts} entries={data.entries} hauls={data.hauls} mine />
+  // Keyed by navigation, so arriving from the add dialog (state.mode =
+  // 'hauls') applies even when you were already on /profile.
+  return <ProfileView key={location.key} owner={data.owner} counts={data.counts} entries={data.entries} hauls={data.hauls} mine />
 }
 
 export function PublicProfile() {
@@ -48,7 +51,9 @@ type ViewProps = { owner: ShelfOwner; counts: ShelfCounts; entries: ShelfEntry[]
 function ProfileView({ owner, counts, entries, hauls, mine }: ViewProps) {
   const isDesktop = useIsDesktop()
   const [filter, setFilter] = useState<Filter>('all')
-  const [mode, setMode] = useState<Mode>('shelf')
+  // After saving the add dialog we land here showing the new haul.
+  const location = useLocation()
+  const [mode, setMode] = useState<Mode>((location.state as { mode?: Mode } | null)?.mode ?? 'shelf')
   const { open } = useOverlay('book')
   const update = useUpdateShelfEntry()
   const toast = useToast()

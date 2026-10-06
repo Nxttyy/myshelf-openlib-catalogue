@@ -6,7 +6,7 @@
    public profile, their note and photos show read-only. */
 
 import { useState } from 'react'
-import { Link, useLocation, useMatch } from 'react-router'
+import { Link, useLocation, useMatch, useSearchParams } from 'react-router'
 import { useMe } from '../api/me'
 import { useAddToShelf, useBookEntry, usePublicProfile } from '../api/queries'
 import { useUpdateShelfEntry } from '../api/shelf'
@@ -124,7 +124,8 @@ function RecordBody({ entry, desktop, theirs, onSaved }: BodyProps) {
         ))}
       </div>
 
-      {desktop && entry.added_by && <div className="f-label" style={{ marginBottom: 18 }}>Added by @{entry.added_by}</div>}
+      {desktop && entry.added_by && <div className="f-label" style={{ marginBottom: entry.can_edit ? 8 : 18 }}>Added by @{entry.added_by}</div>}
+      {entry.can_edit && <EditDetailsLink bookId={b.id} />}
 
       {theirs && !mine && (theirs.entry.comment || theirs.entry.images.length > 0) && (
         <div style={{ marginBottom: 22 }}>
@@ -177,6 +178,19 @@ function ShelfEditor({ mine, title, onStatus, onSaved }: {
         <Icon name="check" size={15} sw={2.2} /> {update.isPending ? 'Saving…' : 'Save changes'}
       </button>
     </>
+  )
+}
+
+/** Books you typed in yourself can be corrected; this swaps the record for
+    the add dialog's edit form (in place, so Back returns past both). */
+function EditDetailsLink({ bookId }: { bookId: string }) {
+  const [, setParams] = useSearchParams()
+  return (
+    <button className="m-inline-link" style={{ fontSize: 12.5, marginBottom: 18, display: 'block' }}
+      onClick={() => setParams((p) => { p.delete('book'); p.set('add', 'edit:' + bookId); return p },
+        { replace: true, preventScrollReset: true, state: { overlay: 'add' } })}>
+      Edit details
+    </button>
   )
 }
 

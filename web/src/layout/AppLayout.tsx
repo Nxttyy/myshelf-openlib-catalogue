@@ -7,6 +7,8 @@ import { initials, useMe, type Me } from '../api/me'
 import { Icon } from '../components/Icon'
 import type { IconName } from '../components/icons'
 import { BookOverlay } from '../components/BookRecord'
+import { AddOverlay } from '../components/add/AddDialog'
+import { useQueue } from '../lib/queue'
 import { Logo } from '../components/Logo'
 import { useOpenAdd } from '../lib/overlay'
 
@@ -85,7 +87,7 @@ function TabBar({ me }: { me: Me | null | undefined }) {
 export default function AppLayout() {
   const { data: me } = useMe()
   const onAdd = useOpenAdd()
-  const queueCount = 0 // the scan queue arrives with the add dialog (phase 5)
+  const queueCount = useQueue().items.length
 
   return (
     <div className="d-app f-grain kc th-navy">
@@ -94,6 +96,7 @@ export default function AppLayout() {
       <main className="d-scroll"><div className="d-wrap"><Outlet /></div></main>
       <TabBar me={me} />
       <BookOverlay />
+      <AddOverlay />
       {/* keyed by path, so opening an overlay (a ?param change) keeps your place */}
       <ScrollRestoration getKey={(loc) => loc.pathname} />
     </div>

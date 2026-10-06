@@ -165,8 +165,11 @@ function Lightbox({ photos, index, setIndex, editable, onRemove, onClose, contex
   )
 }
 
-/** Desktop viewfinder. Each shot uploads straight away. */
-function CameraSheet({ onCapture, onClose }: { onCapture: (f: File) => void; onClose: () => void }) {
+/** Desktop viewfinder. Each shot is handed to onCapture straight away;
+    with `once`, the sheet closes after the first. */
+export function CameraSheet({ onCapture, onClose, title = 'Camera · point at the page', caption = 'Shots land on this note', once = false }: {
+  onCapture: (f: File) => void; onClose: () => void; title?: string; caption?: string; once?: boolean
+}) {
   const video = useRef<HTMLVideoElement>(null)
   const [flash, setFlash] = useState(false)
   const [shots, setShots] = useState(0)
@@ -203,6 +206,7 @@ function CameraSheet({ onCapture, onClose }: { onCapture: (f: File) => void; onC
       if (!blob) return
       setShots((n) => n + 1)
       onCapture(new File([blob], `photo-${Date.now()}.jpg`, { type: 'image/jpeg' }))
+      if (once) onClose()
     }, 'image/jpeg', 0.9)
   }
 
@@ -211,7 +215,7 @@ function CameraSheet({ onCapture, onClose }: { onCapture: (f: File) => void; onC
       <div className="d-scrim m-cam-scrim" onClick={onClose} />
       <div className="d-camsheet" role="dialog" aria-modal="true" aria-label="Camera">
         <div className="hd">
-          <span className="f-label">Camera · point at the page</span>
+          <span className="f-label">{title}</span>
           <button className="f-iconbtn" style={{ width: 30, height: 30 }} onClick={onClose} aria-label="Close camera"><Icon name="close" size={16} /></button>
         </div>
         <div className="f-cam">
@@ -222,7 +226,7 @@ function CameraSheet({ onCapture, onClose }: { onCapture: (f: File) => void; onC
           {flash && <div className="lb-flash" />}
         </div>
         <div className="ft">
-          <span className="caption" style={{ flex: 1 }}>{shots === 0 ? 'Shots land on this note' : shots + (shots === 1 ? ' photo added' : ' photos added')}</span>
+          <span className="caption" style={{ flex: 1 }}>{shots === 0 ? caption : shots + (shots === 1 ? ' photo added' : ' photos added')}</span>
           <button className="d-shutter" onClick={snap} disabled={!!error} aria-label="Take photo"><span /></button>
           <button className="f-btn f-btn--ink" style={{ padding: '8px 16px', fontSize: 12.5, marginLeft: 'auto' }} onClick={onClose}>Done</button>
         </div>

@@ -305,12 +305,16 @@ async def batch_add_user_books(
             except ValueError:
                 pass  # surfaced as a normal per-entry error in the main loop below
 
-    local_hits: dict[int, Book] = {}
+    # Ids, not Book objects: every per-entry commit below expires the objects
+    # this session loaded, and touching an expired Book's attributes later
+    # does lazy IO outside the async greenlet (MissingGreenlet). That silently
+    # dropped any already-catalogued ISBN saved after another entry.
+    local_hits: dict[int, UUID] = {}
     miss_isbns: list[str] = []
     for i, isbn in isbn_by_index.items():
         existing = await find_book_by_isbn(session, isbn)
         if existing:
-            local_hits[i] = existing
+            local_hits[i] = existing.id
         else:
             miss_isbns.append(isbn)
     prefetched = await prefetch_isbns(miss_isbns)
@@ -336,7 +340,7 @@ async def batch_add_user_books(
                 book = await get_or_create_book_from_metadata(session, entry.book.model_dump())
             elif entry.isbn:
                 if i in local_hits:
-                    book = local_hits[i]
+                    book = await session.get(Book, local_hits[i])
                 elif i in isbn_by_index:
                     raw = prefetched[isbn_by_index[i]]
                     if isinstance(raw, Exception):
