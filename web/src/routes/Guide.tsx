@@ -10,16 +10,16 @@ import { useIsDesktop } from '../lib/useMediaQuery'
 type Step = [string, IconName, string, string]
 
 const DESKTOP: Step[] = [
-  ['01', 'scan', 'Add a book', 'Scan a barcode or type the ISBN. Dora looks it up on Open Library and adds it to a queue. Add as many as you like, then save them at once.'],
+  ['01', 'scan', 'Add a book', 'Scan a barcode or type the ISBN. Dora looks it up and adds it to a queue. Add as many as you like, then save them at once.'],
   ['02', 'home', 'Set a status', 'Mark each book unread, reading, or read, and change it whenever. Books sit on your profile, newest first.'],
   ['03', 'pin', 'Pin a book', 'Hover a cover and click the pin. Pinned books move to the top of your shelf.'],
   ['04', 'eye', 'Public or private', 'Set any book, or your whole shelf, to public or private. Public shelves are visible to anyone with the link.'],
   ['05', 'share', 'Share your shelf', 'Your profile has its own link. Send it to anyone; they can view your shelf without an account.'],
-  ['06', 'guide', 'Open data', 'Dora is open source, and every book links back to its Open Library record. Nothing is locked in.'],
+  ['06', 'guide', 'Open data', 'Dora is open source, and every book links back to its source record. Nothing is locked in.'],
 ]
 
 const PHONE: Step[] = [
-  ['01', 'scan', 'Add a book', 'Scan a barcode or type the ISBN. Dora looks it up on Open Library and adds it to a queue. Save them all at once.'],
+  ['01', 'scan', 'Add a book', 'Scan a barcode or type the ISBN. Dora looks it up and adds it to a queue. Save them all at once.'],
   ['02', 'home', 'Set a status', 'Mark each book unread, reading, or read. Books sit on your profile, newest first.'],
   ['03', 'pin', 'Pin a book', 'Tap the pin on any book to move it to the top of your shelf.'],
   DESKTOP[3], DESKTOP[4], DESKTOP[5],

@@ -41,7 +41,7 @@ function DesktopHome({ entries, onScan, onOpen }: HomeProps) {
           <div className="f-label">Dora · a record of your books</div>
           <h1>Keep track of the books you own.</h1>
           <p style={{ fontSize: 16, color: 'var(--ink-soft)', lineHeight: 1.55, maxWidth: 440, marginTop: 18 }}>
-            Scan a barcode. Dora pulls the cover, author, and page count from Open Library and adds the book to your shelf.
+            Scan a barcode. Dora finds the cover, author, and page count and adds the book to your shelf.
           </p>
           <div style={{ display: 'flex', gap: 12, marginTop: 28 }}>
             <button className="f-btn f-btn--amber" onClick={onScan} style={{ padding: '14px 22px', fontSize: 15 }}><Icon name="scan" size={18} sw={1.8} /> Scan a book</button>
@@ -77,19 +77,18 @@ function Colophon() {
   return (
     <div className="d-colophon">
       <div className="aside">
-        <div className="berry"><Icon name="dora" size={104} sw={1.5} /></div>
+        <div className="berry"><Logo size={40} /></div>
         <div className="f-label cap">A note · why this thing exists</div>
       </div>
       <div className="essay">
-        <p>Dora keeps a record of the books I own: read, reading, and not yet started. That's the whole idea.</p>
+        <p>Dora keeps a record of the books you own: read, reading, and not yet started.</p>
         <p>
-          The catalogue data comes from <a href={LINKS.openLibrary} target="_blank" rel="noreferrer">Open Library</a>, the free and editable record of the world's books. Covers, page counts, publishers, all of it. Dora is a front end for browsing and shelving it.
+          Book details come from <a href={LINKS.openLibrary} target="_blank" rel="noreferrer">Open Library</a>, the free and editable record of the world's books: covers, page counts, publishers and more. Dora adds your shelf, your notes, your photos and your hauls.
         </p>
-        <p>It's free and open source. No tracking, no ads. I built it for myself and put it online in case it's useful to you. The code, and the rest of my work, is at <a href={LINKS.author} target="_blank" rel="noreferrer">nty.et</a>.</p>
-        <p style={{ fontSize: 14, color: 'var(--ink-faint)' }}>The name Dora is borrowed twice: from Freud's most famous case study, and from the explorer. Both kept careful notes.</p>
+        <p>It's free and open source. I built it for myself and put it online in case it's useful to you. The code, and the rest of my work, is at <a href={LINKS.author} target="_blank" rel="noreferrer">nty.et</a>.</p>
+        <p style={{ fontSize: 14, color: 'var(--ink-faint)' }}>The name Dora is borrowed twice: from Freud's most famous case study, and from the explorer. Both kept intriguing notes.</p>
         <div className="meta">
           <a href={LINKS.author} target="_blank" rel="noreferrer"><Icon name="globe" size={13} /> nty.et</a>
-          <a href={LINKS.openLibrary} target="_blank" rel="noreferrer"><Icon name="external" size={12} /> Open Library</a>
           <a href={LINKS.source} target="_blank" rel="noreferrer"><Icon name="link" size={13} /> Open source</a>
         </div>
       </div>
@@ -102,7 +101,7 @@ function Footer() {
     <div className="d-footer">
       <div>
         <Logo size={19} />
-        <div className="fine" style={{ marginTop: 14 }}>A record of the books you own. Built on Open Library, free and open source.</div>
+        <div className="fine" style={{ marginTop: 14 }}>A record of the books you own. Free and open source.</div>
       </div>
       <div className="cols">
         <div className="col">
@@ -133,7 +132,7 @@ function MobileHome({ entries, onScan, onOpen }: HomeProps) {
         </div>
         <h1 className="f-display" style={{ fontSize: 42, lineHeight: 0.98, margin: '0 0 18px' }}>Keep track of the books you own.</h1>
         <p style={{ fontSize: 14.5, color: 'var(--ink-soft)', lineHeight: 1.5, maxWidth: 320 }}>
-          Scan a barcode. Dora pulls the cover, author, and page count from Open Library and adds the book to your shelf.
+          Scan a barcode. Dora finds the cover, author, and page count and adds the book to your shelf.
         </p>
         <div style={{ display: 'flex', gap: 9, marginTop: 22 }}>
           <button className="f-btn f-btn--amber" onClick={onScan} style={{ padding: '13px 18px', fontSize: 14.5 }}>
@@ -169,23 +168,23 @@ function EssayNote() {
     <div style={{ padding: '6px 18px 8px' }}>
       <div className="hero-rule" style={{ marginBottom: 20 }} />
       <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 16 }}>
-        <span style={{ color: 'var(--ink-blue)', display: 'inline-flex', flexShrink: 0 }}><Icon name="dora" size={44} sw={1.5} /></span>
+        <span style={{ display: 'inline-flex', flexShrink: 0 }}><Logo size={20} /></span>
         <div className="f-label">A note · why this thing exists</div>
       </div>
       <p style={{ fontSize: 15.5, color: 'var(--ink)', lineHeight: 1.6, margin: '0 0 12px', letterSpacing: '-0.005em' }}>
-        Dora keeps a record of the books I own: read, reading, and not yet started. That's the whole idea.
+        Dora keeps a record of the books you own: read, reading, and not yet started.
       </p>
       <p style={{ fontSize: 14.5, color: 'var(--ink-soft)', lineHeight: 1.6, margin: '0 0 12px' }}>
-        The catalogue data comes from <a href={LINKS.openLibrary} target="_blank" rel="noreferrer" style={linkStyle}>Open Library</a>, the free and editable record of the world's books. Dora is a front end for browsing and shelving it.
+        Book details come from <a href={LINKS.openLibrary} target="_blank" rel="noreferrer" style={linkStyle}>Open Library</a>, the free and editable record of the world's books: covers, page counts, publishers and more. Dora adds your shelf, your notes, your photos and your hauls.
       </p>
       <p style={{ fontSize: 14.5, color: 'var(--ink-soft)', lineHeight: 1.6, margin: 0 }}>
-        It's free and open source. No tracking, no ads. I built it for myself and put it online in case it's useful to you. The code, and the rest of my work, is at <a href={LINKS.author} target="_blank" rel="noreferrer" style={linkStyle}>nty.et</a>.
+        It's free and open source. I built it for myself and put it online in case it's useful to you. The code, and the rest of my work, is at <a href={LINKS.author} target="_blank" rel="noreferrer" style={linkStyle}>nty.et</a>.
       </p>
       <p style={{ fontSize: 13, color: 'var(--ink-faint)', lineHeight: 1.6, margin: '12px 0 0' }}>
-        The name Dora is borrowed twice: from Freud's most famous case study, and from the explorer. Both kept careful notes.
+        The name Dora is borrowed twice: from Freud's most famous case study, and from the explorer. Both kept intriguing notes.
       </p>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 18 }}>
-        {([['nty.et', LINKS.author, 'globe'], ['Open Library', LINKS.openLibrary, 'external'], ['Open source', LINKS.source, 'link']] as const).map(([label, href, ic]) => (
+        {([['nty.et', LINKS.author, 'globe'], ['Open source', LINKS.source, 'link']] as const).map(([label, href, ic]) => (
           <a key={label} href={href} target="_blank" rel="noreferrer" className="f-link"><Icon name={ic} size={12} />{label}</a>
         ))}
       </div>
@@ -222,7 +221,7 @@ function HomeFooter() {
     <div style={{ padding: '24px 18px 30px', marginTop: 8, borderTop: '1px solid var(--hair)' }}>
       <Logo size={18} />
       <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--ink-faint)', letterSpacing: '0.04em', lineHeight: 1.6, margin: '12px 0 18px', maxWidth: 260 }}>
-        Made for keeping a record of books. Built on Open Library, free and open source.
+        A record of the books you own. Free and open source.
       </div>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 18 }}>
         <Link to="/guide" style={link}>User guide</Link>

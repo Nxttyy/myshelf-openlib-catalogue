@@ -436,5 +436,6 @@
   font-variant-numeric: tabular-nums; line-height: 0.8; font-size: 128px; color: var(--ink-blue);
 }
 
-/* wordmark — Rubik Doodle Shadow */
-.f-wordmark{font-family:'Rubik Doodle Shadow',var(--font-sans);font-weight:400;line-height:1;letter-spacing:.02em;color:var(--ink-blue);white-space:nowrap}
+/* wordmark — original stacked DORA (SVG in components.jsx) */
+.f-wordmark{font-family:'Architypogra Psy',var(--font-sans);font-weight:400;line-height:1;letter-spacing:.02em;color:var(--ink-blue);white-space:nowrap}
+.f-wordmark-text{font-weight:600}

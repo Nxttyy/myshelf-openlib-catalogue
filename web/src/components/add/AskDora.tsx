@@ -2,7 +2,7 @@
    and shows the verdict with its two scores, as in folio/desktop.jsx. */
 
 import type { AskCandidate, Verdict } from '../../api/add'
-import { Icon } from '../Icon'
+import { Logo } from '../Logo'
 import { useAskDora } from './useAskDora'
 
 function Dots({ n }: { n: number }) {
@@ -24,10 +24,11 @@ export function Taste({ v }: { v: Verdict }) {
 export function AskDoraBlock({ candidate }: { candidate: AskCandidate }) {
   const { state, ask } = useAskDora(candidate)
   if (state.s === 'done') return <Taste v={state.v} />
-  if (state.s === 'asking') return <div className="d-askdora" style={{ cursor: 'default' }}><Icon name="dora" size={15} sw={1.6} /> Dora is reading your shelves…</div>
+  if (state.s === 'asking') return <div className="d-askdora" style={{ cursor: 'default' }}><span><Logo size={9} /> is reading your shelves…</span></div>
   return (
     <button className="d-askdora" onClick={(e) => { e.stopPropagation(); ask() }}>
-      <Icon name="dora" size={15} sw={1.6} /> {state.s === 'error' ? state.msg : 'Ask Dora: buy or skip?'}
+      {/* one span, so the button's flex gap can't split "Dora" from the colon */}
+      {state.s === 'error' ? state.msg : <span>Ask <Logo size={9} />: buy or skip?</span>}
     </button>
   )
 }

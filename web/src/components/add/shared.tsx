@@ -2,6 +2,7 @@ import type { AskCandidate } from '../../api/add'
 import { jacketFor } from '../../lib/covers'
 import type { QueueItem } from '../../lib/queue'
 import { Cover } from '../Cover'
+import { Logo } from '../Logo'
 import { Icon } from '../Icon'
 import { AskDoraBlock, Taste } from './AskDora'
 import { useAskDora } from './useAskDora'
@@ -47,7 +48,7 @@ export function SearchResultRow({ id, title, meta, tag, coverUrl, author, candid
           <div className="a">{meta || '·'}</div>
           {tag && <div style={{ marginTop: 4 }}><span className="m-tag">{tag}</span></div>}
         </div>
-        {state.s === 'idle' && <button className="ask" title="Ask Dora: buy or skip?" onClick={ask}><Icon name="dora" size={15} sw={1.6} /> Ask Dora</button>}
+        {state.s === 'idle' && <button className="ask" title="Ask Dora: buy or skip?" onClick={ask}>Ask <Logo size={9} /></button>}
         <button className="f-btn f-btn--ink" style={{ padding: '6px 14px', fontSize: 12.5 }} onClick={onAdd} disabled={added}>{added ? 'Added' : 'Add'}</button>
       </div>
       {state.s === 'asking' && <div className="taste"><span className="f-label">Dora is reading your shelves…</span></div>}
