@@ -12,6 +12,7 @@ import { useFilmQueue } from '../lib/filmQueue'
 import { mediaPath, useMedia, useMediaKeys, type Media } from '../lib/media'
 import { useQueue } from '../lib/queue'
 import { Logo } from '../components/Logo'
+import { MediaTabs } from '../components/MediaTabs'
 import { useOpenAdd } from '../lib/overlay'
 import { pageImports } from '../router'
 
@@ -51,6 +52,7 @@ function Navbar({ me, queueCount, onAdd, media }: ShellProps) {
         ))}
       </nav>
       <div style={{ flex: 1 }} />
+      <MediaTabs />
       <button className="f-btn f-btn--amber d-addbtn" onClick={onAdd} style={{ padding: '10px 16px' }}>
         <Icon name="plus" size={18} sw={1.9} /> {media === 'films' ? 'Add film' : 'Add book'}
         {queueCount > 0 && <span className="badge">{queueCount}</span>}
@@ -66,6 +68,7 @@ function MobileHeader({ me, queueCount, onAdd, media }: ShellProps) {
   return (
     <div className="f-header m-header">
       <Link to="/" aria-label="Dora home" className="home-link"><Logo /></Link>
+      <MediaTabs />
       <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
         <button className="f-iconbtn" onClick={onAdd} aria-label={media === 'films' ? 'Add film' : 'Add book'}>
           <Icon name="plus" size={22} sw={1.8} />

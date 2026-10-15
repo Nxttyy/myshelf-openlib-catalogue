@@ -100,34 +100,30 @@ type Found = { pages: FilmSearchPage[] } | 'error' | { error: string }
 
 function SearchTab({ desktop }: { desktop: boolean }) {
   const [q, setQ] = useState('')
+  // Searches run on Enter or the search button, never per keystroke: the
+  // free OMDb key allows 1,000 calls a day.
+  const [query, setQuery] = useState('')
   // Each answer remembers which query it was for; anything else is stale.
   const [answer, setAnswer] = useState<{ q: string; found: Found } | null>(null)
   const [more, setMore] = useState(false)
   const { items } = useFilmQueue()
   const toast = useToast()
   const queued = new Set(items.map((i) => i.imdb_id))
-  const query = q.trim()
 
   useEffect(() => {
-    if (query.length < 3) return
+    if (query.length < 2) return
     let alive = true
-    // Waits for a pause in typing: the free OMDb key allows 1,000 calls a day.
-    const t = setTimeout(async () => {
-      try {
-        const page = await searchFilms(query)
-        if (alive) setAnswer({ q: query, found: { pages: [page] } })
-      } catch (err) {
-        if (alive) setAnswer({ q: query, found: err instanceof ApiError && err.status === 503 ? { error: err.message } : 'error' })
-      }
-    }, 450)
-    return () => { alive = false; clearTimeout(t) }
+    searchFilms(query)
+      .then((page) => { if (alive) setAnswer({ q: query, found: { pages: [page] } }) })
+      .catch((err) => { if (alive) setAnswer({ q: query, found: err instanceof ApiError && err.status === 503 ? { error: err.message } : 'error' }) })
+    return () => { alive = false }
   }, [query])
 
   const found = answer?.q === query ? answer.found : null
   const pages = found && typeof found === 'object' && 'pages' in found ? found.pages : null
   const hits = pages?.flatMap((p) => p.results) ?? []
   const total = pages?.[0]?.total ?? 0
-  const busy = query.length >= 3 && !found
+  const busy = query.length >= 2 && !found
 
   async function loadMore() {
     if (!pages) return
@@ -147,10 +143,13 @@ function SearchTab({ desktop }: { desktop: boolean }) {
   return (
     <div style={{ paddingTop: 4 }}>
       <label className="f-label" htmlFor="film-search" style={{ display: 'block', marginBottom: 8 }}>Search by title</label>
-      <input id="film-search" className="f-input" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Try columbus, tampopo, paterson"
-        type="search" enterKeyHint="search" autoComplete="off" autoFocus style={{ boxSizing: 'border-box' }} />
+      <form className="d-searchrow" role="search" onSubmit={(e) => { e.preventDefault(); setQuery(q.trim()) }}>
+        <input id="film-search" className="f-input" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Try columbus, tampopo, paterson"
+          type="search" enterKeyHint="search" autoComplete="off" autoFocus style={{ boxSizing: 'border-box' }} />
+        <button type="submit" className="f-btn f-btn--ink d-searchbtn" aria-label="Search" title="Search"><Icon name="search" size={17} sw={1.8} /></button>
+      </form>
       <div className="d-results" style={desktop ? undefined : { maxHeight: 'none' }}>
-        {query.length < 3 && <div className="empty">Type a film or series title.</div>}
+        {query.length < 2 && <div className="empty">Type a film or series title, then press Enter.</div>}
         {busy && <div className="empty">Searching…</div>}
         {found === 'error' && <div className="empty">Couldn't reach the film catalogue. Check your connection.</div>}
         {found && typeof found === 'object' && 'error' in found && <div className="empty">{found.error}</div>}

@@ -52,26 +52,26 @@ type Found = { local: LocalHit[]; remote: SearchHit[] } | 'error'
 
 export function SearchTab({ onByHand, desktop }: { onByHand: (title: string) => void; desktop: boolean }) {
   const [q, setQ] = useState('')
+  // Searches run on Enter or the search button, not per keystroke.
+  const [query, setQuery] = useState('')
   // Each answer remembers which query it was for; anything else is stale.
   const [answer, setAnswer] = useState<{ q: string; found: Found } | null>(null)
   const { items } = useQueue()
   const { addSearchHit, addCatalogue } = useQueueActions()
   const queued = new Set(items.map((i) => i.key))
-  const query = q.trim()
 
   useEffect(() => {
     if (query.length < 2) return
     let alive = true
-    const t = setTimeout(async () => {
-      // Hand-typed books exist only in our catalogue, so search both. One side
-      // failing shouldn't blank the other.
-      const [local, remote] = await Promise.all([
-        searchCatalogue(query).catch(() => null),
-        searchOpenLibrary(query).catch(() => null),
-      ])
+    // Hand-typed books exist only in our catalogue, so search both. One side
+    // failing shouldn't blank the other.
+    Promise.all([
+      searchCatalogue(query).catch(() => null),
+      searchOpenLibrary(query).catch(() => null),
+    ]).then(([local, remote]) => {
       if (alive) setAnswer({ q: query, found: local === null && remote === null ? 'error' : { local: local ?? [], remote: remote ?? [] } })
-    }, 500)
-    return () => { alive = false; clearTimeout(t) }
+    })
+    return () => { alive = false }
   }, [query])
 
   const results = answer?.q === query ? answer.found : null
@@ -80,10 +80,13 @@ export function SearchTab({ onByHand, desktop }: { onByHand: (title: string) => 
   return (
     <div style={{ paddingTop: 4 }}>
       <label className="f-label" htmlFor="search-input" style={{ display: 'block', marginBottom: 8 }}>Search by title or author</label>
-      <input id="search-input" className="f-input" value={q} onChange={(e) => setQ(e.target.value)} placeholder="e.g. the hobbit tolkien"
-        type="search" enterKeyHint="search" autoComplete="off" autoFocus />
+      <form className="d-searchrow" role="search" onSubmit={(e) => { e.preventDefault(); setQuery(q.trim()) }}>
+        <input id="search-input" className="f-input" value={q} onChange={(e) => setQ(e.target.value)} placeholder="e.g. the hobbit tolkien"
+          type="search" enterKeyHint="search" autoComplete="off" autoFocus />
+        <button type="submit" className="f-btn f-btn--ink d-searchbtn" aria-label="Search" title="Search"><Icon name="search" size={17} sw={1.8} /></button>
+      </form>
       <div className="d-results" style={desktop ? undefined : { maxHeight: 'none' }}>
-        {query.length < 2 && <div className="empty">Type a title or an author.</div>}
+        {query.length < 2 && <div className="empty">Type a title or an author, then press Enter.</div>}
         {busy && <div className="empty">Searching…</div>}
         {!busy && results === 'error' && <div className="empty">Couldn't reach the catalogue. Check your connection.</div>}
         {!busy && empty && (

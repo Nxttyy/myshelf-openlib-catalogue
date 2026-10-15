@@ -7,7 +7,6 @@ import { useRecentBooks } from '../api/queries'
 import type { CatalogEntry, FilmCatalogEntry } from '../api/types'
 import { CatalogGrid } from '../components/CatalogGrid'
 import { FilmCatalogGrid } from '../components/FilmViews'
-import { MediaTabs } from '../components/MediaTabs'
 import { useMedia } from '../lib/media'
 import { useOverlay } from '../lib/overlay'
 import { useInView } from '../lib/useInView'
@@ -15,12 +14,7 @@ import { useIsDesktop } from '../lib/useMediaQuery'
 
 export default function Explore() {
   const films = useMedia() === 'films'
-  return (
-    <>
-      <MediaTabs />
-      <div className="f-swap" key={films ? 'films' : 'books'}>{films ? <FilmExplore /> : <BookExplore />}</div>
-    </>
-  )
+  return <div className="f-swap" key={films ? 'films' : 'books'}>{films ? <FilmExplore /> : <BookExplore />}</div>
 }
 
 function BookExplore() {

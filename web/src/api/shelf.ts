@@ -63,6 +63,15 @@ export function useUpdateShelfEntry() {
   })
 }
 
+// Your owner details are cached with each of your shelves; keep both in step.
+const OWN_SHELVES = [['shelf'], ['films', 'shelf']]
+
+function patchOwner(qc: QueryClient, patch: Partial<ShelfRead['owner']>) {
+  for (const key of OWN_SHELVES) {
+    qc.setQueryData<{ owner: ShelfRead['owner'] }>(key, (s) => s && { ...s, owner: { ...s.owner, ...patch } })
+  }
+}
+
 export function useSetProfileVisibility() {
   const qc = useQueryClient()
   return useMutation({
@@ -70,11 +79,14 @@ export function useSetProfileVisibility() {
     onMutate: (isPublic) => {
       const before = qc.getQueryData<Me | null>(['me'])
       if (before) qc.setQueryData(['me'], { ...before, is_profile_public: isPublic })
-      qc.setQueryData<ShelfRead>(['shelf'], (s) => s && { ...s, owner: { ...s.owner, is_profile_public: isPublic } })
+      patchOwner(qc, { is_profile_public: isPublic })
       return { before }
     },
-    onError: (_e, _v, ctx) => { if (ctx?.before) qc.setQueryData(['me'], ctx.before) },
-    onSettled: () => qc.invalidateQueries({ queryKey: ['shelf'] }),
+    onError: (_e, isPublic, ctx) => {
+      if (ctx?.before) qc.setQueryData(['me'], ctx.before)
+      patchOwner(qc, { is_profile_public: !isPublic })
+    },
+    onSettled: () => OWN_SHELVES.forEach((queryKey) => qc.invalidateQueries({ queryKey })),
   })
 }
 
@@ -84,7 +96,7 @@ export function useSetUsername() {
     mutationFn: (username: string) => api.patch<{ ok: boolean; username: string }>('/auth/username', { username }),
     onSuccess: ({ username }) => {
       qc.setQueryData<Me | null>(['me'], (me) => me && { ...me, handle: username })
-      qc.setQueryData<ShelfRead>(['shelf'], (s) => s && { ...s, owner: { ...s.owner, handle: username } })
+      patchOwner(qc, { handle: username })
       qc.invalidateQueries({ queryKey: ['recent'] }) // "Added by @…" on manual books
     },
   })

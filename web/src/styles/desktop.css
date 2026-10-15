@@ -440,14 +440,14 @@
 .d-idchip.dup{opacity:.5;text-decoration:line-through}
 .d-idchip.bad{background:color-mix(in oklab,#B23A48 14%,transparent);color:#8E2A36}
 
-/* ── Books / Films word tabs ───────────────────────────────── */
-.d-mtabs{display:flex;align-items:flex-end;gap:28px;border-bottom:1px solid var(--hair);margin-bottom:32px}
-.d-mtabs button{position:relative;border:none;background:none;cursor:pointer;padding:0 0 12px;font:600 30px/1 var(--font-sans);letter-spacing:-0.035em;color:var(--ink-faint);transition:color var(--duration-base) var(--ease-out)}
+/* ── Books / Films tabs (navbar, right) ────────────────────── */
+.d-mtabs{align-self:stretch;display:flex;align-items:stretch;gap:20px;padding-right:22px;margin-right:-6px;border-right:1px solid var(--hair)}
+.d-mtabs button{position:relative;display:flex;align-items:center;border:none;background:none;cursor:pointer;padding:0 2px;font:600 14px/1 var(--font-sans);letter-spacing:-0.01em;color:var(--ink-faint);transition:color var(--duration-base) var(--ease-out)}
 .d-mtabs button:hover{color:var(--ink-soft)}
 .d-mtabs button.on{color:var(--ink)}
 .d-mtabs button::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:3px;background:var(--amber);transform:scaleX(0);transform-origin:left;transition:transform var(--duration-slow) var(--ease-out)}
 .d-mtabs button.on::after{transform:scaleX(1)}
-.d-mtabs button:focus-visible{outline:2px solid var(--accent);outline-offset:4px;border-radius:4px}
-.d-mtabs sup{font-family:var(--font-mono);font-size:11px;font-weight:500;letter-spacing:0;margin-left:5px;vertical-align:top;position:relative;top:2px}
-.d-mtabs .hint{margin-left:auto;padding-bottom:14px;font-family:var(--font-mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint)}
-.kc .d-mtabs button.on::after{height:4px;border-radius:2px}
+.d-mtabs button:focus-visible{outline:2px solid var(--accent);outline-offset:-6px;border-radius:6px}
+.d-mtabs sup{font-family:var(--font-mono);font-size:10px;font-weight:500;letter-spacing:0;margin-left:4px;position:relative;top:-5px;vertical-align:baseline}
+.kc .d-mtabs button.on::after{border-radius:2px 2px 0 0}
+.d-searchrow{display:flex;gap:8px}.d-searchrow .f-input{flex:1;min-width:0}.d-searchbtn{width:44px;padding:0!important;flex-shrink:0;justify-content:center}

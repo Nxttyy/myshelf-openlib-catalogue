@@ -13,7 +13,6 @@ import { Cover } from '../components/Cover'
 import { FilmCatalogGrid } from '../components/FilmViews'
 import { Icon } from '../components/Icon'
 import { Logo } from '../components/Logo'
-import { MediaTabs } from '../components/MediaTabs'
 import { Poster } from '../components/Poster'
 import { coverFromBook } from '../lib/covers'
 import { credit } from '../lib/films'
@@ -31,12 +30,7 @@ type HomeProps = { films: boolean; picks: Pick[]; grid: ReactNode; onScan: () =>
 
 export default function Home() {
   const films = useMedia() === 'films'
-  return (
-    <>
-      <MediaTabs />
-      <div className="f-swap" key={films ? 'films' : 'books'}>{films ? <FilmsHome /> : <BooksHome />}</div>
-    </>
-  )
+  return <div className="f-swap" key={films ? 'films' : 'books'}>{films ? <FilmsHome /> : <BooksHome />}</div>
 }
 
 function BooksHome() {

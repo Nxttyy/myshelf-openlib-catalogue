@@ -13,7 +13,6 @@ import { useSetProfileVisibility, useSetUsername, useUpdateShelfEntry } from '..
 import type { FilmShelfCounts, FilmShelfEntry, Haul, ShelfCounts, ShelfEntry, ShelfOwner } from '../api/types'
 import { FilmList, FilmRows, FilmShelf } from '../components/FilmViews'
 import { Icon } from '../components/Icon'
-import { MediaTabs } from '../components/MediaTabs'
 import { Hauls, ShelfGrid, ShelfList } from '../components/ShelfViews'
 import { useMedia } from '../lib/media'
 import { useOpenAdd, useOverlay } from '../lib/overlay'
@@ -114,7 +113,6 @@ function ProfileView({ owner, counts, entries, hauls, mine }: ViewProps) {
     return (
       <div className="f-rise">
         <DesktopHeader owner={owner} mine={mine} />
-        <MediaTabs counts={mine} />
         <div className="d-pf-stats" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 1, background: 'var(--hair)', border: '1px solid var(--hair)', borderRadius: 12, overflow: 'hidden', marginBottom: 36 }}>
           {stats.map(([k, v]) => (
             <div key={k} className="d-pf-stat" style={{ background: 'var(--paper)', padding: '18px 20px' }}>
@@ -227,7 +225,6 @@ function FilmProfileView({ owner, counts, entries, mine }: { owner: ShelfOwner; 
     return (
       <div className="f-rise">
         <DesktopHeader owner={owner} mine={mine} />
-        <MediaTabs counts={mine} />
         <div className="f-swap">
           <div className="d-pf-stats" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 1, background: 'var(--hair)', border: '1px solid var(--hair)', borderRadius: 12, overflow: 'hidden', marginBottom: 36 }}>
             {stats.map(([k, v]) => (
@@ -345,8 +342,7 @@ function MobileHeader({ owner, mine, stats }: { owner: ShelfOwner; mine: boolean
         <button className="f-iconbtn" aria-label="Share profile" onClick={onShare}><Icon name="share" size={20} sw={1.7} /></button>
       </div>
 
-      <div className="m-pf-tabs"><MediaTabs counts={mine} /></div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 1, background: 'var(--hair)', border: '1px solid var(--hair)', borderRadius: 10, overflow: 'hidden' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 1, background: 'var(--hair)', border: '1px solid var(--hair)', borderRadius: 10, overflow: 'hidden', marginTop: 20 }}>
         {stats.map(([k, v]) => (
           <div key={k} className="d-pf-stat" style={{ background: 'var(--paper)', padding: '14px 10px' }}>
             <div className="d-bignum" style={{ fontSize: 32 }}>{v}</div>
