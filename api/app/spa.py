@@ -17,27 +17,32 @@ from app.config import settings
 from app.db import SessionDep
 from app.models.user import User
 from app.models.user_book import UserBook
+from app.models.user_film import UserFilm
 
 # First path segments that belong to the API, not the app.
 API_PREFIXES = {
-    "books", "auth", "profiles", "scan", "dora", "agent-api", "mcp", "static",
+    "books", "films", "auth", "profiles", "scan", "dora", "agent-api", "mcp", "static",
     "mobile-scan", "health", "docs", "redoc", "openapi.json", "assets",
 }
 
 
-async def _profile_meta(page: str, handle: str, session: SessionDep) -> str:
+async def _profile_meta(page: str, handle: str, session: SessionDep, films: bool = False) -> str:
     """Give /u/<handle> a real title and link-preview tags, so a shared
     profile link reads well in chat apps (they don't run JavaScript)."""
     owner = (await session.exec(select(User).where(User.username == handle))).first()
     if not owner or not owner.is_profile_public:
         return page
+    Entry = UserFilm if films else UserBook
     count = len((await session.exec(
-        select(UserBook.id).where(UserBook.user_id == owner.id, UserBook.is_public == True)  # noqa: E712
+        select(Entry.id).where(Entry.user_id == owner.id, Entry.is_public == True)  # noqa: E712
     )).all())
     name = " ".join(p for p in (owner.firstname, owner.lastname) if p.strip()) or "@" + handle
     title = html.escape(f"{name} (@{handle}) on Dora")
-    desc = html.escape(f"{count} {'book' if count == 1 else 'books'} on their shelf. A record of the books they own.")
-    url = html.escape(f"{settings.PUBLIC_URL.rstrip('/')}/u/{handle}")
+    if films:
+        desc = html.escape(f"{count} {'film' if count == 1 else 'films'} on their shelf. A record of the films they watch.")
+    else:
+        desc = html.escape(f"{count} {'book' if count == 1 else 'books'} on their shelf. A record of the books they own.")
+    url = html.escape(f"{settings.PUBLIC_URL.rstrip('/')}/u/{handle}" + ("/films" if films else ""))
     tags = (
         f'<meta name="description" content="{desc}" />'
         f'<meta property="og:title" content="{title}" />'
@@ -73,6 +78,8 @@ def mount_web_app(app: FastAPI) -> bool:
         parts = path.split("/")
         if first == "u" and len(parts) == 2 and parts[1]:
             page = await _profile_meta(page, parts[1], session)
+        elif first == "u" and len(parts) == 3 and parts[1] and parts[2] == "films":
+            page = await _profile_meta(page, parts[1], session, films=True)
         # Never cache the page itself, so a new deploy is picked up at once;
         # the hashed /assets it points to are cached forever instead.
         return HTMLResponse(page, headers={"Cache-Control": "no-cache"})

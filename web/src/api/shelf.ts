@@ -5,6 +5,7 @@
 import { useMutation, useQueryClient, type QueryClient } from '@tanstack/react-query'
 import { api, ApiError } from './client'
 import type { Me } from './me'
+import { updateFilmEntry } from './films'
 import type { BookEntryRead, ShelfEntry, ShelfRead, UserBookImage } from './types'
 
 export type ShelfPatch = Partial<Pick<ShelfEntry, 'status' | 'is_public' | 'comment' | 'is_pinned'>>
@@ -95,14 +96,26 @@ export const MAX_PHOTOS = 6 // the API's storage.MAX_IMAGES_PER_BOOK
 
 type Presigned = { image_id: string; key: string; upload_url: string; fields: Record<string, string> }
 
+/** Which kind of shelf entry a note's photos belong to. */
+export type PhotoOwner = 'book' | 'film'
+
+const photoBase = (owner: PhotoOwner, entryId: string) =>
+  owner === 'film' ? `/films/user_films/${entryId}/images` : `/books/user_books/${entryId}/images`
+
+function updateImages(qc: QueryClient, owner: PhotoOwner, entryId: string, fn: (imgs: UserBookImage[]) => UserBookImage[]) {
+  if (owner === 'film') updateFilmEntry(qc, entryId, (e) => ({ ...e, images: fn(e.images) }))
+  else updateEntry(qc, entryId, (e) => ({ ...e, images: fn(e.images) }))
+  qc.invalidateQueries({ queryKey: owner === 'film' ? ['films', 'profile'] : ['profile'] })
+}
+
 /** presign -> POST the file straight to the bucket -> confirm, per file.
     Calls onAdded as each photo lands, and returns the ones that failed. */
 export async function uploadPhotos(
-  qc: QueryClient, entryId: string, files: File[], onAdded?: (img: UserBookImage) => void,
+  qc: QueryClient, entryId: string, files: File[], onAdded?: (img: UserBookImage) => void, owner: PhotoOwner = 'book',
 ): Promise<{ added: number; failed: string[]; error?: string }> {
   let presigned: Presigned[]
   try {
-    presigned = await api.post<Presigned[]>(`/books/user_books/${entryId}/images/presign`, {
+    presigned = await api.post<Presigned[]>(`${photoBase(owner, entryId)}/presign`, {
       files: files.map((f) => ({ content_type: f.type, byte_size: f.size })),
     })
   } catch (err) {
@@ -119,26 +132,22 @@ export async function uploadPhotos(
       form.append('file', file)
       const up = await fetch(p.upload_url, { method: 'POST', body: form })
       if (!up.ok) throw new Error(`bucket said ${up.status}`)
-      const img = await api.post<UserBookImage>(`/books/user_books/${entryId}/images/${p.image_id}/confirm`)
-      updateEntry(qc, entryId, (e) => ({ ...e, images: [...e.images, img] }))
+      const img = await api.post<UserBookImage>(`${photoBase(owner, entryId)}/${p.image_id}/confirm`)
+      updateImages(qc, owner, entryId, (imgs) => [...imgs, img])
       onAdded?.(img)
       added++
     } catch {
       failed.push(file.name)
     }
   }
-  qc.invalidateQueries({ queryKey: ['profile'] })
   return { added, failed }
 }
 
-export function useDeletePhoto() {
+export function useDeletePhoto(owner: PhotoOwner = 'book') {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: ({ entryId, imageId }: { entryId: string; imageId: string }) =>
-      api.delete<{ ok: boolean }>(`/books/user_books/${entryId}/images/${imageId}`),
-    onSuccess: (_r, { entryId, imageId }) => {
-      updateEntry(qc, entryId, (e) => ({ ...e, images: e.images.filter((i) => i.id !== imageId) }))
-      qc.invalidateQueries({ queryKey: ['profile'] })
-    },
+      api.delete<{ ok: boolean }>(`${photoBase(owner, entryId)}/${imageId}`),
+    onSuccess: (_r, { entryId, imageId }) => updateImages(qc, owner, entryId, (imgs) => imgs.filter((i) => i.id !== imageId)),
   })
 }

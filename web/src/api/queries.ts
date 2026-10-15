@@ -78,6 +78,7 @@ export function useAddToShelf() {
       qc.invalidateQueries({ queryKey: ['recent'] })
       qc.invalidateQueries({ queryKey: ['book', bookId] })
       qc.invalidateQueries({ queryKey: ['profile'] })
+      qc.invalidateQueries({ queryKey: ['me'] }) // library counts on the tabs
     },
   })
 }
@@ -88,7 +89,11 @@ export function useAddToShelf() {
 // (on_shelf flags, can_edit, the shelf), so a change of user refetches it.
 function onUserChanged(qc: QueryClient, me: Me | null) {
   qc.setQueryData(['me'], me)
+  // Sign-in answers don't carry the library counts; /auth/me does.
+  if (me) qc.invalidateQueries({ queryKey: ['me'] })
   qc.removeQueries({ queryKey: ['shelf'] })
+  qc.removeQueries({ queryKey: ['films', 'shelf'] })
+  qc.invalidateQueries({ queryKey: ['films'] })
   qc.invalidateQueries({ queryKey: ['recent'] })
   qc.invalidateQueries({ queryKey: ['book'] })
   qc.invalidateQueries({ queryKey: ['profile'] })

@@ -6,18 +6,18 @@
 import { useQueryClient } from '@tanstack/react-query'
 import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { MAX_PHOTOS, uploadPhotos, useDeletePhoto } from '../api/shelf'
+import { MAX_PHOTOS, uploadPhotos, useDeletePhoto, type PhotoOwner } from '../api/shelf'
 import type { UserBookImage } from '../api/types'
 import { useToast } from '../lib/toast'
 import { useMediaQuery } from '../lib/useMediaQuery'
 import { Icon } from './Icon'
 
-type Props = { photos: UserBookImage[]; entryId?: string; editable: boolean; context: string }
+type Props = { photos: UserBookImage[]; entryId?: string; editable: boolean; context: string; owner?: PhotoOwner }
 
-export function PhotoNotes({ photos, entryId, editable, context }: Props) {
+export function PhotoNotes({ photos, entryId, editable, context, owner = 'book' }: Props) {
   const qc = useQueryClient()
   const toast = useToast()
-  const del = useDeletePhoto()
+  const del = useDeletePhoto(owner)
   const [view, setView] = useState<number | null>(null)
   const [camera, setCamera] = useState(false)
   const [uploading, setUploading] = useState(0)
@@ -31,7 +31,7 @@ export function PhotoNotes({ photos, entryId, editable, context }: Props) {
     const batch = images.slice(0, room)
     if (images.length > room) toast(`Only ${room} more fit. A note holds ${MAX_PHOTOS} photos.`, 'err')
     setUploading((n) => n + batch.length)
-    const res = await uploadPhotos(qc, entryId, batch, () => setUploading((n) => n - 1))
+    const res = await uploadPhotos(qc, entryId, batch, () => setUploading((n) => n - 1), owner)
     setUploading((n) => Math.max(0, n - res.failed.length))
     if (res.error) toast(res.error, 'err')
     else if (res.failed.length) toast(`Couldn't upload ${res.failed.join(', ')}.`, 'err')

@@ -17,7 +17,6 @@ from app.auth import get_current_user, require_user
 from app.models.book import Book
 from app.models.user import User
 from app.models.user_book import UserBook
-from app.models.user_book_image import UserBookImage
 from app.schemas.book import BookRead, ManualBookCreate
 from app.schemas.user_book_image import (
     ImagePresignRequest,
@@ -26,7 +25,7 @@ from app.schemas.user_book_image import (
     PresignedUpload,
     UserBookImageRead,
 )
-from app.services import storage
+from app.services import photos, storage
 from app.services.manual_book import (
     ManualBookError,
     apply_manual_book_edit,
@@ -475,42 +474,7 @@ async def presign_user_book_images(
     bytes straight to the bucket, then confirms via /confirm below."""
     storage.require_storage_configured()
     await _owned_user_book(session, user_book_id, current_user)
-
-    existing_count = len((await session.exec(
-        select(UserBookImage.id).where(UserBookImage.user_book_id == user_book_id)
-    )).all())
-    if existing_count + len(request_data.files) > storage.MAX_IMAGES_PER_BOOK:
-        raise HTTPException(
-            status_code=422,
-            detail=f"A note can have at most {storage.MAX_IMAGES_PER_BOOK} photos",
-        )
-
-    results: list[PresignedUpload] = []
-    for i, file in enumerate(request_data.files):
-        if file.content_type not in storage.ALLOWED_CONTENT_TYPES:
-            raise HTTPException(status_code=422, detail=f"Unsupported image type: {file.content_type}")
-        if file.byte_size <= 0 or file.byte_size > storage.MAX_BYTES:
-            raise HTTPException(status_code=422, detail="Image is too large")
-
-        key = storage.new_key(file.content_type)
-        image = UserBookImage(
-            user_book_id=user_book_id,
-            s3_key=key,
-            content_type=file.content_type,
-            byte_size=file.byte_size,
-            position=existing_count + i,
-            status="pending",
-        )
-        session.add(image)
-        await session.commit()
-        await session.refresh(image)
-
-        post = storage.presign_post(key, file.content_type)
-        results.append(PresignedUpload(
-            image_id=image.id, key=key,
-            upload_url=post["url"], fields=post["fields"],
-        ))
-    return results
+    return await photos.presign(session, "user_book_id", user_book_id, request_data)
 
 
 @router.post("/user_books/{user_book_id}/images/{image_id}/confirm", response_model=UserBookImageRead)
@@ -520,25 +484,8 @@ async def confirm_user_book_image(
     session: SessionDep,
     current_user: User = Depends(require_user),
 ):
-    storage.require_storage_configured()
     await _owned_user_book(session, user_book_id, current_user)
-
-    image = await session.get(UserBookImage, image_id)
-    if not image or image.user_book_id != user_book_id:
-        raise HTTPException(status_code=404, detail="Image not found")
-
-    head = storage.head_object(image.s3_key)
-    if not head:
-        raise HTTPException(status_code=422, detail="Upload not found in storage yet")
-
-    image.status = "uploaded"
-    session.add(image)
-    # Capture fields before commit: commit expires the ORM object's attributes,
-    # and touching them afterwards triggers lazy IO outside the async greenlet
-    # (the "greenlet_spawn" error).
-    image_id_, s3_key, position = image.id, image.s3_key, image.position
-    await session.commit()
-    return UserBookImageRead(id=image_id_, url=storage.presigned_get_url(s3_key), position=position)
+    return await photos.confirm(session, "user_book_id", user_book_id, image_id)
 
 
 @router.delete("/user_books/{user_book_id}/images/{image_id}")
@@ -548,14 +495,6 @@ async def delete_user_book_image(
     session: SessionDep,
     current_user: User = Depends(require_user),
 ):
-    storage.require_storage_configured()
     await _owned_user_book(session, user_book_id, current_user)
-
-    image = await session.get(UserBookImage, image_id)
-    if not image or image.user_book_id != user_book_id:
-        raise HTTPException(status_code=404, detail="Image not found")
-
-    storage.delete_object(image.s3_key)
-    await session.delete(image)
-    await session.commit()
+    await photos.delete(session, "user_book_id", user_book_id, image_id)
     return {"ok": True}

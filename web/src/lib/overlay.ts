@@ -1,4 +1,5 @@
 import { useLocation, useNavigate, useSearchParams } from 'react-router'
+import { useMedia } from './media'
 
 /** An overlay (book record, add dialog, ...) addressed by a search param,
     e.g. ?book=<id>. Opening pushes a history entry, so the phone's Back
@@ -25,7 +26,10 @@ export function useOverlay(name: string) {
   return { value, open, close }
 }
 
+/** Opens the add dialog for the library on screen: books or films. */
 export const useOpenAdd = () => {
-  const { open } = useOverlay('add')
-  return () => open('scan')
+  const media = useMedia()
+  const books = useOverlay('add')
+  const films = useOverlay('addfilm')
+  return () => (media === 'films' ? films.open('search') : books.open('scan'))
 }

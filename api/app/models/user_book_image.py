@@ -1,5 +1,5 @@
 """
-UserBookImage — photos attached to a UserBook's note.
+UserBookImage — photos attached to a UserBook's (or UserFilm's) note.
 """
 
 from datetime import datetime
@@ -13,7 +13,10 @@ class UserBookImage(SQLModel, table=True):
     __tablename__ = "user_book_images"
 
     id: UUID = Field(default_factory=uuid4, primary_key=True)
-    user_book_id: UUID = Field(foreign_key="user_books.id", index=True)
+    # Exactly one of these is set (a CHECK constraint enforces it): the photo
+    # sits on a book's note or on a film's note.
+    user_book_id: UUID | None = Field(default=None, foreign_key="user_books.id", index=True)
+    user_film_id: UUID | None = Field(default=None, foreign_key="user_films.id", index=True)
     s3_key: str = Field(unique=True)
     content_type: str
     byte_size: int

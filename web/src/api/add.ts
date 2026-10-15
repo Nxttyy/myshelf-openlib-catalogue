@@ -31,6 +31,7 @@ export function useSaveQueue() {
       qc.invalidateQueries({ queryKey: ['recent'] })
       qc.invalidateQueries({ queryKey: ['book'] })
       qc.invalidateQueries({ queryKey: ['profile'] })
+      qc.invalidateQueries({ queryKey: ['me'] }) // library counts on the tabs
     },
   })
 }

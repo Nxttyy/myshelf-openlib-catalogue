@@ -50,3 +50,4 @@ Settings in `api/.env` that matter in production:
 - `PUBLIC_URL`, the site's address (e.g. `https://dora.you.et`), used in password-reset emails and link previews.
 - `GOOGLE_REDIRECT_URI`, the production callback (`https://…/auth/google/callback`).
 - `WEB_DIST`, only if the built app lives somewhere other than `web/dist`.
+- `OMDB_API_KEY`, for films (search and lookups by IMDb ID). Without it the film shelves still show, but adding new films doesn't work. The free key allows 1,000 requests a day, so each film is fetched once and kept.

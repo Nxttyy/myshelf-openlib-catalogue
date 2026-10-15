@@ -8,6 +8,7 @@ from authlib.integrations.starlette_client import OAuth
 from fastapi import APIRouter, Depends, HTTPException, Request, Response
 from pydantic import BaseModel
 from fastapi.responses import RedirectResponse
+import sqlalchemy as sa
 from sqlmodel import select
 
 from app.auth import (
@@ -22,6 +23,8 @@ from app.auth import (
 from app.config import settings
 from app.db import SessionDep
 from app.models.user import User
+from app.models.user_book import UserBook
+from app.models.user_film import UserFilm
 from app.services.email import send_reset_password_email
 from app.services.username import USERNAME_RE, generate_unique_username
 
@@ -155,6 +158,9 @@ class MeRead(BaseModel):
     # username, or the email's local part for accounts that never set one
     handle: str
     is_profile_public: bool
+    # Library sizes for the Books / Films tabs. Only GET /auth/me fills them.
+    book_count: int = 0
+    film_count: int = 0
 
 
 def _me(user: User) -> MeRead:
@@ -175,10 +181,18 @@ def _set_session_cookie(response: Response, user: User) -> None:
 
 
 @router.get("/me", response_model=MeRead | None)
-async def me(current_user: User | None = Depends(get_current_user)):
+async def me(session: SessionDep, current_user: User | None = Depends(get_current_user)):
     """The signed-in user, or null for guests (a 200 either way, so the
     web app can ask on every load without logging errors)."""
-    return _me(current_user) if current_user else None
+    if current_user is None:
+        return None
+    out = _me(current_user)
+    for field, model in (("book_count", UserBook), ("film_count", UserFilm)):
+        count = (await session.exec(
+            select(sa.func.count()).select_from(model).where(model.user_id == current_user.id)
+        )).one()
+        setattr(out, field, count)
+    return out
 
 
 # ── JSON auth for the React app ─────────────────────────────────────────────

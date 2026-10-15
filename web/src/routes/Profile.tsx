@@ -1,16 +1,21 @@
 /* Profiles. /profile is your own (folio/desktop-app.jsx profile view on
    desktop, folio/screens.jsx Profile on phones); /u/:handle is someone
-   else's, the same layout read-only. */
+   else's, the same layout read-only. The /films twins show films instead
+   (folio/films.jsx FilmProfile) under the same header. */
 
 import { useEffect, useRef, useState } from 'react'
 import { Navigate, useLocation, useNavigate, useParams } from 'react-router'
 import { ApiError } from '../api/client'
 import { initials, useMe } from '../api/me'
+import { useMyFilms, usePublicFilms, useUpdateFilmEntry } from '../api/films'
 import { useLogout, useMyShelf, usePublicProfile } from '../api/queries'
 import { useSetProfileVisibility, useSetUsername, useUpdateShelfEntry } from '../api/shelf'
-import type { Haul, ShelfCounts, ShelfEntry, ShelfOwner } from '../api/types'
+import type { FilmShelfCounts, FilmShelfEntry, Haul, ShelfCounts, ShelfEntry, ShelfOwner } from '../api/types'
+import { FilmList, FilmRows, FilmShelf } from '../components/FilmViews'
 import { Icon } from '../components/Icon'
+import { MediaTabs } from '../components/MediaTabs'
 import { Hauls, ShelfGrid, ShelfList } from '../components/ShelfViews'
+import { useMedia } from '../lib/media'
 import { useOpenAdd, useOverlay } from '../lib/overlay'
 import { useToast } from '../lib/toast'
 import { useIsDesktop } from '../lib/useMediaQuery'
@@ -21,9 +26,16 @@ type Mode = 'shelf' | 'hauls'
 
 export function MyProfile() {
   const location = useLocation()
+  const films = useMedia() === 'films'
   const { data: me, isPending: meLoading } = useMe()
-  const { data, isError } = useMyShelf(!!me)
-  if (!meLoading && !me) return <Navigate to="/login?next=%2Fprofile" replace />
+  const { data, isError } = useMyShelf(!!me && !films)
+  const filmShelf = useMyFilms(!!me && films)
+  if (!meLoading && !me) return <Navigate to={`/login?next=${encodeURIComponent(location.pathname)}`} replace />
+  if (films) {
+    if (filmShelf.isError) return <Message text="Couldn't load your films. Try again in a moment." />
+    if (!filmShelf.data) return <Message text="Loading your films…" />
+    return <FilmProfileView owner={filmShelf.data.owner} counts={filmShelf.data.counts} entries={filmShelf.data.entries} mine />
+  }
   if (isError) return <Message text="Couldn't load your shelf. Try again in a moment." />
   if (!data) return <Message text="Loading your shelf…" />
   // Keyed by navigation, so arriving from the add dialog (state.mode =
@@ -33,11 +45,18 @@ export function MyProfile() {
 
 export function PublicProfile() {
   const { handle = '' } = useParams()
+  const films = useMedia() === 'films'
   const { data: me } = useMe()
-  const { data, error } = usePublicProfile(handle)
-  if (me && me.handle === handle) return <Navigate to="/profile" replace />
-  if (error instanceof ApiError && error.status === 404) return <NotFound text="This shelf is private, or there's no one here by that name." />
-  if (error) return <Message text="Couldn't load this shelf. Try again in a moment." />
+  const { data, error } = usePublicProfile(handle, !films)
+  const filmShelf = usePublicFilms(handle, films)
+  const err = films ? filmShelf.error : error
+  if (me && me.handle === handle) return <Navigate to={films ? '/profile/films' : '/profile'} replace />
+  if (err instanceof ApiError && err.status === 404) return <NotFound text="This shelf is private, or there's no one here by that name." />
+  if (err) return <Message text="Couldn't load this shelf. Try again in a moment." />
+  if (films) {
+    if (!filmShelf.data) return <Message text="Loading…" />
+    return <FilmProfileView owner={filmShelf.data.owner} counts={filmShelf.data.counts} entries={filmShelf.data.entries} mine={false} />
+  }
   if (!data) return <Message text="Loading…" />
   return <ProfileView owner={data.owner} counts={data.counts} entries={data.entries} hauls={data.hauls} mine={false} />
 }
@@ -95,6 +114,7 @@ function ProfileView({ owner, counts, entries, hauls, mine }: ViewProps) {
     return (
       <div className="f-rise">
         <DesktopHeader owner={owner} mine={mine} />
+        <MediaTabs counts={mine} />
         <div className="d-pf-stats" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 1, background: 'var(--hair)', border: '1px solid var(--hair)', borderRadius: 12, overflow: 'hidden', marginBottom: 36 }}>
           {stats.map(([k, v]) => (
             <div key={k} className="d-pf-stat" style={{ background: 'var(--paper)', padding: '18px 20px' }}>
@@ -159,11 +179,87 @@ function ProfileView({ owner, counts, entries, hauls, mine }: ViewProps) {
   )
 }
 
-function ModeToggle({ mode, setMode }: { mode: Mode; setMode: (m: Mode) => void }) {
+function ModeToggle<M extends string>({ mode, setMode, modes = ['shelf', 'hauls'] as M[] }: { mode: M; setMode: (m: M) => void; modes?: M[] }) {
   return (
     <div className="d-viewseg" role="group" aria-label="View">
-      <button className={mode === 'shelf' ? 'on' : ''} aria-pressed={mode === 'shelf'} onClick={() => setMode('shelf')}>Shelf</button>
-      <button className={mode === 'hauls' ? 'on' : ''} aria-pressed={mode === 'hauls'} onClick={() => setMode('hauls')}>Hauls</button>
+      {modes.map((m) => (
+        <button key={m} className={mode === m ? 'on' : ''} aria-pressed={mode === m} onClick={() => setMode(m)}>{m[0].toUpperCase() + m.slice(1)}</button>
+      ))}
+    </div>
+  )
+}
+
+// ── Films ─────────────────────────────────────────────────────────────────
+
+type FilmMode = 'shelf' | 'list'
+
+function FilmProfileView({ owner, counts, entries, mine }: { owner: ShelfOwner; counts: FilmShelfCounts; entries: FilmShelfEntry[]; mine: boolean }) {
+  const isDesktop = useIsDesktop()
+  const [mode, setMode] = useState<FilmMode>('shelf')
+  const { open } = useOverlay('film')
+  const update = useUpdateFilmEntry()
+  const toast = useToast()
+  const onAdd = useOpenAdd()
+
+  const onOpen = (e: FilmShelfEntry) => open(e.film.id)
+  const onPin = mine ? (e: FilmShelfEntry) => {
+    const pin = !e.is_pinned
+    update.mutate({ id: e.id, patch: { is_pinned: pin } }, {
+      onSuccess: () => toast((pin ? 'Moved to top · ' : 'Removed from top · ') + e.film.title),
+      onError: () => toast("Couldn't change that. Try again.", 'err'),
+    })
+  } : undefined
+  const stats: [string, number][] = [
+    ['Films', counts.all], ['Watched', counts.read], ['Not watched', counts.unread], ['Hours watched', Math.round(counts.minutes_watched / 60)],
+  ]
+  const label = mine ? 'Your films' : `@${owner.handle}'s films`
+  const empty = entries.length === 0 && (
+    <div style={{ padding: '60px 18px', textAlign: 'center', color: 'var(--ink-faint)' }}>
+      <div className="f-label" style={{ marginBottom: 8 }}>Nothing here yet</div>
+      {mine
+        ? <><div style={{ fontSize: 14, marginBottom: 18 }}>Search a title or paste an IMDb ID to add your first film.</div>
+            <button className="f-btn f-btn--amber" onClick={onAdd}><Icon name="plus" size={18} sw={1.8} /> Add films</button></>
+        : <div style={{ fontSize: 14 }}>No public films on this shelf yet.</div>}
+    </div>
+  )
+
+  if (isDesktop) {
+    return (
+      <div className="f-rise">
+        <DesktopHeader owner={owner} mine={mine} />
+        <MediaTabs counts={mine} />
+        <div className="f-swap">
+          <div className="d-pf-stats" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 1, background: 'var(--hair)', border: '1px solid var(--hair)', borderRadius: 12, overflow: 'hidden', marginBottom: 36 }}>
+            {stats.map(([k, v]) => (
+              <div key={k} className="d-pf-stat" style={{ background: 'var(--paper)', padding: '18px 20px' }}>
+                <div className="d-bignum" style={{ fontSize: 46 }}>{v}</div>
+                <div className="f-label" style={{ marginTop: 8 }}>{k}</div>
+              </div>
+            ))}
+          </div>
+          {empty || (
+            <>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6, gap: 16 }}>
+                <div className="f-label">{label}</div>
+                <ModeToggle mode={mode} setMode={setMode} modes={['shelf', 'list']} />
+              </div>
+              {mode === 'shelf' ? <FilmShelf entries={entries} onOpen={onOpen} onPin={onPin} /> : <FilmList entries={entries} onOpen={onOpen} />}
+            </>
+          )}
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="f-rise">
+      <MobileHeader owner={owner} mine={mine} stats={stats} />
+      {empty || (
+        <>
+          <div style={{ padding: '0 18px 4px' }}><div className="f-label">{label}</div></div>
+          <div style={{ padding: '0 18px 30px' }}><FilmRows entries={entries} onOpen={onOpen} onPin={onPin} /></div>
+        </>
+      )}
     </div>
   )
 }
@@ -249,7 +345,8 @@ function MobileHeader({ owner, mine, stats }: { owner: ShelfOwner; mine: boolean
         <button className="f-iconbtn" aria-label="Share profile" onClick={onShare}><Icon name="share" size={20} sw={1.7} /></button>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 1, background: 'var(--hair)', border: '1px solid var(--hair)', borderRadius: 10, overflow: 'hidden', marginTop: 20 }}>
+      <div className="m-pf-tabs"><MediaTabs counts={mine} /></div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 1, background: 'var(--hair)', border: '1px solid var(--hair)', borderRadius: 10, overflow: 'hidden' }}>
         {stats.map(([k, v]) => (
           <div key={k} className="d-pf-stat" style={{ background: 'var(--paper)', padding: '14px 10px' }}>
             <div className="d-bignum" style={{ fontSize: 32 }}>{v}</div>
@@ -264,7 +361,7 @@ function MobileHeader({ owner, mine, stats }: { owner: ShelfOwner; mine: boolean
             <div>
               <div style={{ fontSize: 14, fontWeight: 600, letterSpacing: '-0.01em' }}>Shelf visibility</div>
               <div style={{ fontSize: 12, color: 'var(--ink-faint)', marginTop: 1 }}>
-                {owner.is_profile_public ? 'Anyone with the link can see your public books' : 'Only you can see your shelf'}
+                {owner.is_profile_public ? 'Anyone with the link can see your public books and films' : 'Only you can see your shelf'}
               </div>
             </div>
             <VisibilityToggle isPublic={owner.is_profile_public} size="mobile" />
@@ -380,7 +477,7 @@ function ShareBody({ owner, mine, onDone, toast, channels }: {
     <>
       <div className="f-label">{mine ? 'Share your shelf' : 'Share this shelf'}</div>
       <div style={{ fontSize: 13.5, color: 'var(--ink-soft)', marginTop: 8, lineHeight: 1.5 }}>
-        {isPrivate ? 'Your shelf is private right now. Make it public so people with the link can see it.' : 'People with this link can see the public books.'}
+        {isPrivate ? 'Your shelf is private right now. Make it public so people with the link can see it.' : 'People with this link can see the public books and films.'}
       </div>
       <div className="row">
         <div className="d-share-link">{shortUrl(owner.handle)}</div>

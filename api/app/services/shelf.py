@@ -8,30 +8,13 @@ from sqlmodel import select
 
 from app.db import SessionDep
 from app.models.user import User
-from app.models.user_book_image import UserBookImage
-from app.services import storage
+from app.services import photos
 
 
 async def attach_images(session: SessionDep, items: list[dict]) -> None:
     """Attach item["images"] (uploaded comment photos, ordered) to each
     {"user_book", "book"} entry, keyed off UserBook.id."""
-    for item in items:
-        item["images"] = []
-    if not items or not storage.storage_configured():
-        return
-    ub_ids = [item["user_book"].id for item in items]
-    result = await session.exec(
-        select(UserBookImage)
-        .where(UserBookImage.user_book_id.in_(ub_ids), UserBookImage.status == "uploaded")
-        .order_by(UserBookImage.position)
-    )
-    by_ub: dict = {}
-    for img in result.all():
-        by_ub.setdefault(img.user_book_id, []).append(
-            {"id": str(img.id), "url": storage.presigned_get_url(img.s3_key), "position": img.position}
-        )
-    for item in items:
-        item["images"] = by_ub.get(item["user_book"].id, [])
+    await photos.attach(session, "user_book_id", items, "user_book")
 
 
 async def contributor_handles(session: SessionDep, books) -> dict:

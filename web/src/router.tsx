@@ -34,13 +34,18 @@ const page = (C: ComponentType, fallback: ReactNode = null) => <Suspense fallbac
 // Mirrors the old Jinja pages. Views that used to be #hash tabs on `/` are
 // real history entries now, so Back works. Explore lives at /explore because
 // /books is an API prefix. /mobile-scan/:token stays a standalone FastAPI
-// page so phones don't download the whole app just to scan.
+// page so phones don't download the whole app just to scan. Each tabbed page
+// has a /films twin (lib/media.ts); home's is /?m=films, since /films is the
+// API too.
 const pages: RouteObject[] = [
   { index: true, element: <Home /> },
   { path: 'explore', element: page(Explore) },
+  { path: 'explore/films', element: page(Explore) },
   { path: 'guide', element: page(Guide) },
   { path: 'profile', element: page(MyProfile) },
+  { path: 'profile/films', element: page(MyProfile) },
   { path: 'u/:handle', element: page(PublicProfile) },
+  { path: 'u/:handle/films', element: page(PublicProfile) },
   { path: '*', element: page(NotFound) },
 ]
 

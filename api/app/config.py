@@ -12,6 +12,9 @@ class Settings(BaseSettings):
     # Open Library asks clients to identify themselves with a contact address so
     # they can reach out before throttling. Sent in the User-Agent header.
     CONTACT_EMAIL: str = "nathnaelyirga@gmail.com"
+    # OMDb (films). The key stays on the server; film routes return 503 without it.
+    OMDB_API_KEY: str | None = None
+    OMDB_BASE_URL: str = "https://www.omdbapi.com/"
     DATABASE_URL: str
 
     # Auth

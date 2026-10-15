@@ -404,3 +404,50 @@
 /* navy + orange theme */
 .th-navy{--paper:#F5F0E6;--paper-2:#EAE4D8;--ink:#141B2E;--ink-soft:#3D4763;--ink-faint:#6E7790;--hair:rgba(37,60,109,0.14);--hair-strong:rgba(37,60,109,0.3);--st-unread:#6E7790}
 .th-navy.f-grain::before{background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .1 0 0 0 0 .16 0 0 0 0 .32 1.6 0 0 0 -.62'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:180px 180px;opacity:.32;z-index:0}
+.f-swap{animation:f-swap var(--duration-slow) var(--ease-out)}
+@keyframes f-swap{from{opacity:0;transform:translateY(8px)}}
+
+/* ── Film poster (flat sheet; books keep the 3D spine) ──────── */
+.f-poster{position:relative;overflow:hidden;border-radius:3px;flex-shrink:0;box-shadow:0 1px 0 rgba(0,0,0,.08),0 10px 20px -12px rgba(20,27,46,.5);transition:transform var(--duration-base) var(--ease-out),box-shadow var(--duration-base) var(--ease-out)}
+.f-poster img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.f-poster .perf{position:absolute;display:flex}
+.f-poster .perf i{flex:1;background:var(--rule);border-radius:1px}
+.f-poster .yr{position:absolute;font-family:var(--font-mono);letter-spacing:.04em;opacity:.85;line-height:1}
+.f-poster .rt{position:absolute;font-family:var(--font-mono);border:1px solid currentColor;border-radius:2px;letter-spacing:.04em;line-height:1.2;opacity:.85}
+.f-poster .tt{position:absolute;font-weight:700;letter-spacing:-.035em;line-height:.95;text-wrap:balance;overflow-wrap:anywhere}
+.f-poster .dr{position:absolute;border-top:1px solid var(--rule);letter-spacing:.01em;opacity:.85;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.d-cell:hover .f-poster.hov{transform:translateY(-4px);box-shadow:0 1px 0 rgba(0,0,0,.08),0 18px 28px -14px rgba(20,27,46,.55)}
+.kc .d-cell:hover .f-poster.hov{transform:translateY(-4px) rotate(-1.5deg)}
+
+/* ── Film list view ─────────────────────────────────────────── */
+.d-flist{margin-top:24px;display:flex;flex-direction:column}
+.d-flist .hd,.d-flist .rw{display:grid;grid-template-columns:34px minmax(0,1fr) 92px 92px 56px 128px 24px;gap:16px;align-items:center}
+.d-flist .hd{padding:0 12px 10px;border-bottom:1px solid var(--hair);font-family:var(--font-mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint)}
+.d-flist .rw{padding:10px 12px;border:none;border-bottom:1px solid var(--hair);background:transparent;text-align:left;cursor:pointer;font:inherit;color:var(--ink);transition:background var(--duration-fast) var(--ease-out)}
+.d-flist .rw:hover{background:var(--paper-2)}
+.d-flist .t b{display:block;font-size:14px;font-weight:600;letter-spacing:-.015em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.d-flist .t i{display:block;font-style:normal;font-size:12px;color:var(--ink-faint);margin-top:2px}
+.d-flist .m{font-family:var(--font-mono);font-size:12.5px;font-variant-numeric:tabular-nums;color:var(--ink-soft)}
+.d-flist .v{color:var(--ink-faint);display:flex}
+
+/* ── Film drawer + add dialog bits ──────────────────────────── */
+.d-scores{display:grid;gap:1px;background:var(--hair);border:1px solid var(--hair);border-radius:10px;overflow:hidden;margin-bottom:18px}
+.d-scores>div{background:var(--paper);padding:12px 14px}
+.d-scores .d-bignum{font-size:30px;margin-bottom:6px}
+.d-scores small{font-family:var(--font-mono);font-size:11px;opacity:.55;margin-left:2px}
+.d-idpaste{font-family:var(--font-mono)!important;font-size:12.5px!important;line-height:1.65!important}
+.d-idchip{font-family:var(--font-mono);font-size:10.5px;padding:3px 7px;border-radius:5px;background:var(--paper-2);color:var(--ink)}
+.d-idchip.dup{opacity:.5;text-decoration:line-through}
+.d-idchip.bad{background:color-mix(in oklab,#B23A48 14%,transparent);color:#8E2A36}
+
+/* ── Books / Films word tabs ───────────────────────────────── */
+.d-mtabs{display:flex;align-items:flex-end;gap:28px;border-bottom:1px solid var(--hair);margin-bottom:32px}
+.d-mtabs button{position:relative;border:none;background:none;cursor:pointer;padding:0 0 12px;font:600 30px/1 var(--font-sans);letter-spacing:-0.035em;color:var(--ink-faint);transition:color var(--duration-base) var(--ease-out)}
+.d-mtabs button:hover{color:var(--ink-soft)}
+.d-mtabs button.on{color:var(--ink)}
+.d-mtabs button::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:3px;background:var(--amber);transform:scaleX(0);transform-origin:left;transition:transform var(--duration-slow) var(--ease-out)}
+.d-mtabs button.on::after{transform:scaleX(1)}
+.d-mtabs button:focus-visible{outline:2px solid var(--accent);outline-offset:4px;border-radius:4px}
+.d-mtabs sup{font-family:var(--font-mono);font-size:11px;font-weight:500;letter-spacing:0;margin-left:5px;vertical-align:top;position:relative;top:2px}
+.d-mtabs .hint{margin-left:auto;padding-bottom:14px;font-family:var(--font-mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint)}
+.kc .d-mtabs button.on::after{height:4px;border-radius:2px}

@@ -38,116 +38,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Index
-         * @description Home page:
-         *     - Lists all books in the database on the left.
-         *     - If `isbn` is present, ensures it's in DB and displays details on the right.
-         */
-        get: operations["index__get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/explore": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Explore Page
-         * @description Return one page of community books as an HTML fragment (lazy loading).
-         */
-        get: operations["explore_page_explore_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/login": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Login Page */
-        get: operations["login_page_login_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/register": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Register Page */
-        get: operations["register_page_register_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/forgot-password": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Forgot Password Page */
-        get: operations["forgot_password_page_forgot_password_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/reset-password": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Reset Password Page */
-        get: operations["reset_password_page_reset_password_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/mobile-scan/{token}": {
         parameters: {
             query?: never;
@@ -157,43 +47,6 @@ export interface paths {
         };
         /** Mobile Scan Page */
         get: operations["mobile_scan_page_mobile_scan__token__get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/guide": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Guide Page */
-        get: operations["guide_page_guide_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/u/{handle}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Public Profile Page
-         * @description Public profile page — 404 if user not found or profile is private.
-         */
-        get: operations["public_profile_page_u__handle__get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -562,58 +415,90 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/auth/register": {
+    "/films/search": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /**
+         * Search Films
+         * @description Title search via OMDb, 10 results a page. Searching by director or
+         *     actor isn't something OMDb does.
+         */
+        get: operations["search_films_films_search_get"];
         put?: never;
-        /** Register */
-        post: operations["register_auth_register_post"];
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/auth/login": {
+    "/films/lookup/{imdb_id}": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /**
+         * Lookup Film
+         * @description One film by IMDb ID (or an IMDb link). Checks the catalogue first,
+         *     otherwise fetches it from OMDb and keeps it.
+         */
+        get: operations["lookup_film_films_lookup__imdb_id__get"];
         put?: never;
-        /** Login */
-        post: operations["login_auth_login_post"];
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/auth/password-recovery": {
+    "/films/recent": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /**
+         * Recent Films
+         * @description Newest films across Dora, a page at a time (Explore, and the home page).
+         *     Only films someone has on a public shelf.
+         */
+        get: operations["recent_films_films_recent_get"];
         put?: never;
-        /** Recover Password */
-        post: operations["recover_password_auth_password_recovery_post"];
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/auth/reset-password": {
+    "/films/user_films": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * My Film Shelf
+         * @description The signed-in user's films, including private ones.
+         */
+        get: operations["my_film_shelf_films_user_films_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/films/user_films/batch": {
         parameters: {
             query?: never;
             header?: never;
@@ -622,8 +507,143 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Reset Password */
-        post: operations["reset_password_auth_reset_password_post"];
+        /**
+         * Batch Add User Films
+         * @description Save the add dialog's queue. New IMDb IDs are fetched from OMDb all at
+         *     once; each entry then commits on its own, so one bad ID can't drop the
+         *     rest.
+         */
+        post: operations["batch_add_user_films_films_user_films_batch_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/films/user_films/add/{film_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Add Film To Shelf
+         * @description Add a film that's already in the catalogue (from Explore or a profile).
+         */
+        post: operations["add_film_to_shelf_films_user_films_add__film_id__post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/films/user_films/{user_film_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update User Film */
+        patch: operations["update_user_film_films_user_films__user_film_id__patch"];
+        trace?: never;
+    };
+    "/films/user_films/{user_film_id}/images/presign": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Presign User Film Images */
+        post: operations["presign_user_film_images_films_user_films__user_film_id__images_presign_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/films/user_films/{user_film_id}/images/{image_id}/confirm": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Confirm User Film Image */
+        post: operations["confirm_user_film_image_films_user_films__user_film_id__images__image_id__confirm_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/films/user_films/{user_film_id}/images/{image_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete User Film Image */
+        delete: operations["delete_user_film_image_films_user_films__user_film_id__images__image_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/films/{film_id}/entry": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Film Entry
+         * @description One film with the viewer's context, so a shared ?film= link opens
+         *     its record directly.
+         */
+        get: operations["film_entry_films__film_id__entry_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/profiles/{handle}/films": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Public Film Shelf
+         * @description Someone's public films. 404 when the handle doesn't exist or the
+         *     profile is private, same as their books.
+         */
+        get: operations["public_film_shelf_profiles__handle__films_get"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -792,23 +812,6 @@ export interface paths {
         patch: operations["update_username_auth_username_patch"];
         trace?: never;
     };
-    "/auth/logout": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Logout */
-        get: operations["logout_auth_logout_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/scan/session": {
         parameters: {
             query?: never;
@@ -967,35 +970,34 @@ export interface components {
             /** Entries */
             entries: components["schemas"]["BatchUserBookEntry"][];
         };
-        /** Body_login_auth_login_post */
-        Body_login_auth_login_post: {
-            /** Username */
-            username: string;
-            /** Password */
-            password: string;
+        /** BatchUserFilmEntry */
+        BatchUserFilmEntry: {
+            /** Imdb Id */
+            imdb_id?: string | null;
+            /** Film Id */
+            film_id?: string | null;
+            /**
+             * Status
+             * @default unread
+             */
+            status: string;
+            /**
+             * Is Public
+             * @default true
+             */
+            is_public: boolean;
         };
-        /** Body_recover_password_auth_password_recovery_post */
-        Body_recover_password_auth_password_recovery_post: {
-            /** Email */
-            email: string;
+        /** BatchUserFilmRequest */
+        BatchUserFilmRequest: {
+            /** Entries */
+            entries: components["schemas"]["BatchUserFilmEntry"][];
         };
-        /** Body_register_auth_register_post */
-        Body_register_auth_register_post: {
-            /** Firstname */
-            firstname: string;
-            /** Lastname */
-            lastname: string;
-            /** Email */
-            email: string;
-            /** Password */
-            password: string;
-        };
-        /** Body_reset_password_auth_reset_password_post */
-        Body_reset_password_auth_reset_password_post: {
-            /** Token */
-            token: string;
-            /** New Password */
-            new_password: string;
+        /** BatchUserFilmResult */
+        BatchUserFilmResult: {
+            /** Added */
+            added: number;
+            /** Errors */
+            errors: string[];
         };
         /** BookEntryRead */
         BookEntryRead: {
@@ -1113,6 +1115,175 @@ export interface components {
             /** Large */
             large?: string | null;
         };
+        /**
+         * FilmCatalogEntry
+         * @description A film as anyone browsing sees it.
+         */
+        FilmCatalogEntry: {
+            film: components["schemas"]["FilmRead"];
+            /**
+             * On Shelf
+             * @default false
+             */
+            on_shelf: boolean;
+        };
+        /** FilmEntryRead */
+        FilmEntryRead: {
+            film: components["schemas"]["FilmRead"];
+            /**
+             * On Shelf
+             * @default false
+             */
+            on_shelf: boolean;
+            shelf?: components["schemas"]["FilmShelfEntry"] | null;
+        };
+        /** FilmRating */
+        FilmRating: {
+            /** Source */
+            source: string;
+            /** Value */
+            value: string;
+        };
+        /** FilmRead */
+        FilmRead: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Imdb Id */
+            imdb_id: string;
+            /** Type */
+            type: string;
+            /** Title */
+            title: string;
+            /** Year */
+            year?: string | null;
+            /** Rated */
+            rated?: string | null;
+            /** Released */
+            released?: string | null;
+            /** Runtime Min */
+            runtime_min?: number | null;
+            /**
+             * Genres
+             * @default []
+             */
+            genres: string[];
+            /** Director */
+            director?: string | null;
+            /** Writer */
+            writer?: string | null;
+            /** Actors */
+            actors?: string | null;
+            /** Plot */
+            plot?: string | null;
+            /** Language */
+            language?: string | null;
+            /** Country */
+            country?: string | null;
+            /** Awards */
+            awards?: string | null;
+            /** Poster Url */
+            poster_url?: string | null;
+            /**
+             * Ratings
+             * @default []
+             */
+            ratings: components["schemas"]["FilmRating"][];
+            /** Imdb Rating */
+            imdb_rating?: number | null;
+            /** Imdb Votes */
+            imdb_votes?: number | null;
+        };
+        /** FilmRecentPage */
+        FilmRecentPage: {
+            /** Entries */
+            entries: components["schemas"]["FilmCatalogEntry"][];
+            /** Next Offset */
+            next_offset?: number | null;
+        };
+        /**
+         * FilmSearchHit
+         * @description One OMDb search result. Search only carries these few fields; the
+         *     rest arrive with /films/lookup.
+         */
+        FilmSearchHit: {
+            /** Imdb Id */
+            imdb_id: string;
+            /** Title */
+            title: string;
+            /** Year */
+            year?: string | null;
+            /** Type */
+            type: string;
+            /** Poster Url */
+            poster_url?: string | null;
+            /**
+             * On Shelf
+             * @default false
+             */
+            on_shelf: boolean;
+        };
+        /** FilmSearchPage */
+        FilmSearchPage: {
+            /** Results */
+            results: components["schemas"]["FilmSearchHit"][];
+            /** Total */
+            total: number;
+            /** Page */
+            page: number;
+        };
+        /** FilmShelfCounts */
+        FilmShelfCounts: {
+            /** All */
+            all: number;
+            /** Reading */
+            reading: number;
+            /** Read */
+            read: number;
+            /** Unread */
+            unread: number;
+            /** Minutes Watched */
+            minutes_watched: number;
+        };
+        /**
+         * FilmShelfEntry
+         * @description A film on someone's shelf, with that person's status, note and photos.
+         */
+        FilmShelfEntry: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Status */
+            status: string;
+            /** Is Public */
+            is_public: boolean;
+            /** Is Pinned */
+            is_pinned: boolean;
+            /** Comment */
+            comment?: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Images
+             * @default []
+             */
+            images: components["schemas"]["UserBookImageRead"][];
+            film: components["schemas"]["FilmRead"];
+        };
+        /** FilmShelfRead */
+        FilmShelfRead: {
+            owner: components["schemas"]["ShelfOwner"];
+            counts: components["schemas"]["FilmShelfCounts"];
+            /** Entries */
+            entries: components["schemas"]["FilmShelfEntry"][];
+        };
         /** HTTPValidationError */
         HTTPValidationError: {
             /** Detail */
@@ -1206,6 +1377,16 @@ export interface components {
             handle: string;
             /** Is Profile Public */
             is_profile_public: boolean;
+            /**
+             * Book Count
+             * @default 0
+             */
+            book_count: number;
+            /**
+             * Film Count
+             * @default 0
+             */
+            film_count: number;
         };
         /** PasswordReset */
         PasswordReset: {
@@ -1254,6 +1435,18 @@ export interface components {
         ProfileUpdate: {
             /** Is Profile Public */
             is_profile_public: boolean;
+        };
+        /** PublicFilmShelfRead */
+        PublicFilmShelfRead: {
+            owner: components["schemas"]["ShelfOwner"];
+            counts: components["schemas"]["FilmShelfCounts"];
+            /** Entries */
+            entries: components["schemas"]["FilmShelfEntry"][];
+            /**
+             * Viewer Film Ids
+             * @default []
+             */
+            viewer_film_ids: string[];
         };
         /** PublicShelfRead */
         PublicShelfRead: {
@@ -1404,6 +1597,17 @@ export interface components {
             /** Is Pinned */
             is_pinned?: boolean | null;
         };
+        /** UpdateUserFilmRequest */
+        UpdateUserFilmRequest: {
+            /** Status */
+            status?: string | null;
+            /** Is Public */
+            is_public?: boolean | null;
+            /** Comment */
+            comment?: string | null;
+            /** Is Pinned */
+            is_pinned?: boolean | null;
+        };
         /** UserBookImageRead */
         UserBookImageRead: {
             /**
@@ -1509,250 +1713,12 @@ export interface operations {
             };
         };
     };
-    index__get: {
-        parameters: {
-            query?: {
-                isbn?: string | null;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    explore_page_explore_get: {
-        parameters: {
-            query?: {
-                offset?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    login_page_login_get: {
-        parameters: {
-            query?: {
-                error?: string | null;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    register_page_register_get: {
-        parameters: {
-            query?: {
-                error?: string | null;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    forgot_password_page_forgot_password_get: {
-        parameters: {
-            query?: {
-                error?: string | null;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    reset_password_page_reset_password_get: {
-        parameters: {
-            query: {
-                token: string;
-                error?: string | null;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
     mobile_scan_page_mobile_scan__token__get: {
         parameters: {
             query?: never;
             header?: never;
             path: {
                 token: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    guide_page_guide_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
-                };
-            };
-        };
-    };
-    public_profile_page_u__handle__get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                handle: string;
             };
             cookie?: never;
         };
@@ -2350,7 +2316,122 @@ export interface operations {
             };
         };
     };
-    register_auth_register_post: {
+    search_films_films_search_get: {
+        parameters: {
+            query: {
+                /** @description Film or series title */
+                q: string;
+                page?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FilmSearchPage"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    lookup_film_films_lookup__imdb_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                imdb_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FilmCatalogEntry"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    recent_films_films_recent_get: {
+        parameters: {
+            query?: {
+                offset?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FilmRecentPage"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    my_film_shelf_films_user_films_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FilmShelfRead"];
+                };
+            };
+        };
+    };
+    batch_add_user_films_films_user_films_batch_post: {
         parameters: {
             query?: never;
             header?: never;
@@ -2359,7 +2440,73 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/x-www-form-urlencoded": components["schemas"]["Body_register_auth_register_post"];
+                "application/json": components["schemas"]["BatchUserFilmRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BatchUserFilmResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    add_film_to_shelf_films_user_films_add__film_id__post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                film_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_user_film_films_user_films__user_film_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                user_film_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateUserFilmRequest"];
             };
         };
         responses: {
@@ -2383,18 +2530,84 @@ export interface operations {
             };
         };
     };
-    login_auth_login_post: {
+    presign_user_film_images_films_user_films__user_film_id__images_presign_post: {
         parameters: {
             query?: never;
             header?: never;
-            path?: never;
+            path: {
+                user_film_id: string;
+            };
             cookie?: never;
         };
         requestBody: {
             content: {
-                "application/x-www-form-urlencoded": components["schemas"]["Body_login_auth_login_post"];
+                "application/json": components["schemas"]["PresignBatchRequest"];
             };
         };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PresignedUpload"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    confirm_user_film_image_films_user_films__user_film_id__images__image_id__confirm_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                user_film_id: string;
+                image_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserBookImageRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_user_film_image_films_user_films__user_film_id__images__image_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                user_film_id: string;
+                image_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
         responses: {
             /** @description Successful Response */
             200: {
@@ -2416,18 +2629,16 @@ export interface operations {
             };
         };
     };
-    recover_password_auth_password_recovery_post: {
+    film_entry_films__film_id__entry_get: {
         parameters: {
             query?: never;
             header?: never;
-            path?: never;
+            path: {
+                film_id: string;
+            };
             cookie?: never;
         };
-        requestBody: {
-            content: {
-                "application/x-www-form-urlencoded": components["schemas"]["Body_recover_password_auth_password_recovery_post"];
-            };
-        };
+        requestBody?: never;
         responses: {
             /** @description Successful Response */
             200: {
@@ -2435,7 +2646,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": unknown;
+                    "application/json": components["schemas"]["FilmEntryRead"];
                 };
             };
             /** @description Validation Error */
@@ -2449,18 +2660,16 @@ export interface operations {
             };
         };
     };
-    reset_password_auth_reset_password_post: {
+    public_film_shelf_profiles__handle__films_get: {
         parameters: {
             query?: never;
             header?: never;
-            path?: never;
+            path: {
+                handle: string;
+            };
             cookie?: never;
         };
-        requestBody: {
-            content: {
-                "application/x-www-form-urlencoded": components["schemas"]["Body_reset_password_auth_reset_password_post"];
-            };
-        };
+        requestBody?: never;
         responses: {
             /** @description Successful Response */
             200: {
@@ -2468,7 +2677,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": unknown;
+                    "application/json": components["schemas"]["PublicFilmShelfRead"];
                 };
             };
             /** @description Validation Error */
@@ -2484,7 +2693,9 @@ export interface operations {
     };
     google_login_auth_google_get: {
         parameters: {
-            query?: never;
+            query?: {
+                next?: string | null;
+            };
             header?: never;
             path?: never;
             cookie?: never;
@@ -2498,6 +2709,15 @@ export interface operations {
                 };
                 content: {
                     "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
@@ -2752,26 +2972,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    logout_auth_logout_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
                 };
             };
         };
