@@ -59,7 +59,7 @@ class Settings(BaseSettings):
     SMTP_HOST: str | None = None
     SMTP_USER: str | None = None
     SMTP_PASSWORD: str | None = None
-    EMAILS_FROM_EMAIL: str | None = "noreply@openbookie.com"
+    EMAILS_FROM_EMAIL: str | None = "dora@you.et"
     EMAILS_FROM_NAME: str | None = "Dora"
 
     # S3-compatible object storage — comment photo uploads. Any endpoint that

@@ -5,7 +5,7 @@ from urllib.parse import quote
 import httpx
 from authlib.integrations.base_client.errors import MismatchingStateError, OAuthError
 from authlib.integrations.starlette_client import OAuth
-from fastapi import APIRouter, Depends, HTTPException, Request, Response
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request, Response
 from pydantic import BaseModel
 from fastapi.responses import RedirectResponse
 import sqlalchemy as sa
@@ -25,7 +25,7 @@ from app.db import SessionDep
 from app.models.user import User
 from app.models.user_book import UserBook
 from app.models.user_film import UserFilm
-from app.services.email import send_reset_password_email
+from app.services.email import reset_password_email, send_email, welcome_email
 from app.services.username import USERNAME_RE, generate_unique_username
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
@@ -98,7 +98,7 @@ async def google_login(request: Request, next: str | None = None):
 
 
 @router.get("/google/callback")
-async def google_callback(request: Request, session: SessionDep):
+async def google_callback(request: Request, session: SessionDep, background: BackgroundTasks):
     # Every failure here used to surface as a bare 500. Each one now logs the
     # real reason and sends the user back to sign in with a readable message.
     if request.query_params.get("error"):
@@ -142,6 +142,7 @@ async def google_callback(request: Request, session: SessionDep):
         session.add(user)
         await session.commit()
         await session.refresh(user)
+        background.add_task(send_email, *welcome_email(user))
 
     access_token = create_access_token(data={"sub": user.email})
     response = RedirectResponse(url=_frontend(request.session.pop("after_google", "/")), status_code=303)
@@ -235,7 +236,9 @@ async def end_session(response: Response):
 
 
 @router.post("/account", response_model=MeRead, status_code=201)
-async def create_account(body: SignupRequest, response: Response, session: SessionDep):
+async def create_account(
+    body: SignupRequest, response: Response, session: SessionDep, background: BackgroundTasks
+):
     email = body.email.strip()
     if (await session.exec(select(User).where(User.email == email))).first():
         raise HTTPException(status_code=409, detail="There's already an account with that email.")
@@ -249,18 +252,19 @@ async def create_account(body: SignupRequest, response: Response, session: Sessi
     session.add(user)
     await session.commit()
     await session.refresh(user)
+    background.add_task(send_email, *welcome_email(user))
     _set_session_cookie(response, user)
     return _me(user)
 
 
 @router.post("/password-reset-requests", status_code=202)
-async def request_password_reset(body: ResetRequest, session: SessionDep):
+async def request_password_reset(body: ResetRequest, session: SessionDep, background: BackgroundTasks):
     """Always 202, whether or not the email has an account, so the response
     can't be used to find out who has one."""
     email = body.email.strip()
     user = (await session.exec(select(User).where(User.email == email))).first()
     if user:
-        send_reset_password_email(email_to=user.email, token=create_password_reset_token(email=email))
+        background.add_task(send_email, *reset_password_email(user, create_password_reset_token(email=email)))
     return {"ok": True}
 
 

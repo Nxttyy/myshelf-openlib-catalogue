@@ -60,6 +60,8 @@ async def add_static_cache_headers(request: Request, call_next):
 
 
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
+# Images for the email templates, at the {{ site_url }}/email/ paths they use.
+app.mount("/email", StaticFiles(directory="app/static/email"), name="email")
 
 app.mount("/mcp", secured_mcp_app())
 app.include_router(rest_router)
