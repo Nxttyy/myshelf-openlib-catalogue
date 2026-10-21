@@ -454,7 +454,7 @@ function SaveFooter() {
           <Icon name="lock" size={13} style={{ verticalAlign: '-2px', marginRight: 5, color: 'var(--ink-faint)' }} />
           Sign in to save your films.
         </div>
-        <Link to={`/login?next=${encodeURIComponent(here)}`} className="f-btn f-btn--ink">Sign in</Link>
+        <Link to={`/login?next=${encodeURIComponent(here)}`} state={{ reason: 'Sign in to save your films' }} className="f-btn f-btn--ink">Sign in</Link>
       </div>
     )
   }

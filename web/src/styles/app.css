@@ -99,29 +99,22 @@ a.d-navlink { display: flex; flex-direction: column; justify-content: center; li
 .m-sheet-handle { padding: 2px 0 6px; cursor: grab; touch-action: none; flex-shrink: 0; }
 .f-sheet { padding-bottom: env(safe-area-inset-bottom); }
 
-/* ── Auth pages (folio/login.jsx) ──────────────────────────── */
-.auth-band {
-  position: relative; background: var(--ink-blue-deep); color: var(--paper);
-  padding: calc(env(safe-area-inset-top) + 64px) 22px 30px;
-}
-.auth-close { position: absolute; top: calc(env(safe-area-inset-top) + 12px); right: 14px; color: var(--paper); }
-.auth-close:hover { background: rgba(255,255,255,0.08); }
-.auth-form { position: relative; z-index: 1; padding: 24px 22px 30px; padding-bottom: calc(env(safe-area-inset-bottom) + 30px); }
-
-@media (min-width: 900px) {
-  .auth-desk {
-    position: relative; z-index: 1; min-height: 100vh; min-height: 100dvh;
-    display: flex; flex-direction: column; align-items: center; padding: 28px 24px 60px;
-  }
-  .auth-desk > .home-link { align-self: flex-start; margin-left: 16px; }
-  .auth-card {
-    width: 440px; margin-top: 44px; background: var(--paper); border-radius: 14px;
-    box-shadow: var(--shadow-xl); overflow: hidden;
-  }
-  .auth-card .auth-band { padding: 40px 32px 30px; }
-  .auth-card .auth-close { top: 14px; }
-  .auth-card .auth-form { padding: 28px 32px 32px; }
-}
+/* ── Auth pages (folio/auth.jsx, styles in auth.css) ───────── */
+/* The design's frame was a fixed-size window; here it's the viewport. */
+.d-app.auth-page, .folio-screen.auth-page { position: fixed; inset: 0; min-height: 0; z-index: 5; }
+.d-app.auth-page.f-grain::before { position: absolute; }
+/* The design caps the art panel at 540px of its 1280px frame; on a real
+   screen that reads as narrow. 40/60 keeps the proportion at any width. */
+.au-d { grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); }
+.au-m-bar { top: calc(env(safe-area-inset-top) + 12px); }
+.au-m-sheet { padding-bottom: calc(env(safe-area-inset-bottom) + 40px); }
+.au-art-top a { color: inherit; }
+/* First + last name side by side (the design's form has no name fields). */
+.au-names { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.au-names .au-field { min-width: 0; }
+a.au-link { text-decoration: none; }
+a.f-btn.au-submit { display: flex; align-items: center; justify-content: center; text-decoration: none; margin-top: 10px; }
+.au-google[aria-disabled="true"] { opacity: .75; cursor: default; }
 
 /* Photo overlays sit above the drawer/sheet they were opened from. */
 .d-lightbox { z-index: 80; }

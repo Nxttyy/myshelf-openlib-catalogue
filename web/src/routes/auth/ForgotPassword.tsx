@@ -1,41 +1,73 @@
-import { useState, type FormEvent } from 'react'
-import { Link } from 'react-router'
+import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { useRequestPasswordReset } from '../../api/queries'
+import { Icon } from '../../components/Icon'
+import { emailOk, useTouched } from '../../lib/auth'
 import { useToast } from '../../lib/toast'
-import { AuthFrame, Field, FormFooter } from './AuthFrame'
-import { footerLink } from '../../lib/auth'
+import { useIsDesktop } from '../../lib/useMediaQuery'
+import { AuthCard, AuthLink, Field, Submit } from './AuthForm'
+
+const COOLDOWN = 30 // seconds before "send it again" comes back
 
 export default function ForgotPassword() {
   const request = useRequestPasswordReset()
   const toast = useToast()
+  const desktop = useIsDesktop()
   const [email, setEmail] = useState('')
+  const [sent, setSent] = useState(false)
+  const [cool, setCool] = useState(0)
+  const { seen, blur, setTried } = useTouched<'email'>()
+  const ref = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    if (cool <= 0) return
+    const id = setTimeout(() => setCool((c) => c - 1), 1000)
+    return () => clearTimeout(id)
+  }, [cool])
+
+  const err = !email.trim() ? 'Enter your email' : !emailOk(email) ? 'This email looks incomplete' : null
+
+  function send(again = false) {
+    request.mutate(email.trim(), {
+      onSuccess: () => { setSent(true); setCool(COOLDOWN); if (again) toast('Sent again') },
+      onError: (e) => toast(e.message, 'err'),
+    })
+  }
 
   function submit(e: FormEvent) {
     e.preventDefault()
-    request.mutate(email.trim(), { onError: (err) => toast(err.message, 'err') })
+    setTried(true)
+    if (err) return ref.current?.focus()
+    send()
+  }
+
+  if (sent) {
+    return (
+      <AuthCard key="sent" title="Check your email" sub="If there's an account for this address, the link to reset your password is on its way. It works for 1 hour.">
+        <div className="au-mailto">
+          <Icon name="mail" size={17} />
+          <span className="f-mono">{email.trim()}</span>
+          <button type="button" className="au-link" onClick={() => setSent(false)}>Change</button>
+        </div>
+        <AuthLink to="/login" className="f-btn f-btn--amber f-btn--block au-submit">Back to sign in</AuthLink>
+        <p className="au-fine">
+          Nothing after a few minutes? Check your spam folder, or{' '}
+          {cool > 0
+            ? <span className="f-mono">resend in 0:{String(cool).padStart(2, '0')}</span>
+            : <button type="button" className="au-link" disabled={request.isPending} onClick={() => send(true)}>send it again</button>}.
+        </p>
+      </AuthCard>
+    )
   }
 
   return (
-    <AuthFrame label="Dora · password" title={<>Forgot your<br />password?</>} sub="Enter your email and we'll send you a link to set a new one.">
-      {request.isSuccess ? (
-        <div role="status">
-          <div className="f-label" style={{ marginBottom: 10 }}>Check your inbox</div>
-          <p style={{ fontSize: 14.5, color: 'var(--ink-soft)', lineHeight: 1.55 }}>
-            If there's an account for <strong style={{ color: 'var(--ink)' }}>{email.trim()}</strong>, a reset link is on its way. It works for one hour.
-          </p>
-          <Link to="/login" className="f-btn f-btn--ink f-btn--block" style={{ marginTop: 22 }}>Back to sign in</Link>
-        </div>
-      ) : (
-        <>
-          <form onSubmit={submit}>
-            <Field label="Email" id="email" type="email" autoComplete="email" required placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} />
-            <button type="submit" className="f-btn f-btn--amber f-btn--block" style={{ marginTop: 6 }} disabled={request.isPending}>
-              {request.isPending ? 'Sending…' : 'Send reset link'}
-            </button>
-          </form>
-          <FormFooter>Remembered it? <Link to="/login" style={footerLink}>Sign in</Link></FormFooter>
-        </>
-      )}
-    </AuthFrame>
+    <AuthCard key="form" title="Reset your password" sub="Enter the email you signed up with. We'll send a link to set a new one."
+      footer={<AuthLink to="/login">Back to sign in</AuthLink>}>
+      <form noValidate onSubmit={submit}>
+        <Field id="au-email" label="Email" type="email" inputMode="email" autoComplete="username" placeholder="you@example.com"
+          inputRef={ref} autoFocus={desktop} value={email} onChange={(e) => setEmail(e.target.value)} onBlur={blur('email')}
+          error={seen('email') ? err : null} />
+        <Submit busy={request.isPending} label="Send reset link" busyLabel="Sending" />
+      </form>
+    </AuthCard>
   )
 }

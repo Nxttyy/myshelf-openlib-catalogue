@@ -17,6 +17,7 @@ export const pageImports = {
   register: () => import('./routes/auth/Register'),
   forgot: () => import('./routes/auth/ForgotPassword'),
   reset: () => import('./routes/auth/ResetPassword'),
+  authLayout: () => import('./routes/auth/AuthLayout'),
 }
 
 const Explore = lazy(pageImports.explore)
@@ -28,6 +29,7 @@ const Login = lazy(pageImports.login)
 const Register = lazy(pageImports.register)
 const ForgotPassword = lazy(pageImports.forgot)
 const ResetPassword = lazy(pageImports.reset)
+const AuthLayout = lazy(pageImports.authLayout)
 
 const page = (C: ComponentType, fallback: ReactNode = null) => <Suspense fallback={fallback}><C /></Suspense>
 
@@ -57,9 +59,15 @@ if (import.meta.env.DEV) {
 
 export const router = createBrowserRouter([
   { path: '/', element: <AppLayout />, children: pages },
-  // Full-screen, outside the shell: on phones the design's sign-in covers the tab bar.
-  { path: '/login', element: page(Login) },
-  { path: '/register', element: page(Register) },
-  { path: '/forgot-password', element: page(ForgotPassword) },
-  { path: '/reset-password', element: page(ResetPassword) },
+  // Full-screen, outside the shell: on phones the design's sign-in covers the
+  // tab bar. One layout route, so switching between them keeps the frame.
+  {
+    element: page(AuthLayout),
+    children: [
+      { path: '/login', element: page(Login) },
+      { path: '/register', element: page(Register) },
+      { path: '/forgot-password', element: page(ForgotPassword) },
+      { path: '/reset-password', element: page(ResetPassword) },
+    ],
+  },
 ])

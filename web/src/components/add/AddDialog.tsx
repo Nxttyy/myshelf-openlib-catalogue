@@ -174,7 +174,7 @@ function SaveFooter() {
           <Icon name="lock" size={13} style={{ verticalAlign: '-2px', marginRight: 5, color: 'var(--ink-faint)' }} />
           Sign in to save {n ? n : 'your'} scan{n === 1 ? '' : 's'}.
         </div>
-        <Link to={`/login?next=${next}`} className="f-btn f-btn--ink">Sign in</Link>
+        <Link to={`/login?next=${next}`} state={{ reason: `Sign in to save ${n ? `${n} ${n === 1 ? 'book' : 'books'}` : 'your books'}` }} className="f-btn f-btn--ink">Sign in</Link>
       </div>
     )
   }
