@@ -22,6 +22,8 @@ from app.schemas.film import (
     BatchUserFilmResult,
     FilmCatalogEntry,
     FilmEntryRead,
+    FilmListJob,
+    FilmListSearchRequest,
     FilmRead,
     FilmRecentPage,
     FilmSearchHit,
@@ -34,7 +36,7 @@ from app.schemas.film import (
 )
 from app.schemas.user_book_image import PresignBatchRequest, PresignedUpload, UserBookImageRead
 from app.schemas.web import ShelfOwner
-from app.services import omdb, photos
+from app.services import film_list, omdb, photos
 
 router = APIRouter(prefix="/films", tags=["Films"])
 # /profiles/{handle}/films sits next to the book profile route.
@@ -147,6 +149,25 @@ async def lookup_film(
         film=FilmRead.model_validate(film),
         on_shelf=film.id in await _viewer_film_ids(session, viewer),
     )
+
+
+@router.post("/list-search")
+async def start_list_search(request_data: FilmListSearchRequest, me: User = Depends(require_user)):
+    """Find every film in a pasted list. Returns a job id to poll: reading a
+    long list and matching each title takes a while."""
+    omdb.require_omdb_configured()
+    try:
+        return {"job_id": film_list.start(str(me.id), request_data.text)}
+    except film_list.ListTooLong:
+        raise HTTPException(status_code=413, detail="That list is too long. Paste it in parts.")
+
+
+@router.get("/list-search/{job_id}", response_model=FilmListJob)
+async def poll_list_search(job_id: str, me: User = Depends(require_user)):
+    job = film_list.get(job_id, str(me.id))
+    if job is None:
+        raise HTTPException(status_code=404, detail="That search has expired. Search again.")
+    return FilmListJob(status=job.status, total=job.total, done=job.done, rows=job.rows, error=job.error)
 
 
 # ── Catalogue ────────────────────────────────────────────────────────────────

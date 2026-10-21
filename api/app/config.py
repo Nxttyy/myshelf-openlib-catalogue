@@ -27,6 +27,13 @@ class Settings(BaseSettings):
     # endpoint (without /trigger). If either is unset, /dora routes return 503.
     DORA_WEBHOOK_URL: str | None = None
     DORA_WEBHOOK_SECRET: str | None = None
+    # Ask Dora for films (Film Taste Profiler → Film Fit Calculator).
+    DORA_FILM_WEBHOOK_URL: str | None = None
+    DORA_FILM_WEBHOOK_SECRET: str | None = None
+    # Film list parser: pasted lists → structured titles. Without it, list
+    # search falls back to one title per line.
+    DORA_LIST_WEBHOOK_URL: str | None = None
+    DORA_LIST_WEBHOOK_SECRET: str | None = None
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7  # 1 week
 

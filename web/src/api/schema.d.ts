@@ -38,6 +38,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/agent-api/user-films/{user_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Rest User Films */
+        get: operations["rest_user_films_agent_api_user_films__user_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/mobile-scan/{token}": {
         parameters: {
             query?: never;
@@ -449,6 +466,44 @@ export interface paths {
          *     otherwise fetches it from OMDb and keeps it.
          */
         get: operations["lookup_film_films_lookup__imdb_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/films/list-search": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Start List Search
+         * @description Find every film in a pasted list. Returns a job id to poll: reading a
+         *     long list and matching each title takes a while.
+         */
+        post: operations["start_list_search_films_list_search_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/films/list-search/{job_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Poll List Search */
+        get: operations["poll_list_search_films_list_search__job_id__get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -897,6 +952,44 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/dora/films/ask": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Ask Dora Films
+         * @description Verdicts for films you don't own yet. Returns cached answers at once
+         *     and run ids to poll for the rest.
+         */
+        post: operations["ask_dora_films_dora_films_ask_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/dora/films/ask/{run_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Poll Dora Films */
+        get: operations["poll_dora_films_dora_films_ask__run_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/health": {
         parameters: {
             query?: never;
@@ -922,6 +1015,11 @@ export interface components {
         AddIsbnRequest: {
             /** Isbn */
             isbn: string;
+        };
+        /** AskDoraFilmsRequest */
+        AskDoraFilmsRequest: {
+            /** Imdb Ids */
+            imdb_ids: string[];
         };
         /** AskDoraRequest */
         AskDoraRequest: {
@@ -1136,6 +1234,55 @@ export interface components {
              */
             on_shelf: boolean;
             shelf?: components["schemas"]["FilmShelfEntry"] | null;
+        };
+        /** FilmListJob */
+        FilmListJob: {
+            /** Status */
+            status: string;
+            /** Total */
+            total: number;
+            /** Done */
+            done: number;
+            /**
+             * Rows
+             * @default []
+             */
+            rows: components["schemas"]["FilmListRow"][];
+            /** Error */
+            error?: string | null;
+        };
+        /**
+         * FilmListRow
+         * @description One film named in a pasted list, with what it matched.
+         */
+        FilmListRow: {
+            /** Line */
+            line: number;
+            /** Text */
+            text: string;
+            film?: components["schemas"]["FilmRead"] | null;
+            /**
+             * On Shelf
+             * @default false
+             */
+            on_shelf: boolean;
+            /**
+             * Dup
+             * @default false
+             */
+            dup: boolean;
+            /**
+             * Guessed
+             * @default false
+             */
+            guessed: boolean;
+            /** Error */
+            error?: string | null;
+        };
+        /** FilmListSearchRequest */
+        FilmListSearchRequest: {
+            /** Text */
+            text: string;
         };
         /** FilmRating */
         FilmRating: {
@@ -1689,6 +1836,39 @@ export interface operations {
             };
             header?: never;
             path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    rest_user_films_agent_api_user_films__user_id__get: {
+        parameters: {
+            query?: {
+                key?: string | null;
+            };
+            header?: never;
+            path: {
+                user_id: string;
+            };
             cookie?: never;
         };
         requestBody?: never;
@@ -2367,6 +2547,70 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["FilmCatalogEntry"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    start_list_search_films_list_search_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FilmListSearchRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    poll_list_search_films_list_search__job_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                job_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FilmListJob"];
                 };
             };
             /** @description Validation Error */
@@ -3098,6 +3342,70 @@ export interface operations {
         };
     };
     poll_dora_dora_ask__run_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                run_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    ask_dora_films_dora_films_ask_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AskDoraFilmsRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    poll_dora_films_dora_films_ask__run_id__get: {
         parameters: {
             query?: never;
             header?: never;

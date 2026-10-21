@@ -133,3 +133,28 @@ class UpdateUserFilmRequest(BaseModel):
     is_public: bool | None = None
     comment: str | None = None
     is_pinned: bool | None = None
+
+
+class FilmListSearchRequest(BaseModel):
+    # Characters, not lines: one pasted line can hold thirty titles.
+    text: str = Field(min_length=2, max_length=20_000)
+
+
+class FilmListRow(BaseModel):
+    """One film named in a pasted list, with what it matched."""
+
+    line: int  # the pasted line it came from, numbered from 1
+    text: str  # what the user wrote for it
+    film: FilmRead | None = None  # None: no match
+    on_shelf: bool = False
+    dup: bool = False  # the same film appeared earlier in the list
+    guessed: bool = False  # inferred from a description, not named
+    error: str | None = None  # why it wasn't looked up (quota, OMDb down)
+
+
+class FilmListJob(BaseModel):
+    status: str  # reading | matching | done | failed
+    total: int  # films to match, known once reading is done
+    done: int
+    rows: list[FilmListRow] = []
+    error: str | None = None

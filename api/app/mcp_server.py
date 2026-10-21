@@ -25,7 +25,8 @@ mcp = FastMCP(
     instructions=(
         "Read-only access to the Dora book app database. "
         "Use get_user_library to profile a user's reading taste, and "
-        "get_book_details to fetch metadata for a candidate book."
+        "get_book_details to fetch metadata for a candidate book, and "
+        "get_user_film_library to profile a user's film taste."
     ),
     stateless_http=True,
     json_response=True,
@@ -128,6 +129,80 @@ async def get_book_details(book_id: str = "", isbn: str = "") -> str:
     )
 
 
+_FILM_LIBRARY_SQL = sa.text(
+    """
+    SELECT f.title, f.year, f.type, f.genres, f.director, f.country, f.language,
+           uf.status, uf.comment, uf.is_pinned
+    FROM user_films uf
+    JOIN films f ON f.id = uf.film_id
+    WHERE uf.user_id = :user_id
+    ORDER BY uf.is_pinned DESC, uf.created_at DESC
+    LIMIT 300
+    """
+)
+
+_BOOKS_BRIEF_SQL = sa.text(
+    """
+    SELECT b.title, b.authors, b.subjects
+    FROM user_books ub
+    JOIN books b ON b.id = ub.book_id
+    WHERE ub.user_id = :user_id
+    ORDER BY ub.is_pinned DESC, ub.created_at DESC
+    LIMIT 150
+    """
+)
+
+_FILM_STATUS = {"unread": "not watched", "reading": "watching", "read": "watched"}
+
+
+@mcp.tool()
+async def get_user_film_library(user_id: str) -> str:
+    """Return a user's films (title, year, director, genres, country,
+    language, watch status, note, pinned) and a short list of their books
+    (title, authors, top subjects) for pairing films with books. user_id
+    must be the user's UUID. Kept compact: up to 300 films, 150 books."""
+    try:
+        UUID(user_id)
+    except ValueError:
+        return json.dumps({"error": f"invalid user_id UUID: {user_id!r}"})
+
+    def _jsonb(v):
+        return json.loads(v) if isinstance(v, str) else v
+
+    async with AsyncSession(engine) as session:
+        films = (await session.execute(_FILM_LIBRARY_SQL, {"user_id": user_id})).mappings().all()
+        books = (await session.execute(_BOOKS_BRIEF_SQL, {"user_id": user_id})).mappings().all()
+
+    return json.dumps({
+        "user_id": user_id,
+        "film_count": len(films),
+        "films": [
+            {
+                "title": r["title"],
+                "year": r["year"],
+                "type": r["type"],
+                "director": r["director"],
+                "genres": _jsonb(r["genres"]) or [],
+                "country": r["country"],
+                "language": r["language"],
+                "watch_status": _FILM_STATUS.get(r["status"], r["status"]),
+                "user_note": (r["comment"] or "")[:200] or None,
+                "is_pinned": r["is_pinned"],
+            }
+            for r in films
+        ],
+        "book_count": len(books),
+        "books": [
+            {
+                "title": r["title"],
+                "authors": _names(_jsonb(r["authors"]))[:2],
+                "subjects": _names(_jsonb(r["subjects"]))[:3],
+            }
+            for r in books
+        ],
+    }, ensure_ascii=False)
+
+
 def _unauthorized():
     body = json.dumps({"error": "unauthorized"}).encode()
     return {
@@ -170,6 +245,13 @@ async def rest_book(
     _check_rest_key(request, key)
     _log_access(f"REST GET /agent-api/book book_id={book_id!r} isbn={isbn!r} auth=ok")
     return Response(content=await get_book_details(book_id, isbn), media_type="application/json")
+
+
+@rest_router.get("/user-films/{user_id}")
+async def rest_user_films(user_id: str, request: Request, key: str | None = Query(None)):
+    _check_rest_key(request, key)
+    _log_access(f"REST GET /agent-api/user-films/{user_id} auth=ok")
+    return Response(content=await get_user_film_library(user_id), media_type="application/json")
 
 
 # TEMPORARY debug aid while wiring up FlowStudio: every /mcp request is

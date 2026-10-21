@@ -46,7 +46,8 @@ const pages: RouteObject[] = [
   { path: 'profile/films', element: page(MyProfile) },
   { path: 'u/:handle', element: page(PublicProfile) },
   { path: 'u/:handle/films', element: page(PublicProfile) },
-  { path: '*', element: page(NotFound) },
+  // the 404 is neither books nor films, so the phone hides the switch there
+  { path: '*', element: page(NotFound), handle: { noMediaSwitch: true } },
 ]
 
 if (import.meta.env.DEV) {

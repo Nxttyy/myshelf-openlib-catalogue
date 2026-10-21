@@ -6,7 +6,7 @@ import { useInfiniteQuery, useMutation, useQuery, useQueryClient, type InfiniteD
 import { filmQueue, toFilmBatchEntries } from '../lib/filmQueue'
 import { api } from './client'
 import type {
-  BatchUserFilmResult, FilmCatalogEntry, FilmEntryRead, FilmRecentPage, FilmSearchPage, FilmShelfEntry,
+  BatchUserFilmResult, FilmCatalogEntry, FilmEntryRead, FilmListJob, FilmRecentPage, FilmSearchPage, FilmShelfEntry,
   FilmShelfRead, PublicFilmShelfRead,
 } from './types'
 
@@ -153,3 +153,32 @@ export function useSaveFilmQueue() {
     onSuccess: () => invalidateAfterAdd(qc),
   })
 }
+
+// ── Pasted lists ─────────────────────────────────────────────────────────
+
+/** Find every film in a pasted list. The server reads and matches it in the
+    background; this polls until it's done, reporting progress. */
+export async function findFilmList(text: string, signal: AbortSignal, onProgress: (job: FilmListJob) => void): Promise<FilmListJob> {
+  const { job_id } = await api.post<{ job_id: string }>('/films/list-search', { text })
+  for (let n = 0; n < 150; n++) {
+    await new Promise((r) => setTimeout(r, 1500))
+    if (signal.aborted) throw new DOMException('aborted', 'AbortError')
+    const job = await api.get<FilmListJob>(`/films/list-search/${job_id}`)
+    if (job.status === 'done' || job.status === 'failed') return job
+    onProgress(job)
+  }
+  throw new Error('timeout')
+}
+
+// ── Ask Dora ─────────────────────────────────────────────────────────────
+
+export type FilmVerdict = {
+  kind: 'buy' | 'hold' | 'skip'; verdict: string; summary?: string | null
+  familiarity_to_taste: number; adventure_in_the_right_direction: number
+}
+
+export const askDoraFilms = (imdbIds: string[]) =>
+  api.post<{ runs: { run_id: string; imdb_ids: string[] }[]; verdicts: Record<string, FilmVerdict>; failed: string[] }>('/dora/films/ask', { imdb_ids: imdbIds })
+
+export const pollDoraFilms = (runId: string) =>
+  api.get<{ status: string; verdicts: Record<string, FilmVerdict>; imdb_ids: string[] }>(`/dora/films/ask/${runId}`)

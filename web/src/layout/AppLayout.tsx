@@ -3,7 +3,7 @@
    (see styles/app.css), so a resize never remounts the page underneath. */
 
 import { lazy, Suspense, useEffect } from 'react'
-import { Link, NavLink, Outlet, ScrollRestoration, useLocation, useSearchParams } from 'react-router'
+import { Link, NavLink, Outlet, ScrollRestoration, useLocation, useMatches, useSearchParams } from 'react-router'
 import { initials, useMe, type Me } from '../api/me'
 import { Icon } from '../components/Icon'
 import type { IconName } from '../components/icons'
@@ -65,19 +65,22 @@ function Navbar({ me, queueCount, onAdd, media }: ShellProps) {
 }
 
 function MobileHeader({ me, queueCount, onAdd, media }: ShellProps) {
+  const noSwitch = useMatches().some((m) => (m.handle as { noMediaSwitch?: boolean } | undefined)?.noMediaSwitch)
   return (
-    <div className="f-header m-header">
-      <Link to="/" aria-label="Dora home" className="home-link"><Logo /></Link>
-      <MediaTabs />
-      <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-        <button className="f-iconbtn" onClick={onAdd} aria-label={media === 'films' ? 'Add film' : 'Add book'}>
-          <Icon name="plus" size={22} sw={1.8} />
-          {queueCount > 0 && <span className="badge">{queueCount}</span>}
-        </button>
-        {me
-          ? <Link to={mediaPath('/profile', media)} className="f-iconbtn" aria-label="Your profile"><span className="m-avatar">{initials(me)}</span></Link>
-          : <Link to="/login" className="f-btn f-btn--ink">Sign in</Link>}
+    <div className="m-header">
+      <div className="f-header">
+        <Link to="/" aria-label="Dora home" className="home-link"><Logo /></Link>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+          <button className="f-iconbtn" onClick={onAdd} aria-label={media === 'films' ? 'Add film' : 'Add book'}>
+            <Icon name="plus" size={22} sw={1.8} />
+            {queueCount > 0 && <span className="badge">{queueCount}</span>}
+          </button>
+          {me
+            ? <Link to={mediaPath('/profile', media)} className="f-iconbtn" aria-label="Your profile"><span className="m-avatar">{initials(me)}</span></Link>
+            : <Link to="/login" className="f-btn f-btn--ink">Sign in</Link>}
+        </div>
       </div>
+      {!noSwitch && <div className="m-switchbar"><MediaTabs wide /></div>}
     </div>
   )
 }

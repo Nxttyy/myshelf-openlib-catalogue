@@ -20,6 +20,8 @@ class Film(SQLModel, table=True):
     imdb_id: str = Field(unique=True, index=True)
     type: str = Field(default="movie")  # movie | series
     title: str
+    # norm_title(title), so pasted lists can match films we already have.
+    title_norm: str | None = Field(default=None, index=True)
     # A string: series run over years, e.g. "2005–2013".
     year: str | None = None
     rated: str | None = None

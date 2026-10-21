@@ -2,7 +2,8 @@
    folio/films.jsx FilmDrawer: poster and title, IMDb / Rotten Tomatoes /
    Metacritic scores, plot, genres, details, cast, awards and links. A right
    drawer on desktop, a bottom sheet on phones. On your own copy you get
-   status, visibility, note and photos, with an explicit Save like books. */
+   status, visibility, note and photos, with an explicit Save like books;
+   on a film you don't have yet, Ask Dora whether it fits your taste. */
 
 import { useState } from 'react'
 import { Link, useLocation, useMatch } from 'react-router'
@@ -13,6 +14,7 @@ import { filmLinks, runtime } from '../lib/films'
 import { useOverlay } from '../lib/overlay'
 import { useToast } from '../lib/toast'
 import { useIsDesktop } from '../lib/useMediaQuery'
+import { FilmAsk } from './add/AskDora'
 import { OnShelfBadge } from './CatalogGrid'
 import { Icon } from './Icon'
 import { BottomSheet, Drawer } from './Overlay'
@@ -106,6 +108,10 @@ function RecordBody({ entry, desktop, theirs, onSaved }: BodyProps) {
         </div>
       )}
 
+      {/* Not on your shelf yet: should you add it? Phones ask right under
+          the scores, as in films-mobile.jsx; desktop asks at the end. */}
+      {!entry.on_shelf && !desktop && <div style={{ marginBottom: 16 }}><FilmAsk imdbId={f.imdb_id} /></div>}
+
       {f.plot && <p style={{ fontSize: 14, lineHeight: 1.55, color: 'var(--ink-soft)', margin: '0 0 16px', textWrap: 'pretty' }}>{f.plot}</p>}
       {f.genres.length > 0 && (
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7, marginBottom: gap }}>
@@ -139,6 +145,8 @@ function RecordBody({ entry, desktop, theirs, onSaved }: BodyProps) {
           {theirs.entry.images.length > 0 && <PhotoNotes photos={theirs.entry.images} editable={false} context={f.title} owner="film" />}
         </div>
       )}
+
+      {!entry.on_shelf && desktop && <div style={{ marginBottom: 14 }}><FilmAsk imdbId={f.imdb_id} /></div>}
 
       {mine
         ? <ShelfEditor key={mine.id} mine={mine} title={f.title} onStatus={(s) => { setDraftStatus(s); setPop(true); setTimeout(() => setPop(false), 400) }} onSaved={onSaved} />

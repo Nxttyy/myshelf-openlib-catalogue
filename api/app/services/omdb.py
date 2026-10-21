@@ -13,6 +13,7 @@ those become OmdbNotFound or OmdbUnavailable here.
 import asyncio
 import re
 import time
+import unicodedata
 from datetime import date, datetime, timedelta
 
 import httpx
@@ -48,6 +49,14 @@ def omdb_configured() -> bool:
 def require_omdb_configured() -> None:
     if not omdb_configured():
         raise HTTPException(status_code=503, detail="Film search isn't set up on this server.")
+
+
+def norm_title(title: str) -> str:
+    """Lowercase, no accents, "&" as "and", punctuation as spaces: how
+    pasted titles are matched against films we already have."""
+    s = unicodedata.normalize("NFD", title.lower())
+    s = "".join(c for c in s if not unicodedata.combining(c)).replace("&", "and")
+    return re.sub(r"[^a-z0-9]+", " ", s).strip()
 
 
 def parse_imdb_ids(text: str) -> list[str]:
@@ -115,6 +124,7 @@ def film_fields(raw: dict) -> dict:
         "imdb_id": raw["imdbID"],
         "type": raw.get("Type") or "movie",
         "title": _na(raw.get("Title")) or raw["imdbID"],
+        "title_norm": norm_title(_na(raw.get("Title")) or raw["imdbID"]),
         "year": _na(raw.get("Year")),
         "rated": _na(raw.get("Rated")),
         "released": _released(raw.get("Released")),
@@ -146,6 +156,39 @@ async def fetch_film(imdb_id: str) -> dict:
     if raw.get("Type") not in FILM_TYPES:
         raise OmdbNotFound(f"{imdb_id} isn't a film or a series.")
     return raw
+
+
+async def fetch_by_title(title: str, year: str | None = None, type: str | None = None) -> dict:
+    """OMDb's best match for an exact title (?t=), as a full record: one
+    request where a search plus a lookup would take two."""
+    params = {"t": title, "plot": "short"}
+    if year:
+        params["y"] = year
+    if type in FILM_TYPES:
+        params["type"] = type
+    raw = await _get(params)
+    if raw.get("Type") not in FILM_TYPES:
+        raise OmdbNotFound(f"{title} isn't a film or a series.")
+    return raw
+
+
+async def search_titles(title: str, year: str | None = None, type: str | None = None) -> list[dict]:
+    """First page of a title search narrowed by year and type, as
+    [{imdb_id, title, year}]. Uncached: callers remember the outcome."""
+    params = {"s": title}
+    if year:
+        params["y"] = year
+    if type in FILM_TYPES:
+        params["type"] = type
+    try:
+        data = await _get(params)
+    except OmdbNotFound:
+        return []
+    return [
+        {"imdb_id": r["imdbID"], "title": r.get("Title") or r["imdbID"], "year": _na(r.get("Year"))}
+        for r in data.get("Search") or []
+        if r.get("Type") in FILM_TYPES and r.get("imdbID")
+    ]
 
 
 async def prefetch_films(imdb_ids: list[str]) -> dict[str, dict | Exception]:

@@ -69,7 +69,7 @@ const HERO = {
   },
   films: {
     label: 'a record of your films', title: 'Keep track of the films you watch.',
-    text: 'Paste IMDb IDs or search a title. Dora finds the poster, director, and runtime and adds the film to your shelf.',
+    text: 'Search a title or paste a whole list. Dora finds the details and asks if each film fits your taste.',
   },
 }
 
