@@ -144,9 +144,8 @@ async def google_callback(request: Request, session: SessionDep, background: Bac
         await session.refresh(user)
         background.add_task(send_email, *welcome_email(user))
 
-    access_token = create_access_token(data={"sub": user.email})
     response = RedirectResponse(url=_frontend(request.session.pop("after_google", "/")), status_code=303)
-    response.set_cookie(key="access_token", value=f"Bearer {access_token}", httponly=True)
+    _set_session_cookie(response, user)
     return response
 
 
@@ -175,18 +174,34 @@ def _me(user: User) -> MeRead:
     )
 
 
+# Cookie attributes, shared by setting and clearing it (a delete only
+# matches a cookie set with the same ones). Secure on the https site; plain
+# http only in local dev.
+_COOKIE = {"httponly": True, "samesite": "lax", "secure": settings.PUBLIC_URL.startswith("https://"), "path": "/"}
+
+
 def _set_session_cookie(response: Response, user: User) -> None:
-    """Same cookie the form login sets, so a session works in both UIs."""
+    """The login cookie, every sign-in path. It must carry an expiry: a
+    cookie without one is a session cookie, which phone browsers drop
+    whenever the system closes them in the background (signing people out),
+    while desktop browsers that restore tabs happen to keep it."""
     token = create_access_token(data={"sub": user.email})
-    response.set_cookie(key="access_token", value=f"Bearer {token}", httponly=True)
+    response.set_cookie(
+        key="access_token", value=f"Bearer {token}",
+        max_age=settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60, **_COOKIE,
+    )
 
 
 @router.get("/me", response_model=MeRead | None)
-async def me(session: SessionDep, current_user: User | None = Depends(get_current_user)):
+async def me(response: Response, session: SessionDep, current_user: User | None = Depends(get_current_user)):
     """The signed-in user, or null for guests (a 200 either way, so the
-    web app can ask on every load without logging errors)."""
+    web app can ask on every load without logging errors).
+
+    Also renews the login cookie: the app calls this on every load, so
+    anyone who opens Dora within a week of their last visit stays signed in."""
     if current_user is None:
         return None
+    _set_session_cookie(response, current_user)
     out = _me(current_user)
     for field, model in (("book_count", UserBook), ("film_count", UserFilm)):
         count = (await session.exec(
@@ -232,7 +247,7 @@ async def create_session(body: LoginRequest, response: Response, session: Sessio
 
 @router.delete("/session", status_code=204)
 async def end_session(response: Response):
-    response.delete_cookie("access_token")
+    response.delete_cookie("access_token", **_COOKIE)
 
 
 @router.post("/account", response_model=MeRead, status_code=201)

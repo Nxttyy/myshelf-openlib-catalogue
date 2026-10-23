@@ -156,13 +156,29 @@ export const searchFilms = (q: string, page = 1) =>
 export const lookupFilm = (imdbId: string) =>
   api.get<FilmCatalogEntry>(`/films/lookup/${encodeURIComponent(imdbId)}`)
 
-/** Save the whole film queue in one request. The caller clears the queue
+// The API takes at most this many films per request (BatchUserFilmRequest).
+const SAVE_BATCH = 50
+
+/** Save the whole film queue, SAVE_BATCH films per request (a pasted list
+    can queue hundreds), reporting progress as each batch lands. Films
+    already on the shelf are skipped server-side, so if a batch fails,
+    saving again picks up where it stopped. The caller clears the queue
     once it knows something was saved. */
 export function useSaveFilmQueue() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: () => api.post<BatchUserFilmResult>('/films/user_films/batch', { entries: toFilmBatchEntries(filmQueue.get()) }),
-    onSuccess: () => invalidateAfterAdd(qc),
+    mutationFn: async (onProgress?: (saved: number, total: number) => void): Promise<BatchUserFilmResult> => {
+      const entries = toFilmBatchEntries(filmQueue.get())
+      const out: BatchUserFilmResult = { added: 0, errors: [] }
+      for (let at = 0; at < entries.length; at += SAVE_BATCH) {
+        const res = await api.post<BatchUserFilmResult>('/films/user_films/batch', { entries: entries.slice(at, at + SAVE_BATCH) })
+        out.added += res.added
+        out.errors.push(...res.errors)
+        onProgress?.(Math.min(at + SAVE_BATCH, entries.length), entries.length)
+      }
+      return out
+    },
+    onSettled: () => invalidateAfterAdd(qc), // a failed later batch still saved the earlier ones
   })
 }
 

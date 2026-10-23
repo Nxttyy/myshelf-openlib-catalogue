@@ -436,6 +436,7 @@ function SaveFooter() {
   const { data: me } = useMe()
   const { items } = useFilmQueue()
   const save = useSaveFilmQueue()
+  const [progress, setProgress] = useState<string | null>(null)
   const toast = useToast()
   const navigate = useNavigate()
   const location = useLocation()
@@ -460,7 +461,8 @@ function SaveFooter() {
   }
 
   function onSave() {
-    save.mutate(undefined, {
+    setProgress(null)
+    save.mutate((saved, total) => { if (total > 50 && saved < total) setProgress(`Saving ${saved} of ${total}…`) }, {
       onSuccess: ({ added, errors }) => {
         if (errors.length && !added) { toast(errors[0], 'err'); return } // nothing saved: keep the queue
         filmQueue.clear()
@@ -479,7 +481,7 @@ function SaveFooter() {
 
   return (
     <button className="f-btn f-btn--amber f-btn--block" disabled={!n || save.isPending} onClick={onSave} style={{ opacity: n ? 1 : 0.45 }}>
-      <Icon name="check" size={18} sw={2} /> {save.isPending ? 'Saving…' : `Done · save ${n || ''} to library`}
+      <Icon name="check" size={18} sw={2} /> {save.isPending ? progress ?? 'Saving…' : `Done · save ${n || ''} to library`}
     </button>
   )
 }
