@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { createPortal } from 'react-dom'
-import { searchCatalogue, searchOpenLibrary, uploadCover, useEditManualBook, type LocalHit } from '../../api/add'
+import { searchBooks, searchCatalogue, uploadCover, useEditManualBook, type LocalHit } from '../../api/add'
 import { useBookEntry } from '../../api/queries'
 import type { ManualBookCreate } from '../../api/types'
 import { extractISBN } from '../../lib/isbn'
@@ -40,7 +40,7 @@ export function IsbnTab() {
         </div>
       </div>
       <div style={{ fontSize: 12.5, color: 'var(--ink-faint)', lineHeight: 1.5 }}>
-        Enter the 10 or 13-digit ISBN from the back of the book. Dora looks it up on Open Library.
+        Enter the 10 or 13-digit ISBN from the back of the book. Dora looks it up for you.
       </div>
     </form>
   )
@@ -49,6 +49,8 @@ export function IsbnTab() {
 // ── Search ────────────────────────────────────────────────────────────────
 
 type Found = { local: LocalHit[]; remote: SearchHit[] } | 'error'
+
+const SOURCE_NAMES: Record<string, string> = { openlibrary: 'Open Library', google: 'Google Books' }
 
 export function SearchTab({ onByHand, desktop }: { onByHand: (title: string) => void; desktop: boolean }) {
   const [q, setQ] = useState('')
@@ -67,7 +69,7 @@ export function SearchTab({ onByHand, desktop }: { onByHand: (title: string) => 
     // failing shouldn't blank the other.
     Promise.all([
       searchCatalogue(query).catch(() => null),
-      searchOpenLibrary(query).catch(() => null),
+      searchBooks(query).catch(() => null),
     ]).then(([local, remote]) => {
       if (alive) setAnswer({ q: query, found: local === null && remote === null ? 'error' : { local: local ?? [], remote: remote ?? [] } })
     })
@@ -91,7 +93,7 @@ export function SearchTab({ onByHand, desktop }: { onByHand: (title: string) => 
         {!busy && results === 'error' && <div className="empty">Couldn't reach the catalogue. Check your connection.</div>}
         {!busy && empty && (
           <div className="empty">
-            Nothing on Open Library for that. Check the spelling, or{' '}
+            Nothing found for that. Check the spelling, or{' '}
             <button className="m-inline-link" onClick={() => onByHand(query)}>add it by hand</button>.
           </div>
         )}
@@ -105,7 +107,7 @@ export function SearchTab({ onByHand, desktop }: { onByHand: (title: string) => 
                 candidate={{ title: b.title, authors: b.authors, isbn: b.isbn, context: null }}
                 added={queued.has(b.book_id)} onAdd={() => addCatalogue(b)} />
             ))}
-            {results.local.length > 0 && results.remote.length > 0 && <div className="m-results-head">From Open Library</div>}
+            {results.local.length > 0 && results.remote.length > 0 && <div className="m-results-head">From {SOURCE_NAMES[results.remote[0].provider ?? ''] ?? 'the catalogue'}</div>}
             {results.remote.map((b) => (
               <SearchResultRow key={b.key} id={b.key} title={b.title} coverUrl={b.cover_url} author={b.authors[0]}
                 meta={join([b.authors.join(', '), b.first_publish_year])}
@@ -128,7 +130,7 @@ const split = (v: string) => v.split(',').map((s) => s.trim()).filter(Boolean)
 const EMPTY = { title: '', authors: '', subtitle: '', publishers: '', year: '', pages: '', isbns: '', subjects: '', description: '' }
 type Fields = typeof EMPTY
 
-/** For books with no copy to scan and no Open Library record. With `editId`,
+/** For books with no copy to scan and no record in the catalogues. With `editId`,
     corrects the details of a book you typed in earlier instead. */
 export function ManualTab({ editId, initialTitle = '', onEdited }: { editId?: string; initialTitle?: string; onEdited?: () => void }) {
   const { data: editing, isError } = useBookEntry(editId ?? null)

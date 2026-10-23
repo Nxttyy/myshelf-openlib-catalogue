@@ -19,6 +19,7 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 
 from app.config import settings
 from app.db import engine
+from app.services.isbn import to_isbn13
 
 mcp = FastMCP(
     "dora-library",
@@ -38,7 +39,7 @@ mcp = FastMCP(
 
 
 def _names(items: list | None) -> list[str]:
-    """Flatten Open Library style [{url, name}, ...] JSONB to bare names."""
+    """Flatten [{url, name}, ...] JSONB to bare names."""
     return [i["name"] for i in items or [] if isinstance(i, dict) and i.get("name")]
 
 
@@ -55,7 +56,13 @@ _LIBRARY_SQL = sa.text(
 )
 
 _BOOK_BY_ID_SQL = sa.text("SELECT * FROM books WHERE id = :book_id")
-_BOOK_BY_ISBN_SQL = sa.text("SELECT * FROM books WHERE isbns @> :isbn LIMIT 1")
+_BOOK_BY_ISBN_SQL = sa.text(
+    """
+    SELECT b.* FROM book_identifiers bi
+    JOIN books b ON b.id = bi.book_id
+    WHERE bi.scheme = 'isbn_13' AND bi.value = :isbn
+    """
+)
 
 
 @mcp.tool()
@@ -102,9 +109,10 @@ async def get_book_details(book_id: str = "", isbn: str = "") -> str:
                 return json.dumps({"error": f"invalid book_id UUID: {book_id!r}"})
             row = (await session.execute(_BOOK_BY_ID_SQL, {"book_id": book_id})).mappings().first()
         elif isbn:
-            row = (
-                await session.execute(_BOOK_BY_ISBN_SQL, {"isbn": json.dumps([isbn])})
-            ).mappings().first()
+            isbn13 = to_isbn13(isbn)
+            if isbn13 is None:
+                return json.dumps({"error": f"invalid ISBN: {isbn!r}"})
+            row = (await session.execute(_BOOK_BY_ISBN_SQL, {"isbn": isbn13})).mappings().first()
         else:
             return json.dumps({"error": "provide book_id or isbn"})
 
@@ -124,6 +132,7 @@ async def get_book_details(book_id: str = "", isbn: str = "") -> str:
             "description": (row["description"] or "")[:1200] or None,
             "publish_date": row["publish_date"],
             "number_of_pages": row["number_of_pages"],
+            "language": row["language"],
             "isbns": _jsonb(row["isbns"]),
         }
     )

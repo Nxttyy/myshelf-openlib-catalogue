@@ -50,4 +50,5 @@ Settings in `api/.env` that matter in production:
 - `PUBLIC_URL`, the site's address (e.g. `https://dora.you.et`), used in password-reset emails and link previews.
 - `GOOGLE_REDIRECT_URI`, the production callback (`https://…/auth/google/callback`).
 - `WEB_DIST`, only if the built app lives somewhere other than `web/dist`.
+- `GOOGLE_BOOKS_API_KEY`, optional. Google Books becomes the second book source: it answers when Open Library is down, slow or has no record, and (with `GOOGLE_BOOKS_ENRICH`, on by default) also fills in page counts, language, ratings and preview links for every new ISBN. Google gives keyless requests no quota, so without a key it's skipped. After adding one, `venv/bin/python -m scripts.refetch_books --provider google` adds Google's records to books already on Dora.
 - `OMDB_API_KEY`, for films (search and lookups by IMDb ID). Without it the film shelves still show, but adding new films doesn't work. The free key allows 1,000 requests a day, so each film is fetched once and kept.

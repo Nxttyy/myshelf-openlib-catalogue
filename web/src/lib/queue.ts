@@ -6,8 +6,11 @@
 import { useSyncExternalStore } from 'react'
 import type { ManualBookCreate } from '../api/types'
 
+/** A /books/search result. Items queued before search had several sources
+    have only `key` (an Open Library work key); the API reads that as one. */
 export type SearchHit = {
-  key: string; title: string; authors: string[]; isbns: string[]
+  key: string; provider?: string; external_id?: string
+  title: string; authors: string[]; isbns: string[]
   cover_url: string | null; first_publish_year: number | null
 }
 

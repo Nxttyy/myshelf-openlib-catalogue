@@ -165,8 +165,8 @@ export interface paths {
          * Lookup Isbn
          * @description Look up a book by ISBN.
          *
-         *     Checks local DB first; if not found, fetches from Open Library,
-         *     persists the record, then returns it.
+         *     Checks local DB first; if not found, asks the providers (Open Library,
+         *     Google Books), saves what they return, then returns it.
          */
         get: operations["lookup_isbn_books_lookup__isbn__get"];
         put?: never;
@@ -186,10 +186,11 @@ export interface paths {
         };
         /**
          * Search Books Endpoint
-         * @description Free-text book search via the Open Library Search API.
+         * @description Free-text book search: Open Library, or Google Books when Open Library
+         *     fails or finds nothing.
          *
-         *     Returns lightweight results for display; the caller adds a chosen result to
-         *     the library by passing its `isbn` to the existing lookup/batch flow.
+         *     Returns lightweight results for display; the caller adds a chosen result
+         *     by sending it back as a batch entry's `book`.
          */
         get: operations["search_books_endpoint_books_search_get"];
         put?: never;
@@ -210,7 +211,7 @@ export interface paths {
         /**
          * Search Local Books Endpoint
          * @description Search the local catalogue — including books users typed in manually, which
-         *     are invisible to the Open Library search above.
+         *     are invisible to the provider search above.
          *
          *     Results are added to a library by passing `book_id` to the batch endpoint.
          */
@@ -263,7 +264,7 @@ export interface paths {
         head?: never;
         /**
          * Update Manual Book
-         * @description Correct a manual entry. Only its creator can edit it — Open Library
+         * @description Correct a manual entry. Only its creator can edit it — provider
          *     records are never editable here.
          */
         patch: operations["update_manual_book_books__book_id__patch"];
@@ -304,7 +305,7 @@ export interface paths {
         /**
          * Create Manual Book Endpoint
          * @description Create a catalogue entry by hand — for a book with no copy to scan and no
-         *     Open Library record. The entry joins the shared catalogue, so other users
+         *     record at any provider. The entry joins the shared catalogue, so other users
          *     find it via /books/search/local and Explore.
          *
          *     Note the add-to-library modal doesn't use this: it sends `manual` entries to
@@ -1116,7 +1117,7 @@ export interface components {
         };
         /**
          * BookRead
-         * @description What the API returns for a book.
+         * @description What the API returns for a book: the fields merged from all its sources.
          */
         BookRead: {
             /**
@@ -1129,23 +1130,12 @@ export interface components {
              * @default []
              */
             isbns: string[];
-            /**
-             * Publish Dates
-             * @default []
-             */
-            publish_dates: string[];
-            /** Openbook Url */
-            openbook_url?: string | null;
-            /** Openbook Key */
-            openbook_key?: string | null;
             /** Title */
             title: string;
             /** Subtitle */
             subtitle?: string | null;
             /** Description */
             description?: string | null;
-            /** Archive Id */
-            archive_id?: string | null;
             /**
              * Authors
              * @default []
@@ -1155,6 +1145,8 @@ export interface components {
             number_of_pages?: number | null;
             /** By Statement */
             by_statement?: string | null;
+            /** Language */
+            language?: string | null;
             /**
              * Identifiers
              * @default {}
@@ -1179,6 +1171,18 @@ export interface components {
              * @default []
              */
             covers: components["schemas"]["CoverSchema"][];
+            /**
+             * Extra
+             * @default {}
+             */
+            extra: {
+                [key: string]: unknown;
+            };
+            /**
+             * Source Links
+             * @default []
+             */
+            source_links: components["schemas"]["SourceLinkSchema"][];
             /**
              * Source
              * @default openlibrary
@@ -1469,7 +1473,7 @@ export interface components {
         /**
          * ManualBookCreate
          * @description A book a user types in themselves, for when there's no copy to scan and
-         *     no Open Library record to search. Only the title is required.
+         *     no provider has a record of it. Only the title is required.
          */
         ManualBookCreate: {
             /** Title */
@@ -1626,10 +1630,20 @@ export interface components {
             /** Email */
             email: string;
         };
-        /** SearchBookMetadata */
+        /**
+         * SearchBookMetadata
+         * @description A /books/search result, as the client sends it back to be saved.
+         */
         SearchBookMetadata: {
             /** Key */
             key: string;
+            /**
+             * Provider
+             * @default openlibrary
+             */
+            provider: string;
+            /** External Id */
+            external_id?: string | null;
             /** Title */
             title?: string | null;
             /**
@@ -1725,6 +1739,13 @@ export interface components {
             email: string;
             /** Password */
             password: string;
+        };
+        /** SourceLinkSchema */
+        SourceLinkSchema: {
+            /** Provider */
+            provider: string;
+            /** Url */
+            url: string;
         };
         /** SubjectSchema */
         SubjectSchema: {

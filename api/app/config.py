@@ -12,6 +12,19 @@ class Settings(BaseSettings):
     # Open Library asks clients to identify themselves with a contact address so
     # they can reach out before throttling. Sent in the User-Agent header.
     CONTACT_EMAIL: str = "nathnaelyirga@gmail.com"
+    # Google Books, the second book source. Without a key it's skipped
+    # entirely (Google's keyless quota for this API is zero).
+    GOOGLE_BOOKS_API_KEY: str | None = None
+    GOOGLE_BOOKS_BASE_URL: str = "https://www.googleapis.com/books/v1"
+    # On: every new ISBN is looked up on Google too, in parallel, so books get
+    # its extra fields (page counts, language, ratings, preview links). Off:
+    # Google is only asked when Open Library fails, misses, or is slow. Each
+    # lookup costs one request of Google's daily quota either way.
+    GOOGLE_BOOKS_ENRICH: bool = True
+    # Seconds to wait on any one book source before giving up on it. Generous,
+    # because a slow Open Library is usually still a successful one; with
+    # Google configured, a slow lookup is answered by Google well before this.
+    BOOK_LOOKUP_TIMEOUT: float = 12.0
     # OMDb (films). The key stays on the server; film routes return 503 without it.
     OMDB_API_KEY: str | None = None
     OMDB_BASE_URL: str = "https://www.omdbapi.com/"

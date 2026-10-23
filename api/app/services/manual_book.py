@@ -1,14 +1,14 @@
 """
 Manually-created catalogue entries.
 
-For books with no copy to hand and no Open Library record: the user types the
-details in themselves. The resulting row lives in the same `books` table as
-everything fetched from Open Library, so it shows up in Explore and in local
+For books with no copy to hand and no record at any provider: the user types
+the details in themselves. The entry is a `books` row like any other, with one
+"manual" source holding what was typed, so it shows up in Explore and in local
 search for every other user — hence the field caps and the per-user rate limit.
 
-Nested fields are written in the exact shapes Open Library data uses
-(authors as [{"name","url"}], publishers as [{"name"}], ...) so every existing
-template and API consumer works on manual books without a special case.
+The typed details are stored in the merged field shape (authors as
+[{"name","url"}], publishers as [{"name"}], ...; see services/sources/base.py)
+so every API consumer works on manual books without a special case.
 """
 
 from datetime import datetime, timedelta
@@ -21,7 +21,9 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 from app.models.book import Book
 from app.schemas.book import ManualBookCreate
 from app.services import storage
-from app.services.openlibrary import find_book_by_isbn
+from app.services.catalogue import find_book_by_isbns, manual_record, save_records
+from app.services.isbn import clean_isbn, isbn_identifiers
+from app.services.sources import MANUAL
 
 # These rows are public, so every free-text field is capped.
 MAX_TITLE = 300
@@ -61,17 +63,6 @@ def _clean_list(values: list[str], max_items: int, limit: int) -> list[str]:
     return out
 
 
-def normalise_isbn(raw: str) -> str | None:
-    """Same shape check as the Open Library lookup path; returns None if the
-    value isn't a plausible ISBN-10/13 rather than raising."""
-    isbn = raw.replace("-", "").replace(" ", "").strip().upper()
-    if len(isbn) not in (10, 13):
-        return None
-    if not isbn[:-1].isdigit() or isbn[-1] not in "0123456789X":
-        return None
-    return isbn
-
-
 async def _rate_limit_ok(session: AsyncSession, user_id: UUID) -> bool:
     since = datetime.utcnow() - _LIMIT_WINDOW
     count = (
@@ -102,20 +93,12 @@ async def _validated_cover_key(data: ManualBookCreate, user_id: UUID) -> str | N
     return key if storage.head_object(key) else None
 
 
-async def find_existing_by_isbns(session: AsyncSession, isbns: list[str]) -> Book | None:
-    for isbn in isbns:
-        existing = await find_book_by_isbn(session, isbn)
-        if existing:
-            return existing
-    return None
-
-
 async def search_local_books(
     session: AsyncSession, query: str, limit: int = 12
 ) -> list[Book]:
     """Substring search over the local catalogue by title or author name.
 
-    Matches manual entries and Open Library records alike, so a book one user
+    Matches manual entries and provider records alike, so a book one user
     typed in is findable by everyone else. Casting the authors JSONB to text is
     crude but correct for substring matching; a pg_trgm GIN index on
     (title, authors::text) is the upgrade path once the table is large.
@@ -132,7 +115,7 @@ async def search_local_books(
                 sa.cast(Book.authors, sa.Text).ilike(pattern),
             )
         )
-        # Manual entries first: they're invisible to the Open Library search
+        # Manual entries first: they're invisible to the provider search
         # running alongside this one, so they're the results worth surfacing.
         .order_by(
             sa.case((Book.source == "manual", 0), else_=1),
@@ -146,17 +129,17 @@ async def search_local_books(
 def _cleaned_isbns(raw_isbns: list[str]) -> list[str]:
     isbns: list[str] = []
     for raw in raw_isbns[:MAX_ISBNS]:
-        isbn = normalise_isbn(raw)
+        isbn = clean_isbn(raw)
         if isbn and isbn not in isbns:
             isbns.append(isbn)
     return isbns
 
 
 def _clean_fields(data: ManualBookCreate) -> dict:
-    """Validate and normalise the user-typed fields into Book column values.
+    """Validate and normalise the user-typed fields into the merged field shape
+    (the manual source's payload).
 
-    Shared by create and edit; excludes identity/provenance and the cover, which
-    the callers handle.
+    Shared by create and edit; excludes the cover, which the callers handle.
     """
     title = _clean(data.title, MAX_TITLE)
     if not title:
@@ -183,12 +166,11 @@ def _clean_fields(data: ManualBookCreate) -> dict:
             for name in _clean_list(data.publishers, MAX_PUBLISHERS, MAX_NAME)
         ],
         "publish_date": publish_date,
-        "publish_dates": [publish_date] if publish_date else [],
         "subjects": [
             {"name": name, "url": None}
             for name in _clean_list(data.subjects, MAX_SUBJECTS, MAX_NAME)
         ],
-        "isbns": _cleaned_isbns(data.isbns),
+        "identifiers": isbn_identifiers(_cleaned_isbns(data.isbns)),
     }
 
 
@@ -210,7 +192,7 @@ async def create_manual_book(
     fields = _clean_fields(data)
 
     # Don't duplicate a record we already hold under one of these ISBNs.
-    existing = await find_existing_by_isbns(session, fields["isbns"])
+    existing = await find_book_by_isbns(session, fields["identifiers"].get("isbn_13", []))
     if existing:
         return existing
 
@@ -222,22 +204,15 @@ async def create_manual_book(
     cover_key = await _validated_cover_key(data, user_id)
 
     book = Book(
-        openbook_url=None,
-        openbook_key=None,
-        source="manual",
+        title=fields["title"],
+        source=MANUAL,
         created_by_user_id=user_id,
         cover_s3_key=cover_key,
-        **fields,
     )
     # `id` is generated client-side (default_factory=uuid4), so the cover URL can
     # be built before the insert.
-    if cover_key:
-        book.covers = _cover_urls(book.id)
-
-    session.add(book)
-    await session.commit()
-    await session.refresh(book)
-    return book
+    fields["covers"] = _cover_urls(book.id) if cover_key else []
+    return await save_records(session, [manual_record(book.id, fields)], book=book)
 
 
 async def apply_manual_book_edit(
@@ -249,14 +224,12 @@ async def apply_manual_book_edit(
     `user_id`. A new cover replaces the old object; omitting `cover_key` keeps
     the existing cover rather than clearing it.
     """
-    for name, value in _clean_fields(data).items():
-        setattr(book, name, value)
+    fields = _clean_fields(data)
 
     new_cover_key = await _validated_cover_key(data, user_id)
     if new_cover_key and new_cover_key != book.cover_s3_key:
         old_key = book.cover_s3_key
         book.cover_s3_key = new_cover_key
-        book.covers = _cover_urls(book.id)
         if old_key:
             try:
                 storage.delete_object(old_key)
@@ -264,7 +237,5 @@ async def apply_manual_book_edit(
                 # An orphaned object is not worth failing the edit over.
                 pass
 
-    session.add(book)
-    await session.commit()
-    await session.refresh(book)
-    return book
+    fields["covers"] = _cover_urls(book.id) if book.cover_s3_key else []
+    return await save_records(session, [manual_record(book.id, fields)], book=book)

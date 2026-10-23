@@ -12,7 +12,8 @@ export type LocalHit = {
 
 export const lookupIsbn = (isbn: string) => api.get<Book>(`/books/lookup/${encodeURIComponent(isbn)}`)
 
-export const searchOpenLibrary = (q: string) =>
+/** Open Library, or Google Books when Open Library fails or finds nothing. */
+export const searchBooks = (q: string) =>
   api.get<(SearchHit & { isbn: string | null })[]>(`/books/search?q=${encodeURIComponent(q)}`)
 
 export const searchCatalogue = (q: string, limit = 12) =>

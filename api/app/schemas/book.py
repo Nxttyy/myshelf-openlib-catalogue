@@ -3,6 +3,7 @@ Pydantic schemas for Book — used for API request/response validation.
 Separate from the SQLModel DB model.
 """
 
+from typing import Any
 from uuid import UUID
 
 from pydantic import BaseModel
@@ -32,27 +33,37 @@ class CoverSchema(BaseModel):
 
 # ── Book response schema ────────────────────────────────────────────────────
 
+class SourceLinkSchema(BaseModel):
+    provider: str  # "openlibrary", "google", ...
+    url: str
+
+
 class BookRead(BaseModel):
-    """What the API returns for a book."""
+    """What the API returns for a book: the fields merged from all its sources."""
 
     id: UUID
+    # ISBN-13s first, then ISBN-10s.
     isbns: list[str] = []
-    publish_dates: list[str] = []
-    # None on manually-created books — they have no Open Library record.
-    openbook_url: str | None = None
-    openbook_key: str | None = None
     title: str
     subtitle: str | None = None
     description: str | None = None
-    archive_id: str | None = None
     authors: list[AuthorSchema] = []
     number_of_pages: int | None = None
     by_statement: str | None = None
+    language: str | None = None
+    # scheme → values: isbn_13, isbn_10, openlibrary, openlibrary_work, google,
+    # goodreads, librarything, oclc, lccn, wikidata, archive, ...
     identifiers: dict[str, list[str]] = {}
     publishers: list[PublisherSchema] = []
     publish_date: str | None = None
     subjects: list[SubjectSchema] = []
     covers: list[CoverSchema] = []
+    # Fields without a column of their own, e.g. rating {average, count,
+    # source}, preview_url, reader_url, classifications, dimensions.
+    extra: dict[str, Any] = {}
+    # Where this book's records came from, best first. Empty for manual books.
+    source_links: list[SourceLinkSchema] = []
+    # Where the book was first created from: "openlibrary", "google", "manual".
     source: str = "openlibrary"
 
     model_config = {"from_attributes": True}
@@ -62,7 +73,7 @@ class BookRead(BaseModel):
 
 class ManualBookCreate(BaseModel):
     """A book a user types in themselves, for when there's no copy to scan and
-    no Open Library record to search. Only the title is required."""
+    no provider has a record of it. Only the title is required."""
 
     title: str
     subtitle: str | None = None

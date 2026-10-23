@@ -1,5 +1,5 @@
 """
-Book router — ISBN lookup endpoint (API).
+Book router — ISBN lookup, search, and adding books to shelves (API).
 """
 
 from uuid import UUID
@@ -9,7 +9,6 @@ from typing import Annotated
 
 from fastapi import APIRouter, HTTPException, Path, Query, Depends
 from fastapi.responses import RedirectResponse
-from httpx import HTTPStatusError, RequestError
 
 from sqlmodel import select
 from app.db import SessionDep
@@ -32,35 +31,40 @@ from app.services.manual_book import (
     create_manual_book,
     search_local_books,
 )
-from app.services.openlibrary import (
+from app.services.catalogue import (
+    CatalogueUnavailable,
     find_book_by_isbn,
     get_or_create_book,
-    get_or_create_book_from_metadata,
-    normalize_isbn,
-    persist_fetched_book,
+    get_or_create_book_from_hit,
     prefetch_isbns,
-    search_books,
+    save_records,
+    search,
 )
+from app.services.isbn import normalize_isbn
 
 
-def _raise_for_openlibrary(exc: HTTPStatusError):
-    """Translate an Open Library HTTP error into a client-friendly HTTPException."""
-    status = exc.response.status_code
-    if status == 429:
-        retry_after = exc.response.headers.get("Retry-After")
+def _raise_unavailable(exc: CatalogueUnavailable):
+    """Translate "no book source could answer" into a client-friendly HTTPException.
+    429 when we're being rate-limited (the add queue retries those on save)."""
+    if exc.rate_limited:
         raise HTTPException(
             status_code=429,
-            detail="Open Library is rate-limiting us. Please try again shortly.",
-            headers={"Retry-After": retry_after} if retry_after else None,
+            detail="The book catalogues are busy. Please try again shortly.",
+            headers={"Retry-After": exc.retry_after} if exc.retry_after else None,
         )
-    raise HTTPException(status_code=status, detail=f"Open Library returned {status}")
+    raise HTTPException(status_code=502, detail="Couldn't reach the book catalogues. Please try again shortly.")
 
 router = APIRouter(prefix="/books", tags=["Books"])
 
 VALID_STATUSES = {'unread', 'reading', 'read'}
 
 class SearchBookMetadata(BaseModel):
+    """A /books/search result, as the client sends it back to be saved."""
     key: str
+    # Results queued before search had several providers carry only `key`
+    # (an Open Library work key); those default to it.
+    provider: str = "openlibrary"
+    external_id: str | None = None
     title: str | None = None
     authors: list[str] = []
     isbns: list[str] = []
@@ -70,8 +74,8 @@ class SearchBookMetadata(BaseModel):
 
 class BatchUserBookEntry(BaseModel):
     # Exactly one of these identifies the book:
-    #   isbn     — scanned or typed ISBN, resolved via Open Library
-    #   book     — full Open Library search metadata, saved as-is
+    #   isbn     — scanned or typed ISBN, resolved via the book providers
+    #   book     — a /books/search result
     #   book_id  — a book already in our catalogue (local search result)
     #   manual   — user-typed details; the catalogue row is created here, at
     #              save time, so an abandoned modal leaves nothing behind
@@ -102,20 +106,15 @@ async def lookup_isbn(
     """
     Look up a book by ISBN.
 
-    Checks local DB first; if not found, fetches from Open Library,
-    persists the record, then returns it.
+    Checks local DB first; if not found, asks the providers (Open Library,
+    Google Books), saves what they return, then returns it.
     """
     try:
         book = await get_or_create_book(session, isbn)
-    except ValueError as exc:
+    except ValueError as exc:  # includes BookNotFound
         raise HTTPException(status_code=404, detail=str(exc))
-    except HTTPStatusError as exc:
-        _raise_for_openlibrary(exc)
-    except RequestError as exc:
-        raise HTTPException(
-            status_code=502,
-            detail=f"Failed to reach Open Library: {exc}",
-        )
+    except CatalogueUnavailable as exc:
+        _raise_unavailable(exc)
 
     return book
 
@@ -125,17 +124,16 @@ async def search_books_endpoint(
     limit: Annotated[int, Query(ge=1, le=40)] = 12,
 ):
     """
-    Free-text book search via the Open Library Search API.
+    Free-text book search: Open Library, or Google Books when Open Library
+    fails or finds nothing.
 
-    Returns lightweight results for display; the caller adds a chosen result to
-    the library by passing its `isbn` to the existing lookup/batch flow.
+    Returns lightweight results for display; the caller adds a chosen result
+    by sending it back as a batch entry's `book`.
     """
     try:
-        return await search_books(q, limit)
-    except HTTPStatusError as exc:
-        _raise_for_openlibrary(exc)
-    except RequestError as exc:
-        raise HTTPException(status_code=502, detail=f"Failed to reach Open Library: {exc}")
+        return await search(q, limit)
+    except CatalogueUnavailable as exc:
+        _raise_unavailable(exc)
 
 
 @router.get("/search/local")
@@ -146,7 +144,7 @@ async def search_local_books_endpoint(
 ):
     """
     Search the local catalogue — including books users typed in manually, which
-    are invisible to the Open Library search above.
+    are invisible to the provider search above.
 
     Results are added to a library by passing `book_id` to the batch endpoint.
     """
@@ -234,7 +232,7 @@ async def create_manual_book_endpoint(
     current_user: User = Depends(require_user),
 ):
     """Create a catalogue entry by hand — for a book with no copy to scan and no
-    Open Library record. The entry joins the shared catalogue, so other users
+    record at any provider. The entry joins the shared catalogue, so other users
     find it via /books/search/local and Explore.
 
     Note the add-to-library modal doesn't use this: it sends `manual` entries to
@@ -253,7 +251,7 @@ async def update_manual_book(
     session: SessionDep,
     current_user: User = Depends(require_user),
 ):
-    """Correct a manual entry. Only its creator can edit it — Open Library
+    """Correct a manual entry. Only its creator can edit it — provider
     records are never editable here."""
     book = await session.get(Book, book_id)
     if not book:
@@ -292,10 +290,10 @@ async def batch_add_user_books(
 
     # Resolve plain-ISBN entries (scanned / typed) against the local DB first
     # (fast, sequential — it's one query per entry on the shared session), then
-    # fetch every remaining cache-miss ISBN from Open Library concurrently.
+    # look up every remaining cache-miss ISBN concurrently.
     # The session itself still commits one entry at a time below, but the slow
-    # part — N Open Library round trips — now overlaps instead of running
-    # one after another.
+    # part — N provider round trips — overlaps instead of running one after
+    # another.
     isbn_by_index: dict[int, str] = {}
     for i, entry in enumerate(request_data.entries):
         if entry.manual is None and entry.book_id is None and entry.book is None and entry.isbn:
@@ -328,7 +326,7 @@ async def batch_add_user_books(
         )
         try:
             # Search results carry full metadata → save directly (no re-lookup).
-            # Scanned / manually-entered ISBNs → resolve via Open Library.
+            # Scanned / manually-entered ISBNs → resolve via the providers.
             if entry.manual is not None:
                 book = await create_manual_book(session, user_id, entry.manual)
             elif entry.book_id is not None:
@@ -336,15 +334,17 @@ async def batch_add_user_books(
                 if book is None:
                     continue
             elif entry.book is not None:
-                book = await get_or_create_book_from_metadata(session, entry.book.model_dump())
+                hit = entry.book.model_dump()
+                hit["external_id"] = hit["external_id"] or hit["key"]
+                book = await get_or_create_book_from_hit(session, hit)
             elif entry.isbn:
                 if i in local_hits:
                     book = await session.get(Book, local_hits[i])
                 elif i in isbn_by_index:
-                    raw = prefetched[isbn_by_index[i]]
-                    if isinstance(raw, Exception):
-                        raise raw
-                    book = await persist_fetched_book(session, raw)
+                    records = prefetched[isbn_by_index[i]]
+                    if isinstance(records, Exception):
+                        raise records
+                    book = await save_records(session, records)
                 else:
                     # Invalid ISBN (failed normalize_isbn above) — let this
                     # raise the same ValueError it always did.

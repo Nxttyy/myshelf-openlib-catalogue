@@ -15,8 +15,8 @@ export function SmallCover({ id, title, author, coverUrl }: { id: string; title:
 export function QueueChip({ item, onRemove }: { item: QueueItem; onRemove: () => void }) {
   const warn = item.state === 'notfound' || item.state === 'limited'
   const title = item.state === 'looking' ? 'Looking up…'
-    : item.state === 'notfound' ? 'Not found on Open Library'
-    : item.state === 'limited' ? 'Open Library is busy. It will retry on save.'
+    : item.state === 'notfound' ? 'Not found in the catalogues'
+    : item.state === 'limited' ? 'The catalogues are busy. It will retry on save.'
     : item.title
   return (
     <div className="f-queue-chip d-chip-taste">
