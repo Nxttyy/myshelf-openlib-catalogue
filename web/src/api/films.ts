@@ -185,7 +185,8 @@ export async function findFilmList(text: string, signal: AbortSignal, onProgress
 // ── Ask Dora ─────────────────────────────────────────────────────────────
 
 export type FilmVerdict = {
-  kind: 'buy' | 'hold' | 'skip'; verdict: string; summary?: string | null
+  kind: 'watch' | 'skip' | 'unsure' | 'none'; verdict: string; summary?: string | null
+  predicted_enjoyment?: number | null; confidence?: 'low' | 'medium' | 'high' | null
   familiarity_to_taste: number; adventure_in_the_right_direction: number
 }
 

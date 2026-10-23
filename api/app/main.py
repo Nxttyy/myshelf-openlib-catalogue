@@ -63,6 +63,20 @@ app.mount("/static", StaticFiles(directory="app/static"), name="static")
 # Images for the email templates, at the {{ site_url }}/email/ paths they use.
 app.mount("/email", StaticFiles(directory="app/static/email"), name="email")
 
+class _McpSlash:
+    """The MCP app answers at /mcp/; without this, a client configured with
+    plain /mcp falls through to the web app's catch-all and gets a 405."""
+
+    def __init__(self, app):
+        self.app = app
+
+    async def __call__(self, scope, receive, send):
+        if scope["type"] == "http" and scope["path"] == "/mcp":
+            scope = {**scope, "path": "/mcp/", "raw_path": b"/mcp/"}
+        await self.app(scope, receive, send)
+
+
+app.add_middleware(_McpSlash)
 app.mount("/mcp", secured_mcp_app())
 app.include_router(rest_router)
 

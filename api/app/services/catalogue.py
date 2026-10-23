@@ -388,14 +388,22 @@ async def get_or_create_book(session: AsyncSession, isbn: str) -> Book:
 _HIT_TTL = 60 * 60
 _HIT_CACHE_SIZE = 2000
 _hits: OrderedDict[tuple[str, str], tuple[float, SourceRecord]] = OrderedDict()
+# ISBN-13 → the search result listing it, so Ask Dora can describe a book
+# the user found by search without looking it up again.
+_hits_by_isbn: dict[str, tuple[str, str]] = {}
 
 
-def _remember(record: SourceRecord) -> None:
+def _remember(record: SourceRecord, isbns: list[str]) -> None:
     key = (record.provider, record.external_id)
     _hits[key] = (time.monotonic() + _HIT_TTL, record)
     _hits.move_to_end(key)
+    for isbn in isbn_identifiers(isbns).get("isbn_13", []):
+        _hits_by_isbn[isbn] = key
     while len(_hits) > _HIT_CACHE_SIZE:
         _hits.popitem(last=False)
+    if len(_hits_by_isbn) > _HIT_CACHE_SIZE * 25:
+        for isbn in [i for i, k in _hits_by_isbn.items() if k not in _hits]:
+            del _hits_by_isbn[isbn]
 
 
 def _recall(provider: str, external_id: str) -> SourceRecord | None:
@@ -424,8 +432,8 @@ async def search(query: str, limit: int = 12) -> list[dict]:
             continue
         hits = []
         for record in records:
-            _remember(record)
             hit = provider.hit(record)
+            _remember(record, hit["isbns"])
             hits.append({
                 "key": f"{record.provider}:{record.external_id}",
                 "provider": record.provider,
@@ -438,6 +446,13 @@ async def search(query: str, limit: int = 12) -> list[dict]:
     if answered:
         return []
     raise CatalogueUnavailable(errors)
+
+
+def recall_by_isbn(isbn: str | None) -> SourceRecord | None:
+    """A recent search result listing this ISBN, if one is still cached."""
+    isbn13 = to_isbn13(isbn)
+    key = _hits_by_isbn.get(isbn13) if isbn13 else None
+    return _recall(*key) if key else None
 
 
 def _record_from_hit(hit: dict) -> SourceRecord:

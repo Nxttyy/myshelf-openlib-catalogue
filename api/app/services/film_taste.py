@@ -2,28 +2,25 @@
 Ask Dora for films: does a film you don't own yet fit your taste?
 
 ask() answers what it can at once (an empty film shelf, verdicts cached
-while the shelf is unchanged) and fires FlowStudio runs for the rest, up to
-FILMS_PER_RUN candidates each, so "ask all" on a long list profiles the user
-once per run instead of once per film. poll() checks one run and caches
+while the shelf is unchanged, including its ratings) and fires FlowStudio
+runs for the rest, up to FILMS_PER_RUN candidates each, so "ask all" on a
+long list reads the user's shelves once per run instead of once per film. poll() checks one run and caches
 what it answered.
 
 Runs are remembered in memory (who asked, about what, against which
 library), so a user can only poll their own runs.
 """
 
-import hashlib
 import time
 import uuid
 from dataclasses import dataclass, field
 
-from sqlalchemy.dialects.postgresql import insert
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from app.models.dora_verdict import DoraVerdict
 from app.models.film import Film
-from app.models.user_film import UserFilm
-from app.services import dora, omdb
+from app.services import dora, omdb, taste
 
 FILMS_PER_RUN = 8
 RUN_TTL_SECONDS = 3600
@@ -34,20 +31,11 @@ class Run:
     user_id: uuid.UUID
     library_sig: str
     imdb_ids: list[str]
+    titles: dict[str, str]  # imdb_id → title, cached with the verdict
     created: float = field(default_factory=time.monotonic)
 
 
 _runs: dict[str, Run] = {}
-
-
-async def _library(session: AsyncSession, user_id: uuid.UUID) -> tuple[str, set[str]]:
-    """(signature, owned IMDb IDs). The signature changes whenever a film is
-    added, removed or changes status, which is what makes a verdict stale."""
-    rows = (await session.exec(
-        select(Film.imdb_id, UserFilm.status).join(UserFilm, UserFilm.film_id == Film.id).where(UserFilm.user_id == user_id)
-    )).all()
-    sig = hashlib.sha1("\n".join(sorted(f"{i}:{s}" for i, s in rows)).encode()).hexdigest()[:16]
-    return sig, {i for i, _ in rows}
 
 
 def _candidate(f: Film) -> dict:
@@ -66,10 +54,11 @@ def _candidate(f: Film) -> dict:
 async def ask(session: AsyncSession, user_id: uuid.UUID, imdb_ids: list[str]) -> dict:
     """{"runs": [{run_id, imdb_ids}], "verdicts": {imdb_id: verdict}, "failed": [imdb_id...]}.
     Films already on the shelf are left out: there's nothing to decide."""
-    sig, owned = await _library(session, user_id)
+    items = await taste.film_items(session, user_id)
+    sig, owned = taste.library_sig(items), {i["imdb_id"] for i in items}
     ids = [i for i in dict.fromkeys(imdb_ids) if i not in owned]
     if not owned:
-        return {"runs": [], "verdicts": {i: dora.EMPTY_SHELF_VERDICT for i in ids}, "failed": []}
+        return {"runs": [], "verdicts": {i: dora.empty_shelf_verdict(dora.FILMS) for i in ids}, "failed": []}
 
     cached = (await session.exec(select(DoraVerdict).where(
         DoraVerdict.user_id == user_id, DoraVerdict.media == "films",
@@ -91,7 +80,10 @@ async def ask(session: AsyncSession, user_id: uuid.UUID, imdb_ids: list[str]) ->
     for at in range(0, len(candidates), FILMS_PER_RUN):
         batch = candidates[at : at + FILMS_PER_RUN]
         run_id = await dora.trigger(dora.FILMS, dora.build_film_input(str(user_id), batch))
-        _runs[run_id] = Run(user_id=user_id, library_sig=sig, imdb_ids=[c["imdb_id"] for c in batch])
+        _runs[run_id] = Run(
+            user_id=user_id, library_sig=sig, imdb_ids=[c["imdb_id"] for c in batch],
+            titles={c["imdb_id"]: c["title"] for c in batch},
+        )
         runs.append({"run_id": run_id, "imdb_ids": _runs[run_id].imdb_ids})
     return {"runs": runs, "verdicts": verdicts, "failed": failed}
 
@@ -106,15 +98,14 @@ async def poll(session: AsyncSession, user_id: uuid.UUID, run_id: str) -> dict |
     status, output = await dora.fetch_run(dora.FILMS, run_id)
     verdicts: dict[str, dict] = {}
     if status == "completed":
-        verdicts = dora.parse_film_verdicts(output, run.imdb_ids) or {}
+        titles = dora.own_titles(await taste.film_items(session, user_id), await taste.book_items(session, user_id))
+        verdicts = dora.parse_film_verdicts(output, run.imdb_ids, titles) or {}
         if not verdicts:
             status = "failed"
         for imdb_id, v in verdicts.items():
-            await session.exec(insert(DoraVerdict).values(
-                id=uuid.uuid4(), user_id=user_id, media="films", item_key=imdb_id, library_sig=run.library_sig, verdict=v,
-            ).on_conflict_do_update(
-                constraint="uq_dora_verdicts_item", set_={"library_sig": run.library_sig, "verdict": v},
-            ))
+            if v["kind"] == dora.UNSURE:  # may just be a bad run: ask again next time
+                continue
+            await taste.remember(session, user_id, dora.FILMS, imdb_id, run.library_sig, v | {"title": run.titles.get(imdb_id)})
         await session.commit()
     return {"status": status, "verdicts": verdicts, "imdb_ids": run.imdb_ids}
 

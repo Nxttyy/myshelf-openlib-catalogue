@@ -27,8 +27,8 @@ function message(err: unknown) {
 
 async function follow(runId: string, ids: string[]) {
   try {
-    for (let n = 0; n < 40; n++) {
-      await new Promise((r) => setTimeout(r, 3000))
+    for (let n = 0; n < 80; n++) {
+      await new Promise((r) => setTimeout(r, n === 0 ? 1000 : 1500))
       const res = await pollDoraFilms(runId)
       if (res.status === 'running') continue
       Object.entries(res.verdicts).forEach(([id, v]) => set([id], { s: 'done', v }))

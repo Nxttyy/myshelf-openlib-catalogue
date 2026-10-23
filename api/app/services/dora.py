@@ -5,19 +5,22 @@ Three workflows, each behind its own webhook, all async fire-and-poll
 style: POST /trigger returns a run_id, then GET /runs/{run_id} until status
 is "completed" or "failed".
 
-- books: User Profiler → User-Book Fit Calculator. Final output is one
-  verdict: {kind, verdict, reason, familiarity_to_taste,
-  adventure_in_the_right_direction}.
-- films: Film Taste Profiler → Film Fit Calculator. Final output is
-  {"verdicts": [{imdb_id, kind, verdict, summary, ...scores}]}, one per
-  candidate.
+- books: one agent, "Dora · Books". Final output is one verdict:
+  {kind, verdict, summary, predicted_enjoyment, confidence,
+  familiarity_to_taste, adventure_in_the_right_direction}.
+- films: one agent, "Dora · Films". Final output is
+  {"verdicts": [{imdb_id, ...the same fields}]}, one per candidate.
+
+Both agents read the person's shelves through the MCP tools
+(app/mcp_server.py, services/taste.py).
 - list: Film List Parser. Final output is {"items": [...], "ignored": [...]}
   (see services/film_list.py).
 
-Prompts and the profiler's tool code live in api/flowstudio/.
+Prompts live in ~/Dev/flowstudio, outside this repo.
 """
 
 import json
+import re
 
 import httpx
 
@@ -102,69 +105,146 @@ def _score(raw: dict, key: str) -> int:
         return 3
 
 
-def _kind(raw: dict) -> str:
-    kind = raw.get("kind")
-    return kind if kind in ("buy", "hold", "skip") else "hold"
+# ── Verdicts ────────────────────────────────────────────────────────────────
+# Two outcomes: watch / get it, or skip it. Plus an honest third when Dora
+# can't judge (too little on the shelf to compare): "unsure", shown as "Not
+# enough to go on" and never cached. The agents are told this and given the
+# banned advice below; these checks catch what slips through, so a verdict
+# that reaches the app is never "rent first", never a guess dressed up as a
+# yes, and only bolds titles that really are on the person's shelves.
+
+POSITIVE = {BOOKS: "get", FILMS: "watch"}
+UNSURE = "unsure"
+LABELS = {"get": "Get it", "watch": "Watch it", "skip": "Skip it", UNSURE: "Not enough to go on"}
+CONFIDENCE = ("low", "medium", "high")
+
+# Advice nobody follows: renting, borrowing, sampling, waiting, more research.
+_BANNED = re.compile(
+    r"\b(rent(s|al|ing)?|borrow(s|ing)?|sample|samples|trailer|preview)\b"
+    r"|from (the|a|your) (local )?library|\blibrary card\b"
+    r"|\bwait (for|until)\b|\bcheck (the |some )?reviews\b|\b(first|then) decide\b",
+    re.I,
+)
+_SENTENCE = re.compile(r"(?<=[.!?])\s+")
+_BOLD = re.compile(r"\*\*(.+?)\*\*")
+
+
+def norm_title(title: str) -> str:
+    return " ".join(re.sub(r"[^\w\s]", " ", title.lower()).split())
+
+
+def _predicted(raw: dict) -> float | None:
+    try:
+        return round(min(10.0, max(1.0, float(raw.get("predicted_enjoyment")))), 1)
+    except (TypeError, ValueError):
+        return None
+
+
+def _known_titles(summary: str, titles: set[str]) -> str:
+    """Unbold any **title** that isn't on the person's shelves: the app shows
+    bold as "yours", so an invented or misremembered title must not be."""
+    def bare(t: str) -> str:
+        return re.sub(r"^(the|a|an) ", "", t)
+
+    known = {bare(k) for k in titles}
+
+    def keep(m: re.Match) -> str:
+        # The full title, or its start word for word ("Paterson" for
+        # "Paterson: Poems"), ignoring a leading "The", "A" or "An".
+        t = bare(norm_title(m.group(1)))
+        if t and any(t == k or k.startswith(t + " ") for k in known):
+            return m.group(0)
+        return m.group(1)
+    return _BOLD.sub(keep, summary)
+
+
+def normalize_verdict(raw: dict, media: str, titles: set[str]) -> dict | None:
+    """One agent verdict, checked and cleaned. `titles` are the person's own
+    titles (both shelves), normalised with _norm. None if it isn't a verdict."""
+    if not isinstance(raw, dict) or not (raw.get("verdict") or raw.get("kind")):
+        return None
+    positive = POSITIVE[media]
+    fam = _score(raw, "familiarity_to_taste")
+    adv = _score(raw, "adventure_in_the_right_direction")
+    predicted = _predicted(raw)
+
+    kind = str(raw.get("kind") or "").lower()
+    if kind in ("buy", "watch", "get"):
+        kind = positive
+    elif kind != "skip":
+        kind = UNSURE
+    # No predicted rating means no judgement was made (the agent couldn't
+    # read the shelf, or an old-style "maybe"): say so rather than guess.
+    if predicted is None:
+        kind = UNSURE
+    # The rating it predicts and the call it makes have to agree.
+    elif kind == positive and predicted < 5:
+        kind = "skip"
+    elif kind == "skip" and predicted >= 7.5:
+        kind = positive
+
+    verdict = " ".join(str(raw.get("verdict") or "").split())[:60]
+    says_skip = verdict.lower().startswith("skip")
+    if kind == UNSURE or not verdict or _BANNED.search(verdict) or says_skip != (kind == "skip"):
+        verdict = LABELS[kind]
+
+    summary = str(raw.get("summary") or raw.get("reason") or "")
+    summary = " ".join(x for x in _SENTENCE.split(summary.strip()) if x and not _BANNED.search(x))
+    summary = _known_titles(summary, titles)[:360] or None
+
+    if kind == UNSURE:
+        summary = summary or "There isn't enough on your shelf to compare this with yet."
+    confidence = str(raw.get("confidence") or "").lower()
+    return {
+        "kind": kind,
+        "verdict": verdict,
+        "summary": summary,
+        "predicted_enjoyment": predicted if kind != UNSURE else None,
+        "confidence": confidence if confidence in CONFIDENCE and kind != UNSURE else None,
+        "familiarity_to_taste": fam,
+        "adventure_in_the_right_direction": adv,
+    }
+
+
+def own_titles(*shelves: list[dict]) -> set[str]:
+    return {norm_title(i["title"]) for shelf in shelves for i in shelf}
+
+
+# Nothing on the shelf yet: answered here, without a run. "none" is neither
+# outcome; the app shows it without a green or red dot.
+def empty_shelf_verdict(media: str) -> dict:
+    noun = "films" if media == FILMS else "books"
+    return {
+        "kind": "none",
+        "verdict": f"Add a few {noun} first",
+        "summary": f"Your {noun[:-1]} shelf is empty, so there is nothing to compare yet.",
+        "predicted_enjoyment": None,
+        "confidence": None,
+        "familiarity_to_taste": 1,
+        "adventure_in_the_right_direction": 3,
+    }
 
 
 # ── Books ────────────────────────────────────────────────────────────────────
 
-def _build_input(user_id: str, book: dict) -> str:
-    candidate = {k: v for k, v in book.items() if v}
-    return f"USER_ID: {user_id}\n\nCANDIDATE_BOOK: {json.dumps(candidate)}"
+def build_book_input(user_id: str, candidate: dict) -> str:
+    return f"USER_ID: {user_id}\n\nCANDIDATE_BOOK: {json.dumps(candidate, ensure_ascii=False)}"
 
 
-async def fire_verdict(user_id: str, book: dict) -> str:
-    """Trigger a verdict run for one candidate book; returns the run_id."""
-    return await trigger(BOOKS, _build_input(user_id, book))
-
-
-def _parse_verdict(text: str) -> dict | None:
-    """Parse the book workflow's final output into a normalized verdict
-    dict; None if no valid verdict JSON can be extracted."""
+def parse_book_verdict(text: str | None, titles: set[str]) -> dict | None:
     raw = extract_json(text)
-    if raw is None or "verdict" not in raw:
+    if raw is None or raw.get("error"):
         return None
-    return {
-        "kind": _kind(raw),
-        "verdict": str(raw["verdict"])[:120],
-        "reason": str(raw.get("reason") or "")[:400] or None,
-        "familiarity_to_taste": _score(raw, "familiarity_to_taste"),
-        "adventure_in_the_right_direction": _score(raw, "adventure_in_the_right_direction"),
-    }
-
-
-async def poll_run(run_id: str) -> dict:
-    """One poll of a book verdict run. Returns {"status": ..., "verdict": ...}.
-
-    A completed run whose output can't be parsed counts as failed.
-    """
-    status, output = await fetch_run(BOOKS, run_id)
-    if status == "completed":
-        verdict = _parse_verdict(output)
-        if verdict is None:
-            return {"status": "failed", "verdict": None}
-        return {"status": "completed", "verdict": verdict}
-    return {"status": status, "verdict": None}
+    return normalize_verdict(raw, BOOKS, titles)
 
 
 # ── Films ────────────────────────────────────────────────────────────────────
-
-# Nothing on the film shelf yet: answered here, without a run.
-EMPTY_SHELF_VERDICT = {
-    "kind": "hold",
-    "verdict": "Add a few films first",
-    "summary": "Your film shelf is empty, so there is nothing to compare yet.",
-    "familiarity_to_taste": 1,
-    "adventure_in_the_right_direction": 3,
-}
-
 
 def build_film_input(user_id: str, candidates: list[dict]) -> str:
     return f"USER_ID: {user_id}\n\nCANDIDATE_FILMS: {json.dumps(candidates, ensure_ascii=False)}"
 
 
-def parse_film_verdicts(text: str | None, imdb_ids: list[str]) -> dict[str, dict] | None:
+def parse_film_verdicts(text: str | None, imdb_ids: list[str], titles: set[str]) -> dict[str, dict] | None:
     """The film workflow's final output as {imdb_id: verdict}, keeping only
     the candidates that were asked about. None if the output is unusable
     (no JSON, or the workflow reported an error)."""
@@ -174,13 +254,9 @@ def parse_film_verdicts(text: str | None, imdb_ids: list[str]) -> dict[str, dict
     asked = set(imdb_ids)
     out: dict[str, dict] = {}
     for v in raw["verdicts"]:
-        if not isinstance(v, dict) or v.get("imdb_id") not in asked or not v.get("verdict"):
+        if not isinstance(v, dict) or v.get("imdb_id") not in asked:
             continue
-        out[v["imdb_id"]] = {
-            "kind": _kind(v),
-            "verdict": str(v["verdict"])[:60],
-            "summary": str(v.get("summary") or "")[:320] or None,
-            "familiarity_to_taste": _score(v, "familiarity_to_taste"),
-            "adventure_in_the_right_direction": _score(v, "adventure_in_the_right_direction"),
-        }
+        verdict = normalize_verdict(v, FILMS, titles)
+        if verdict is not None:
+            out[v["imdb_id"]] = verdict
     return out

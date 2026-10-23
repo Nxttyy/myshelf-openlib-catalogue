@@ -1,11 +1,20 @@
 /* Dev-only page (/dev/kit) that shows every phase-1 building block, for
    checking them against the design side by side. Not built into production. */
 
+import { Taste, type TasteVerdict } from '../components/add/AskDora'
 import { Cover } from '../components/Cover'
 import { Icon } from '../components/Icon'
 import { StatusBadge, SubjectPill } from '../components/StatusBadge'
 import { useToast } from '../lib/toast'
 import { PALETTES, type CoverData, type PaletteName } from '../lib/covers'
+
+// Ask Dora answers: a sure yes, an unsure skip, and no shelf yet.
+const VERDICTS: TasteVerdict[] = [
+  { kind: 'watch', verdict: 'Watch it, made for you', summary: 'Close to **Paterson** and **Perfect Days**, the quiet side of your shelf. New for you: Japanese cinema of the 1950s.', predicted_enjoyment: 8.4, confidence: 'high', familiarity_to_taste: 4, adventure_in_the_right_direction: 3 },
+  { kind: 'skip', verdict: 'Skip it, you own better', summary: 'You rated **Dune** 5.0 and stopped the sequel halfway.', predicted_enjoyment: 4.6, confidence: 'low', familiarity_to_taste: 3, adventure_in_the_right_direction: 1 },
+  { kind: 'unsure', verdict: 'Not enough to go on', summary: 'You have books on your shelf but none rated or finished yet. Rate a few and ask again.', familiarity_to_taste: 3, adventure_in_the_right_direction: 3 },
+  { kind: 'none', verdict: 'Add a few books first', summary: 'Your book shelf is empty, so there is nothing to compare yet.', familiarity_to_taste: 1, adventure_in_the_right_direction: 3 },
+]
 
 // Sample jackets matching the design's data.js books, one per layout.
 const SAMPLES: CoverData[] = [
@@ -44,6 +53,11 @@ export default function Kit() {
         <button className="f-btn f-btn--amber" onClick={() => toast('Saved 3 books to your library')}><Icon name="scan" size={18} sw={1.8} /> Toast ok</button>
         <button className="f-btn f-btn--ink" onClick={() => toast("That ISBN doesn't look right", 'err')}>Toast error</button>
         <button className="f-btn f-btn--ghost"><Icon name="share" size={16} /> Ghost</button>
+      </div>
+
+      <div className="f-label" style={{ margin: '36px 0 14px' }}>Ask Dora answers</div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 18 }}>
+        {VERDICTS.map((v) => <div key={v.kind} className="f-queue-chip"><Taste v={v} /></div>)}
       </div>
 
       <div className="f-label" style={{ margin: '36px 0 14px' }}>Display numerals (Bagel Fat One)</div>

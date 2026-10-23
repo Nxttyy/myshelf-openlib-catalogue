@@ -71,17 +71,23 @@ export const scanSessionItems = (token: string, after: number) =>
 
 // ── Ask Dora ──────────────────────────────────────────────────────────────
 
+/** Dora's answer. "unsure" (not enough to go on) and "none" (an empty
+    shelf) are no judgement. The predicted rating is on the person's own
+    1-10 enjoyment scale. */
 export type Verdict = {
-  kind: 'buy' | 'hold' | 'skip'; verdict: string
-  familiarity_to_taste: number; adventure_in_the_right_direction: number; reason?: string | null
+  kind: 'get' | 'skip' | 'unsure' | 'none'; verdict: string; summary?: string | null
+  predicted_enjoyment?: number | null; confidence?: 'low' | 'medium' | 'high' | null
+  familiarity_to_taste: number; adventure_in_the_right_direction: number
 }
 export type AskCandidate = { title: string; authors: string[]; isbn: string | null; context: string | null }
 
-/** Fire a taste run and poll until Dora answers (usually 10-30s). */
+/** Ask about one book: answered at once when cached, else poll the run. */
 export async function askDora(c: AskCandidate, signal: AbortSignal): Promise<Verdict> {
-  const { run_id } = await api.post<{ run_id: string }>('/dora/ask', c)
-  for (let n = 0; n < 40; n++) {
-    await new Promise((r) => setTimeout(r, 3000))
+  const started = await api.post<{ run_id?: string; verdict?: Verdict }>('/dora/ask', c)
+  if (started.verdict) return started.verdict
+  const run_id = started.run_id!
+  for (let n = 0; n < 80; n++) {
+    await new Promise((r) => setTimeout(r, n === 0 ? 1000 : 1500))
     if (signal.aborted) throw new DOMException('aborted', 'AbortError')
     const res = await api.get<{ status: string; verdict?: Verdict }>(`/dora/ask/${run_id}`)
     if (res.status === 'completed' && res.verdict) return res.verdict

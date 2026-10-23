@@ -1,6 +1,7 @@
-/* Ask Dora: buy (or watch) or skip? Fires a taste run for the signed-in
-   user's shelves and shows the verdict, a short summary against their
-   library and the two scores (folio/taste.jsx TasteBlock, AskBtn). */
+/* Ask Dora: get it (or watch it) or skip it? Fires a taste run for the
+   signed-in user's shelves and shows the verdict, a short summary against
+   their library, the two scores (folio/taste.jsx TasteBlock, AskBtn) and,
+   when Dora is fairly sure, the rating it expects them to give. */
 
 import type { AskCandidate } from '../../api/add'
 import { askFilms, useFilmTaste } from '../../lib/filmTaste'
@@ -8,11 +9,14 @@ import { Logo } from '../Logo'
 import { useAskDora } from './useAskDora'
 
 export type TasteVerdict = {
-  kind: 'buy' | 'hold' | 'skip'; verdict: string
+  kind: 'get' | 'watch' | 'skip' | 'unsure' | 'none'; verdict: string; summary?: string | null
+  predicted_enjoyment?: number | null; confidence?: 'low' | 'medium' | 'high' | null
   familiarity_to_taste: number; adventure_in_the_right_direction: number
-  /** films send summary, the book workflow calls it reason */
-  summary?: string | null; reason?: string | null
 }
+
+// The design's dot colours: green for go (its "buy"), red for skip, and the
+// default amber when Dora couldn't judge (not enough to go on, empty shelf).
+const DOT: Record<TasteVerdict['kind'], string> = { get: 'buy', watch: 'buy', skip: 'skip', unsure: '', none: '' }
 
 function Dots({ n }: { n: number }) {
   return <span className="t-dots" aria-label={`${n} out of 5`}>{[1, 2, 3, 4, 5].map((i) => <i key={i} className={i <= n ? 'on' : ''} />)}</span>
@@ -24,13 +28,17 @@ function Rich({ s }: { s: string }) {
 }
 
 export function Taste({ v }: { v: TasteVerdict }) {
-  const summary = v.summary ?? v.reason
+  const judged = v.kind !== 'unsure' && v.kind !== 'none'
+  const sure = judged && v.predicted_enjoyment != null && v.confidence !== 'low'
   return (
     <div className="t-taste f-rise">
-      <div className={'t-verdict ' + v.kind}><span className="vdot" />{v.verdict}</div>
-      {summary && <p className="t-sum"><Rich s={summary} /></p>}
-      <div className="t-srow"><span>Familiarity to taste</span><Dots n={v.familiarity_to_taste} /></div>
-      <div className="t-srow"><span>Adventure, right direction</span><Dots n={v.adventure_in_the_right_direction} /></div>
+      <div className={'t-verdict ' + DOT[v.kind]}><span className="vdot" />{v.verdict}</div>
+      {v.summary && <p className="t-sum"><Rich s={v.summary} /></p>}
+      {sure && <div className="t-srow"><span>You'd likely rate it</span><b style={{ fontVariantNumeric: 'tabular-nums' }}>{v.predicted_enjoyment!.toFixed(1)}<span style={{ color: 'var(--ink-faint)', fontWeight: 400 }}>/10</span></b></div>}
+      {judged && <>
+        <div className="t-srow"><span>Familiarity to taste</span><Dots n={v.familiarity_to_taste} /></div>
+        <div className="t-srow"><span>Adventure, right direction</span><Dots n={v.adventure_in_the_right_direction} /></div>
+      </>}
     </div>
   )
 }
@@ -53,7 +61,7 @@ export function AskDoraBlock({ candidate }: { candidate: AskCandidate }) {
   if (state.s === 'asking') return <div className="d-askdora" style={{ cursor: 'default' }}><span><Logo size={9} /> is reading your shelves…</span></div>
   return (
     <button className="d-askdora" onClick={(e) => { e.stopPropagation(); ask() }}>
-      {state.s === 'error' ? state.msg : <span>Ask <Logo size={9} />: buy or skip?</span>}
+      {state.s === 'error' ? state.msg : <span>Ask <Logo size={9} />: get it or skip it?</span>}
     </button>
   )
 }

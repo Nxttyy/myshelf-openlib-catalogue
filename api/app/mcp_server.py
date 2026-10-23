@@ -19,15 +19,19 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 
 from app.config import settings
 from app.db import engine
+from app.services import taste
 from app.services.isbn import to_isbn13
 
 mcp = FastMCP(
     "dora-library",
     instructions=(
-        "Read-only access to the Dora book app database. "
-        "Use get_user_library to profile a user's reading taste, and "
-        "get_book_details to fetch metadata for a candidate book, and "
-        "get_user_film_library to profile a user's film taste."
+        "Read-only access to one person's Dora shelves (books and films). "
+        "Start with get_taste_profile: it summarises what they love, dislike, "
+        "value and leave unread, with their own 1-10 enjoyment ratings. Use "
+        "search_user_library to check what they own by an author, director, "
+        "series or subject, and get_past_verdicts to see what Dora told them "
+        "before and how it turned out. get_user_library and "
+        "get_user_film_library return the full raw shelves."
     ),
     stateless_http=True,
     json_response=True,
@@ -159,6 +163,75 @@ async def get_book_details(book_id: str = "", isbn: str = "") -> str:
     )
 
 
+def _media(media: str) -> str | None:
+    media = (media or "").strip().lower()
+    return media if media in ("books", "films") else None
+
+
+def _user(user_id: str) -> UUID | None:
+    try:
+        return UUID(user_id)
+    except (ValueError, TypeError):
+        return None
+
+
+@mcp.tool()
+async def get_taste_profile(user_id: str, media: str) -> str:
+    """The person's taste on one shelf, computed from their library: call this
+    first. media is "books" or "films". Returns counts; loved and disliked
+    items (by their own 1-10 enjoyment ratings, with notes); criteria_avg
+    (how they score plot, characters, writing... on average: what they value
+    most and least); creators and subjects/genres weighted by enjoyment;
+    decades and languages; backlog (how much sits unstarted and what kind);
+    recent activity; quotes from their notes; and favourites from their other
+    shelf. insufficient_data is true below 3 items: then say so rather than
+    guess."""
+    uid, m = _user(user_id), _media(media)
+    if uid is None:
+        return json.dumps({"error": f"invalid user_id UUID: {user_id!r}"})
+    if m is None:
+        return json.dumps({"error": 'media must be "books" or "films"'})
+    async with AsyncSession(engine) as session:
+        items = await taste.items_for(session, uid, m)
+        other = await taste.items_for(session, uid, "books" if m == "films" else "films")
+    return json.dumps(taste.profile(items, m, other), ensure_ascii=False)
+
+
+@mcp.tool()
+async def search_user_library(user_id: str, media: str, query: str) -> str:
+    """What the person owns matching a query: words matched against title,
+    authors/directors and subjects/genres (all words must match). Use it for
+    the candidate's author or director, series name, or main subject. Each
+    hit has status (read/reading/unread, for films watched/watching/not
+    watched), their enjoyment 1-10 and note if any. media is "books" or
+    "films". An empty list means they own nothing like it."""
+    uid, m = _user(user_id), _media(media)
+    if uid is None:
+        return json.dumps({"error": f"invalid user_id UUID: {user_id!r}"})
+    if m is None:
+        return json.dumps({"error": 'media must be "books" or "films"'})
+    async with AsyncSession(engine) as session:
+        items = await taste.items_for(session, uid, m)
+    return json.dumps({"query": query, "hits": taste.search(items, query)}, ensure_ascii=False)
+
+
+@mcp.tool()
+async def get_past_verdicts(user_id: str, media: str) -> str:
+    """Dora's last verdicts for this person on one shelf ("books" or "films"),
+    newest first, with what happened next: on_shelf_now, status_now and
+    their_enjoyment once rated. Use it to calibrate: if Dora said skip and
+    they added and loved it anyway (or the reverse), adjust."""
+    uid, m = _user(user_id), _media(media)
+    if uid is None:
+        return json.dumps({"error": f"invalid user_id UUID: {user_id!r}"})
+    if m is None:
+        return json.dumps({"error": 'media must be "books" or "films"'})
+    async with AsyncSession(engine) as session:
+        items = await taste.items_for(session, uid, m)
+        rows = await taste.past_verdicts(session, uid, m, items)
+    return json.dumps({"verdicts": rows}, ensure_ascii=False)
+
+
 _FILM_LIBRARY_SQL = sa.text(
     """
     SELECT f.title, f.year, f.type, f.genres, f.director, f.country, f.language,
@@ -265,7 +338,6 @@ def _check_rest_key(request: Request, key: str | None) -> None:
 @rest_router.get("/user-library/{user_id}")
 async def rest_user_library(user_id: str, request: Request, key: str | None = Query(None)):
     _check_rest_key(request, key)
-    _log_access(f"REST GET /agent-api/user-library/{user_id} auth=ok")
     return Response(content=await get_user_library(user_id), media_type="application/json")
 
 
@@ -277,30 +349,13 @@ async def rest_book(
     key: str | None = Query(None),
 ):
     _check_rest_key(request, key)
-    _log_access(f"REST GET /agent-api/book book_id={book_id!r} isbn={isbn!r} auth=ok")
     return Response(content=await get_book_details(book_id, isbn), media_type="application/json")
 
 
 @rest_router.get("/user-films/{user_id}")
 async def rest_user_films(user_id: str, request: Request, key: str | None = Query(None)):
     _check_rest_key(request, key)
-    _log_access(f"REST GET /agent-api/user-films/{user_id} auth=ok")
     return Response(content=await get_user_film_library(user_id), media_type="application/json")
-
-
-# TEMPORARY debug aid while wiring up FlowStudio: every /mcp request is
-# appended here (method, JSON-RPC method, tool name, auth result).
-_ACCESS_LOG = "/tmp/dora_mcp_access.log"
-
-
-def _log_access(line: str) -> None:
-    from datetime import datetime, timezone
-
-    try:
-        with open(_ACCESS_LOG, "a") as f:
-            f.write(f"{datetime.now(timezone.utc).isoformat()} {line}\n")
-    except OSError:
-        pass
 
 
 def secured_mcp_app():
@@ -317,47 +372,11 @@ def secured_mcp_app():
             token = bearer or headers.get(b"x-mcp-secret", b"").decode().strip() or query_key
             authed = bool(settings.MCP_SECRET) and token == settings.MCP_SECRET
 
-            # Buffer the request body so we can log the JSON-RPC method, then
-            # replay it for the inner app.
-            messages = []
-            if scope["method"] in ("POST", "PUT"):
-                while True:
-                    msg = await receive()
-                    messages.append(msg)
-                    if msg["type"] != "http.request" or not msg.get("more_body"):
-                        break
-            body = b"".join(m.get("body", b"") for m in messages if m["type"] == "http.request")
-            rpc, tool = "-", "-"
-            try:
-                parsed = json.loads(body or b"{}")
-                rpc = parsed.get("method", "-")
-                tool = parsed.get("params", {}).get("name", "-")
-            except (ValueError, AttributeError):
-                pass
-            ua = headers.get(b"user-agent", b"-").decode()
-            _log_access(
-                f"{scope['method']} {scope.get('path', '')} rpc={rpc} tool={tool} "
-                f"auth={'ok' if authed else 'DENIED'} ua={ua!r}"
-            )
-
             if not authed:
                 resp = _unauthorized()
                 await send({"type": "http.response.start", "status": resp["status"], "headers": resp["headers"]})
                 await send({"type": "http.response.body", "body": resp["body"]})
                 return
-
-            idx = 0
-
-            async def replay():
-                nonlocal idx
-                if idx < len(messages):
-                    m = messages[idx]
-                    idx += 1
-                    return m
-                return await receive()
-
-            await inner(scope, replay, send)
-            return
         await inner(scope, receive, send)
 
     return guard

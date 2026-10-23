@@ -14,7 +14,7 @@ from pydantic import BaseModel, Field
 from app.auth import require_user
 from app.db import SessionDep
 from app.models.user import User
-from app.services import dora, film_taste, omdb
+from app.services import book_taste, dora, film_taste, omdb
 
 router = APIRouter(prefix="/dora", tags=["Ask Dora"])
 
@@ -37,23 +37,27 @@ def _require_configured(workflow: str = dora.BOOKS):
 
 @router.post("/ask")
 async def ask_dora(
-    payload: AskDoraRequest, current_user: User = Depends(require_user)
+    payload: AskDoraRequest, session: SessionDep, current_user: User = Depends(require_user)
 ):
+    """Get it or skip it, for a book you don't own yet. Returns {"verdict"}
+    at once when cached (or when your shelf is empty), else {"run_id"} to poll."""
     _require_configured()
     try:
-        run_id = await dora.fire_verdict(str(current_user.id), payload.model_dump())
+        return await book_taste.ask(session, current_user.id, payload.model_dump())
     except (httpx.HTTPError, dora.DoraError):
         raise HTTPException(status_code=502, detail="Dora service unavailable")
-    return {"run_id": run_id}
 
 
 @router.get("/ask/{run_id}")
-async def poll_dora(run_id: str, current_user: User = Depends(require_user)):
+async def poll_dora(run_id: str, session: SessionDep, current_user: User = Depends(require_user)):
     _require_configured()
     try:
-        return await dora.poll_run(run_id)
+        result = await book_taste.poll(session, current_user.id, run_id)
     except httpx.HTTPError:
         raise HTTPException(status_code=502, detail="Dora service unavailable")
+    if result is None:
+        raise HTTPException(status_code=404, detail="That question has expired. Ask again.")
+    return result
 
 
 @router.post("/films/ask")
