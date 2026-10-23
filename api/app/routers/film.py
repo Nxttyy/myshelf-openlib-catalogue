@@ -36,7 +36,7 @@ from app.schemas.film import (
 )
 from app.schemas.user_book_image import PresignBatchRequest, PresignedUpload, UserBookImageRead
 from app.schemas.web import ShelfOwner
-from app.services import film_list, omdb, photos
+from app.services import entry_logs, film_list, omdb, photos
 
 router = APIRouter(prefix="/films", tags=["Films"])
 # /profiles/{handle}/films sits next to the book profile route.
@@ -66,10 +66,10 @@ async def _viewer_film_ids(session: SessionDep, viewer: User | None) -> set[UUID
     return set(rows.all())
 
 
-def _entry(uf: UserFilm, film: Film, images: list) -> FilmShelfEntry:
+def _entry(uf: UserFilm, film: Film, images: list, log=None) -> FilmShelfEntry:
     return FilmShelfEntry(
         id=uf.id, status=uf.status, is_public=uf.is_public, is_pinned=uf.is_pinned,
-        comment=uf.comment, created_at=uf.created_at, images=images,
+        comment=uf.comment, created_at=uf.created_at, images=images, log=log,
         film=FilmRead.model_validate(film),
     )
 
@@ -85,7 +85,8 @@ async def _shelf_for(session: SessionDep, owner: User, public_only: bool) -> tup
         stmt = stmt.where(UserFilm.is_public == True)  # noqa: E712
     items = [{"user_film": uf, "film": f} for uf, f in (await session.exec(stmt)).all()]
     await photos.attach(session, "user_film_id", items, "user_film")
-    entries = [_entry(item["user_film"], item["film"], item["images"]) for item in items]
+    await entry_logs.attach(session, "user_film_id", items, "user_film")
+    entries = [_entry(item["user_film"], item["film"], item["images"], item["log"]) for item in items]
 
     reading = sum(1 for e in entries if e.status == "reading")
     watched = [e for e in entries if e.status == "read"]
@@ -333,7 +334,24 @@ async def update_user_film(
                 other.is_pinned = False
                 session.add(other)
         uf.is_pinned = request_data.is_pinned
+    if request_data.log is not None:
+        await entry_logs.save(session, "user_film_id", uf.id, current_user.id, request_data.log)
     session.add(uf)
+    await session.commit()
+    return {"ok": True}
+
+
+@router.delete("/user_films/{user_film_id}")
+async def remove_user_film(
+    user_film_id: UUID,
+    session: SessionDep,
+    current_user: User = Depends(require_user),
+):
+    """Remove a film from your library, with its note, photos and log. The
+    catalogue record stays."""
+    uf = await _owned_user_film(session, user_film_id, current_user)
+    await photos.delete_all(session, "user_film_id", uf.id)
+    await session.delete(uf)
     await session.commit()
     return {"ok": True}
 
@@ -393,7 +411,8 @@ async def film_entry(
         if uf is not None:
             item = {"user_film": uf}
             await photos.attach(session, "user_film_id", [item], "user_film")
-            shelf = _entry(uf, film, item["images"])
+            await entry_logs.attach(session, "user_film_id", [item], "user_film")
+            shelf = _entry(uf, film, item["images"], item["log"])
     return FilmEntryRead(film=FilmRead.model_validate(film), on_shelf=shelf is not None, shelf=shelf)
 
 

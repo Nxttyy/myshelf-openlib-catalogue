@@ -2,6 +2,7 @@
 
 from app.models.book import Book, BookIdentifier, BookSource
 from app.models.dora_verdict import DoraVerdict
+from app.models.entry_log import Companion, EntryLog, EntryLogCompanion
 from app.models.film import Film
 from app.models.film_title_lookup import FilmTitleLookup
 from app.models.scan_session import ScanSession
@@ -10,4 +11,4 @@ from app.models.user_book import UserBook
 from app.models.user_book_image import UserBookImage
 from app.models.user_film import UserFilm
 
-__all__ = ["Book", "BookIdentifier", "BookSource", "DoraVerdict", "Film", "FilmTitleLookup", "ScanSession", "User", "UserBook", "UserBookImage", "UserFilm"]
+__all__ = ["Book", "BookIdentifier", "BookSource", "Companion", "DoraVerdict", "EntryLog", "EntryLogCompanion", "Film", "FilmTitleLookup", "ScanSession", "User", "UserBook", "UserBookImage", "UserFilm"]

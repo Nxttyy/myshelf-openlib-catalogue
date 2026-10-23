@@ -6,9 +6,9 @@ import { useMutation, useQueryClient, type QueryClient } from '@tanstack/react-q
 import { api, ApiError } from './client'
 import type { Me } from './me'
 import { updateFilmEntry } from './films'
-import type { BookEntryRead, ShelfEntry, ShelfRead, UserBookImage } from './types'
+import type { BookEntryRead, EntryLogWrite, ShelfEntry, ShelfRead, UserBookImage } from './types'
 
-export type ShelfPatch = Partial<Pick<ShelfEntry, 'status' | 'is_public' | 'comment' | 'is_pinned'>>
+export type ShelfPatch = Partial<Pick<ShelfEntry, 'status' | 'is_public' | 'comment' | 'is_pinned'>> & { log?: EntryLogWrite }
 
 // Same order as the API: pinned first, then newest.
 function sortEntries(entries: ShelfEntry[]) {
@@ -44,7 +44,9 @@ export function useUpdateShelfEntry() {
     onMutate: async ({ id, patch }) => {
       await qc.cancelQueries({ queryKey: ['shelf'] })
       const before = qc.getQueryData<ShelfRead>(['shelf'])
-      updateEntry(qc, id, (e) => ({ ...e, ...patch }))
+      // The log is sent in its write shape; the saved one comes back on refetch.
+      const { log: _log, ...fields } = patch
+      updateEntry(qc, id, (e) => ({ ...e, ...fields }))
       if (patch.is_pinned !== undefined) {
         // The API allows one pin at a time: pinning a book unpins the others.
         qc.setQueryData<ShelfRead>(['shelf'], (shelf) => shelf && {
@@ -56,9 +58,21 @@ export function useUpdateShelfEntry() {
       return { before }
     },
     onError: (_err, _vars, ctx) => { if (ctx?.before) qc.setQueryData(['shelf'], ctx.before) },
-    onSettled: () => {
+    onSettled: (_r, _e, { patch }) => {
       qc.invalidateQueries({ queryKey: ['shelf'] })
       qc.invalidateQueries({ queryKey: ['profile'] })
+      if (patch.log) qc.invalidateQueries({ queryKey: ['book'] })
+    },
+  })
+}
+
+/** Remove a book from your library, with its note, photos and log. */
+export function useRemoveShelfEntry() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (id: string) => api.delete<{ ok: boolean }>(`/books/user_books/${id}`),
+    onSuccess: () => {
+      for (const queryKey of [['shelf'], ['profile'], ['book'], ['recent'], ['me']]) qc.invalidateQueries({ queryKey })
     },
   })
 }

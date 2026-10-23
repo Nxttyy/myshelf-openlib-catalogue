@@ -38,6 +38,23 @@ mcp = FastMCP(
 )
 
 
+def _log(scores, finished_on, precision, times) -> dict | None:
+    """A diary log, compact: per-criterion scores (1-10), their average as
+    enjoyment, when it was finished and how many times. None if unrated."""
+    scores = json.loads(scores) if isinstance(scores, str) else scores
+    if not scores:
+        return None
+    when = None
+    if finished_on is not None:
+        when = finished_on.isoformat()[: {"year": 4, "month": 7}.get(precision, 10)]
+    return {
+        "enjoyment": round(sum(scores.values()) / len(scores), 1),
+        "scores": scores,
+        "finished": when,
+        "times": times,
+    }
+
+
 def _names(items: list | None) -> list[str]:
     """Flatten [{url, name}, ...] JSONB to bare names."""
     return [i["name"] for i in items or [] if isinstance(i, dict) and i.get("name")]
@@ -47,9 +64,11 @@ _LIBRARY_SQL = sa.text(
     """
     SELECT b.title, b.subtitle, b.authors, b.subjects, b.description,
            b.publish_date, b.number_of_pages,
-           ub.status, ub.comment, ub.is_pinned, ub.created_at
+           ub.status, ub.comment, ub.is_pinned, ub.created_at,
+           el.scores, el.finished_on, el.finished_on_precision, el.times
     FROM user_books ub
     JOIN books b ON b.id = ub.book_id
+    LEFT JOIN entry_logs el ON el.user_book_id = ub.id
     WHERE ub.user_id = :user_id
     ORDER BY ub.created_at
     """
@@ -68,8 +87,9 @@ _BOOK_BY_ISBN_SQL = sa.text(
 @mcp.tool()
 async def get_user_library(user_id: str) -> str:
     """Return every book in a user's library with the user's own status,
-    comment and pinned flag, plus the book's title, authors, subjects and
-    description. user_id must be the user's UUID."""
+    comment, pinned flag and diary log (enjoyment 1-10 with per-criterion
+    scores, when finished, times read; null if unrated), plus the book's
+    title, authors, subjects and description. user_id must be the user's UUID."""
     try:
         UUID(user_id)
     except ValueError:
@@ -91,6 +111,7 @@ async def get_user_library(user_id: str) -> str:
             "user_comment": r["comment"],
             "is_pinned": r["is_pinned"],
             "added_at": r["created_at"].isoformat(),
+            "log": _log(r["scores"], r["finished_on"], r["finished_on_precision"], r["times"]),
         }
         for r in rows
     ]
@@ -141,9 +162,11 @@ async def get_book_details(book_id: str = "", isbn: str = "") -> str:
 _FILM_LIBRARY_SQL = sa.text(
     """
     SELECT f.title, f.year, f.type, f.genres, f.director, f.country, f.language,
-           uf.status, uf.comment, uf.is_pinned
+           uf.status, uf.comment, uf.is_pinned,
+           el.scores, el.finished_on, el.finished_on_precision, el.times
     FROM user_films uf
     JOIN films f ON f.id = uf.film_id
+    LEFT JOIN entry_logs el ON el.user_film_id = uf.id
     WHERE uf.user_id = :user_id
     ORDER BY uf.is_pinned DESC, uf.created_at DESC
     LIMIT 300
@@ -167,7 +190,8 @@ _FILM_STATUS = {"unread": "not watched", "reading": "watching", "read": "watched
 @mcp.tool()
 async def get_user_film_library(user_id: str) -> str:
     """Return a user's films (title, year, director, genres, country,
-    language, watch status, note, pinned) and a short list of their books
+    language, watch status, note, pinned, diary log: enjoyment 1-10 with
+    per-criterion scores, when watched, times watched; null if unrated) and a short list of their books
     (title, authors, top subjects) for pairing films with books. user_id
     must be the user's UUID. Kept compact: up to 300 films, 150 books."""
     try:
@@ -197,6 +221,7 @@ async def get_user_film_library(user_id: str) -> str:
                 "watch_status": _FILM_STATUS.get(r["status"], r["status"]),
                 "user_note": (r["comment"] or "")[:200] or None,
                 "is_pinned": r["is_pinned"],
+                "log": _log(r["scores"], r["finished_on"], r["finished_on_precision"], r["times"]),
             }
             for r in films
         ],

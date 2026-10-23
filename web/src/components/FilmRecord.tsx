@@ -2,20 +2,24 @@
    folio/films.jsx FilmDrawer: poster and title, IMDb / Rotten Tomatoes /
    Metacritic scores, plot, genres, details, cast, awards and links. A right
    drawer on desktop, a bottom sheet on phones. On your own copy you get
-   status, visibility, note and photos, with an explicit Save like books;
-   on a film you don't have yet, Ask Dora whether it fits your taste. */
+   your log (once you're watching or have watched it), status, visibility,
+   note and photos, with an explicit Save and Remove like books; on someone's
+   public profile, their log, note and photos show read-only; on a film you
+   don't have yet, Ask Dora whether it fits your taste. */
 
 import { useState } from 'react'
 import { Link, useLocation, useMatch } from 'react-router'
-import { useAddFilmToShelf, useFilmEntry, usePublicFilms, useUpdateFilmEntry } from '../api/films'
+import { useAddFilmToShelf, useFilmEntry, usePublicFilms, useRemoveFilmEntry, useUpdateFilmEntry } from '../api/films'
 import { useMe } from '../api/me'
 import type { Film, FilmEntryRead, FilmShelfEntry } from '../api/types'
 import { filmLinks, runtime } from '../lib/films'
 import { useOverlay } from '../lib/overlay'
 import { useToast } from '../lib/toast'
+import { fromLog, showsLog, toWrite } from '../lib/diary'
 import { useIsDesktop } from '../lib/useMediaQuery'
 import { FilmAsk } from './add/AskDora'
 import { OnShelfBadge } from './CatalogGrid'
+import { DiaryLog, LogSummary, SaveRow } from './DiaryLog'
 import { Icon } from './Icon'
 import { BottomSheet, Drawer } from './Overlay'
 import { PhotoNotes } from './PhotoNotes'
@@ -138,6 +142,13 @@ function RecordBody({ entry, desktop, theirs, onSaved }: BodyProps) {
         ))}
       </div>
 
+      {theirs && !mine && theirs.entry.log && showsLog(theirs.entry.status) && (
+        <>
+          <div className="f-label" style={{ marginBottom: 12 }}>Log from @{theirs.handle}</div>
+          <LogSummary kind="film" log={theirs.entry.log} />
+        </>
+      )}
+
       {theirs && !mine && (theirs.entry.comment || theirs.entry.images.length > 0) && (
         <div style={{ marginBottom: 22 }}>
           <div className="f-label" style={{ marginBottom: 9 }}>Note from @{theirs.handle}</div>
@@ -161,18 +172,35 @@ function ShelfEditor({ mine, title, onStatus, onSaved }: {
   const [status, setStatus] = useState(mine.status)
   const [isPublic, setIsPublic] = useState(mine.is_public)
   const [comment, setComment] = useState(mine.comment ?? '')
+  const [log, setLog] = useState(() => fromLog('film', mine.log))
+  const [logDirty, setLogDirty] = useState(false)
   const update = useUpdateFilmEntry()
+  const remove = useRemoveFilmEntry()
   const toast = useToast()
 
   function save() {
-    update.mutate({ id: mine.id, patch: { status, is_public: isPublic, comment } }, {
+    const patch = { status, is_public: isPublic, comment, ...(logDirty && showsLog(status) ? { log: toWrite('film', log) } : {}) }
+    update.mutate({ id: mine.id, patch }, {
       onSuccess: () => { toast('Saved.'); setTimeout(onSaved, 600) },
       onError: () => toast("Couldn't save. Try again.", 'err'),
     })
   }
 
+  function removeIt() {
+    remove.mutate(mine.id, {
+      onSuccess: () => { toast(title + ' removed.'); onSaved() },
+      onError: () => toast("Couldn't remove it. Try again.", 'err'),
+    })
+  }
+
   return (
     <>
+      {showsLog(status) && (
+        <>
+          <div className="f-label" style={{ marginBottom: 12 }}>Your log</div>
+          <DiaryLog kind="film" draft={log} touched={!!mine.log || logDirty} onChange={(d) => { setLog(d); setLogDirty(true) }} />
+        </>
+      )}
       <div className="f-label" style={{ marginBottom: 9 }}>Your shelf</div>
       <div className="f-editrow">
         <select className="f-select" aria-label="Watch status" value={status} onChange={(e) => { setStatus(e.target.value); onStatus(e.target.value) }}>
@@ -185,9 +213,7 @@ function ShelfEditor({ mine, title, onStatus, onSaved }: {
       <textarea className="f-textarea" rows={3} placeholder="Add a note about this film…" aria-label="Your note"
         value={comment} onChange={(e) => setComment(e.target.value)} />
       <PhotoNotes photos={mine.images} entryId={mine.id} editable context={title} owner="film" />
-      <button className="f-btn f-btn--amber f-btn--block" style={{ marginTop: 14 }} onClick={save} disabled={update.isPending}>
-        <Icon name="check" size={15} sw={2.2} /> {update.isPending ? 'Saving…' : 'Save changes'}
-      </button>
+      <SaveRow title={title} onSave={save} saving={update.isPending} onRemove={removeIt} removing={remove.isPending} />
     </>
   )
 }

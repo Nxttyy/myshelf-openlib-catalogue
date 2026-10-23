@@ -28,6 +28,7 @@ from app.schemas.web import (
     ShelfOwner,
     ShelfRead,
 )
+from app.services import entry_logs
 from app.services.shelf import attach_images, build_hauls, contributor_handles
 
 router = APIRouter(tags=["Web app"])
@@ -63,6 +64,7 @@ async def _shelf_for(
         stmt = stmt.where(UserBook.is_public == True)  # noqa: E712
     items = [{"user_book": ub, "book": b} for ub, b in (await session.exec(stmt)).all()]
     await attach_images(session, items)
+    await entry_logs.attach(session, "user_book_id", items, "user_book")
     handles = await contributor_handles(session, [item["book"] for item in items])
 
     entries = [
@@ -74,6 +76,7 @@ async def _shelf_for(
             comment=item["user_book"].comment,
             created_at=item["user_book"].created_at,
             images=item["images"],
+            log=item["log"],
             book=BookRead.model_validate(item["book"]),
             added_by=handles.get(item["book"].created_by_user_id),
             can_edit=_can_edit(item["book"], viewer),
@@ -157,9 +160,10 @@ async def book_entry(
         if ub is not None:
             item = {"user_book": ub, "book": book}
             await attach_images(session, [item])
+            await entry_logs.attach(session, "user_book_id", [item], "user_book")
             shelf = ShelfEntry(
                 id=ub.id, status=ub.status, is_public=ub.is_public, is_pinned=ub.is_pinned,
-                comment=ub.comment, created_at=ub.created_at, images=item["images"],
+                comment=ub.comment, created_at=ub.created_at, images=item["images"], log=item["log"],
                 book=BookRead.model_validate(book),
             )
 

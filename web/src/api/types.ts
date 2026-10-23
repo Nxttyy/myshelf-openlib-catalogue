@@ -40,3 +40,8 @@ export type FilmEntryRead = Schemas['FilmEntryRead']
 export type BatchUserFilmResult = Schemas['BatchUserFilmResult']
 export type FilmListRow = Schemas['FilmListRow']
 export type FilmListJob = Schemas['FilmListJob']
+
+// Diary logs on shelf entries, and the people in them
+export type EntryLog = Schemas['EntryLogRead']
+export type EntryLogWrite = Schemas['EntryLogWrite']
+export type Companion = Schemas['CompanionRead']

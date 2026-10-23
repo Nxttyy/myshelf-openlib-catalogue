@@ -9,7 +9,7 @@ import { defineConfig } from 'vite'
 // DORA_API overrides the backend address, e.g. to run a second copy on another port.
 const API_TARGET = process.env.DORA_API ?? 'http://localhost:8000'
 
-const API_PREFIXES = ['/books', '/films', '/auth', '/profiles', '/scan', '/dora', '/mobile-scan', '/static', '/email', '/health']
+const API_PREFIXES = ['/books', '/films', '/auth', '/profiles', '/scan', '/dora', '/companions', '/mobile-scan', '/static', '/email', '/health']
 
 // `npm run dev:phone`: serve over HTTPS on the local network, because phone
 // cameras only work on secure pages. The certificate is self-signed, so the

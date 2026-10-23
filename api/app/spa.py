@@ -21,7 +21,7 @@ from app.models.user_film import UserFilm
 
 # First path segments that belong to the API, not the app.
 API_PREFIXES = {
-    "books", "films", "auth", "profiles", "scan", "dora", "agent-api", "mcp", "static",
+    "books", "films", "auth", "profiles", "scan", "dora", "agent-api", "mcp", "static", "companions",
     "mobile-scan", "health", "docs", "redoc", "openapi.json", "assets",
 }
 

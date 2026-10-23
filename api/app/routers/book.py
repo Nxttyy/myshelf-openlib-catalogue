@@ -17,6 +17,7 @@ from app.models.book import Book
 from app.models.user import User
 from app.models.user_book import UserBook
 from app.schemas.book import BookRead, ManualBookCreate
+from app.schemas.entry_log import EntryLogWrite
 from app.schemas.user_book_image import (
     ImagePresignRequest,
     PresignBatchRequest,
@@ -24,7 +25,7 @@ from app.schemas.user_book_image import (
     PresignedUpload,
     UserBookImageRead,
 )
-from app.services import photos, storage
+from app.services import entry_logs, photos, storage
 from app.services.manual_book import (
     ManualBookError,
     apply_manual_book_edit,
@@ -95,6 +96,8 @@ class UpdateUserBookRequest(BaseModel):
     is_public: bool | None = None
     comment: str | None = None
     is_pinned: bool | None = None
+    # Replaces the diary log (creating it the first time).
+    log: EntryLogWrite | None = None
 
 
 
@@ -451,7 +454,24 @@ async def update_user_book(
                 other.is_pinned = False
                 session.add(other)
         ub.is_pinned = request_data.is_pinned
+    if request_data.log is not None:
+        await entry_logs.save(session, "user_book_id", ub.id, current_user.id, request_data.log)
     session.add(ub)
+    await session.commit()
+    return {"ok": True}
+
+
+@router.delete("/user_books/{user_book_id}")
+async def remove_user_book(
+    user_book_id: UUID,
+    session: SessionDep,
+    current_user: User = Depends(require_user),
+):
+    """Remove a book from your library, with its note, photos and log. The
+    catalogue record stays."""
+    ub = await _owned_user_book(session, user_book_id, current_user)
+    await photos.delete_all(session, "user_book_id", ub.id)
+    await session.delete(ub)
     await session.commit()
     return {"ok": True}
 

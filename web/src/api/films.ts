@@ -6,7 +6,7 @@ import { useInfiniteQuery, useMutation, useQuery, useQueryClient, type InfiniteD
 import { filmQueue, toFilmBatchEntries } from '../lib/filmQueue'
 import { api } from './client'
 import type {
-  BatchUserFilmResult, FilmCatalogEntry, FilmEntryRead, FilmListJob, FilmRecentPage, FilmSearchPage, FilmShelfEntry,
+  BatchUserFilmResult, EntryLogWrite, FilmCatalogEntry, FilmEntryRead, FilmListJob, FilmRecentPage, FilmSearchPage, FilmShelfEntry,
   FilmShelfRead, PublicFilmShelfRead,
 } from './types'
 
@@ -66,7 +66,7 @@ export function useFilmEntry(filmId: string | null) {
 
 // ── Shelf edits ──────────────────────────────────────────────────────────
 
-export type FilmPatch = Partial<Pick<FilmShelfEntry, 'status' | 'is_public' | 'comment' | 'is_pinned'>>
+export type FilmPatch = Partial<Pick<FilmShelfEntry, 'status' | 'is_public' | 'comment' | 'is_pinned'>> & { log?: EntryLogWrite }
 
 function sortEntries(entries: FilmShelfEntry[]) {
   return [...entries].sort((a, b) =>
@@ -102,7 +102,9 @@ export function useUpdateFilmEntry() {
     onMutate: async ({ id, patch }) => {
       await qc.cancelQueries({ queryKey: SHELF })
       const before = qc.getQueryData<FilmShelfRead>(SHELF)
-      updateFilmEntry(qc, id, (e) => ({ ...e, ...patch }))
+      // The log is sent in its write shape; the saved one comes back on refetch.
+      const { log: _log, ...fields } = patch
+      updateFilmEntry(qc, id, (e) => ({ ...e, ...fields }))
       if (patch.is_pinned !== undefined) {
         // One pinned film at a time, like books.
         qc.setQueryData<FilmShelfRead>(SHELF, (shelf) => shelf && {
@@ -114,11 +116,21 @@ export function useUpdateFilmEntry() {
       return { before }
     },
     onError: (_err, _vars, ctx) => { if (ctx?.before) qc.setQueryData(SHELF, ctx.before) },
-    onSettled: () => {
+    onSettled: (_r, _e, { patch }) => {
       qc.invalidateQueries({ queryKey: SHELF })
       qc.invalidateQueries({ queryKey: ['films', 'profile'] })
       qc.invalidateQueries({ queryKey: ['films', 'recent'] })
+      if (patch.log) qc.invalidateQueries({ queryKey: ['films', 'entry'] })
     },
+  })
+}
+
+/** Remove a film from your library, with its note, photos and log. */
+export function useRemoveFilmEntry() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (id: string) => api.delete<{ ok: boolean }>(`/films/user_films/${id}`),
+    onSuccess: () => invalidateAfterAdd(qc),
   })
 }
 

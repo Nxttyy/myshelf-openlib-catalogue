@@ -1,24 +1,27 @@
 /* A book's catalogue record, opened from any cover via ?book=<id>.
    Desktop: the design's DetailDrawer (folio/desktop.jsx), non-editable
    branch. Phone: the mobile design's DetailSheet (folio/screens.jsx).
-   On your own copy the editable branch adds status, visibility, note and
-   photos, with an explicit Save (photos save as they upload). On someone's
-   public profile, their note and photos show read-only. */
+   On your own copy the editable branch adds your log (once you're reading
+   or have read it), status, visibility, note and photos, with an explicit
+   Save (photos save as they upload) and Remove from library. On someone's
+   public profile, their log, note and photos show read-only. */
 
 import { useState } from 'react'
 import { Link, useLocation, useMatch, useSearchParams } from 'react-router'
 import { useMe } from '../api/me'
 import { useAddToShelf, useBookEntry, usePublicProfile } from '../api/queries'
-import { useUpdateShelfEntry } from '../api/shelf'
+import { useRemoveShelfEntry, useUpdateShelfEntry } from '../api/shelf'
 import type { BookEntryRead, ShelfEntry } from '../api/types'
 import { coverFromBook } from '../lib/covers'
 import { editionLinks } from '../lib/links'
 import { useOverlay } from '../lib/overlay'
 import { useToast } from '../lib/toast'
+import { fromLog, showsLog, toWrite } from '../lib/diary'
 import { useIsDesktop } from '../lib/useMediaQuery'
 import { OnShelfBadge } from './CatalogGrid'
 import { PhotoNotes } from './PhotoNotes'
 import { Cover } from './Cover'
+import { DiaryLog, LogSummary, SaveRow } from './DiaryLog'
 import { Icon } from './Icon'
 import { BottomSheet, Drawer } from './Overlay'
 import { StatusBadge, SubjectPill, type ReadingStatus } from './StatusBadge'
@@ -127,6 +130,13 @@ function RecordBody({ entry, desktop, theirs, onSaved }: BodyProps) {
       {desktop && entry.added_by && <div className="f-label" style={{ marginBottom: entry.can_edit ? 8 : 18 }}>Added by @{entry.added_by}</div>}
       {entry.can_edit && <EditDetailsLink bookId={b.id} />}
 
+      {theirs && !mine && theirs.entry.log && showsLog(theirs.entry.status) && (
+        <>
+          <div className="f-label" style={{ marginBottom: 12 }}>Log from @{theirs.handle}</div>
+          <LogSummary kind="book" log={theirs.entry.log} />
+        </>
+      )}
+
       {theirs && !mine && (theirs.entry.comment || theirs.entry.images.length > 0) && (
         <div style={{ marginBottom: 22 }}>
           <div className="f-label" style={{ marginBottom: 9 }}>Note from @{theirs.handle}</div>
@@ -142,26 +152,44 @@ function RecordBody({ entry, desktop, theirs, onSaved }: BodyProps) {
   )
 }
 
-/** Your copy: status, visibility, note (saved with the button) and photos
-    (saved as they upload, like before). */
+/** Your copy: log, status, visibility, note (saved with the button) and
+    photos (saved as they upload, like before). The log is only sent once
+    you've changed something in it. */
 function ShelfEditor({ mine, title, onStatus, onSaved }: {
   mine: ShelfEntry; title: string; onStatus: (s: string) => void; onSaved: () => void
 }) {
   const [status, setStatus] = useState(mine.status)
   const [isPublic, setIsPublic] = useState(mine.is_public)
   const [comment, setComment] = useState(mine.comment ?? '')
+  const [log, setLog] = useState(() => fromLog('book', mine.log))
+  const [logDirty, setLogDirty] = useState(false)
   const update = useUpdateShelfEntry()
+  const remove = useRemoveShelfEntry()
   const toast = useToast()
 
   function save() {
-    update.mutate({ id: mine.id, patch: { status, is_public: isPublic, comment } }, {
+    const patch = { status, is_public: isPublic, comment, ...(logDirty && showsLog(status) ? { log: toWrite('book', log) } : {}) }
+    update.mutate({ id: mine.id, patch }, {
       onSuccess: () => { toast('Saved.'); setTimeout(onSaved, 600) },
       onError: () => toast("Couldn't save. Try again.", 'err'),
     })
   }
 
+  function removeIt() {
+    remove.mutate(mine.id, {
+      onSuccess: () => { toast(title + ' removed.'); onSaved() },
+      onError: () => toast("Couldn't remove it. Try again.", 'err'),
+    })
+  }
+
   return (
     <>
+      {showsLog(status) && (
+        <>
+          <div className="f-label" style={{ marginBottom: 12 }}>Your log</div>
+          <DiaryLog kind="book" draft={log} touched={!!mine.log || logDirty} onChange={(d) => { setLog(d); setLogDirty(true) }} />
+        </>
+      )}
       <div className="f-label" style={{ marginBottom: 9 }}>Your shelf</div>
       <div className="f-editrow">
         <select className="f-select" aria-label="Reading status" value={status} onChange={(e) => { setStatus(e.target.value); onStatus(e.target.value) }}>
@@ -174,9 +202,7 @@ function ShelfEditor({ mine, title, onStatus, onSaved }: {
       <textarea className="f-textarea" rows={3} placeholder="Add a note about this book…" aria-label="Your note"
         value={comment} onChange={(e) => setComment(e.target.value)} />
       <PhotoNotes photos={mine.images} entryId={mine.id} editable context={title} />
-      <button className="f-btn f-btn--amber f-btn--block" style={{ marginTop: 14 }} onClick={save} disabled={update.isPending}>
-        <Icon name="check" size={15} sw={2.2} /> {update.isPending ? 'Saving…' : 'Save changes'}
-      </button>
+      <SaveRow title={title} onSave={save} saving={update.isPending} onRemove={removeIt} removing={remove.isPending} />
     </>
   )
 }

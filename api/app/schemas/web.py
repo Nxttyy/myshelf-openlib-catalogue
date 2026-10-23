@@ -9,6 +9,7 @@ from uuid import UUID
 from pydantic import BaseModel
 
 from app.schemas.book import BookRead
+from app.schemas.entry_log import EntryLogRead
 from app.schemas.user_book_image import UserBookImageRead
 
 
@@ -34,6 +35,8 @@ class ShelfEntry(BaseModel):
     comment: str | None = None
     created_at: datetime
     images: list[UserBookImageRead] = []
+    # The owner's diary log; None until they rate it.
+    log: EntryLogRead | None = None
     book: BookRead
     added_by: str | None = None
     can_edit: bool = False

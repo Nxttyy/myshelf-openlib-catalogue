@@ -371,7 +371,12 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        delete?: never;
+        /**
+         * Remove User Book
+         * @description Remove a book from your library, with its note, photos and log. The
+         *     catalogue record stays.
+         */
+        delete: operations["remove_user_book_books_user_books__user_book_id__delete"];
         options?: never;
         head?: never;
         /** Update User Book */
@@ -606,7 +611,12 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        delete?: never;
+        /**
+         * Remove User Film
+         * @description Remove a film from your library, with its note, photos and log. The
+         *     catalogue record stays.
+         */
+        delete: operations["remove_user_film_films_user_films__user_film_id__delete"];
         options?: never;
         head?: never;
         /** Update User Film */
@@ -991,6 +1001,24 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/companions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Companions */
+        get: operations["list_companions_companions_get"];
+        put?: never;
+        /** Add Companion */
+        post: operations["add_companion_companions_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/health": {
         parameters: {
             query?: never;
@@ -1208,6 +1236,29 @@ export interface components {
              */
             on_shelf: boolean;
         };
+        /** CompanionCreate */
+        CompanionCreate: {
+            /** Name */
+            name: string;
+            /** Initials */
+            initials?: string | null;
+            /** Color */
+            color?: string | null;
+        };
+        /** CompanionRead */
+        CompanionRead: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Name */
+            name: string;
+            /** Initials */
+            initials: string;
+            /** Color */
+            color: string;
+        };
         /** CoverSchema */
         CoverSchema: {
             /** Small */
@@ -1216,6 +1267,57 @@ export interface components {
             medium?: string | null;
             /** Large */
             large?: string | null;
+        };
+        /** EntryLogRead */
+        EntryLogRead: {
+            /** Scores */
+            scores: {
+                [key: string]: number;
+            };
+            /** Enjoyment */
+            enjoyment: number;
+            /** Finished On */
+            finished_on?: string | null;
+            /** Finished On Precision */
+            finished_on_precision?: string | null;
+            /** Place */
+            place?: string | null;
+            /**
+             * Times
+             * @default 1
+             */
+            times: number;
+            /**
+             * Companions
+             * @default []
+             */
+            companions: components["schemas"]["CompanionRead"][];
+        };
+        /**
+         * EntryLogWrite
+         * @description The whole log, replacing what was there.
+         */
+        EntryLogWrite: {
+            /** Scores */
+            scores: {
+                [key: string]: number;
+            };
+            /** Finished On */
+            finished_on?: string | null;
+            /** Finished On Precision */
+            finished_on_precision?: string | null;
+            /** Place */
+            place?: string | null;
+            /**
+             * Times
+             * @default 1
+             */
+            times: number;
+            /**
+             * Companion Ids
+             * @default []
+             */
+            companion_ids: string[];
         };
         /**
          * FilmCatalogEntry
@@ -1426,6 +1528,7 @@ export interface components {
              * @default []
              */
             images: components["schemas"]["UserBookImageRead"][];
+            log?: components["schemas"]["EntryLogRead"] | null;
             film: components["schemas"]["FilmRead"];
         };
         /** FilmShelfRead */
@@ -1700,6 +1803,7 @@ export interface components {
              * @default []
              */
             images: components["schemas"]["UserBookImageRead"][];
+            log?: components["schemas"]["EntryLogRead"] | null;
             book: components["schemas"]["BookRead"];
             /** Added By */
             added_by?: string | null;
@@ -1764,6 +1868,7 @@ export interface components {
             comment?: string | null;
             /** Is Pinned */
             is_pinned?: boolean | null;
+            log?: components["schemas"]["EntryLogWrite"] | null;
         };
         /** UpdateUserFilmRequest */
         UpdateUserFilmRequest: {
@@ -1775,6 +1880,7 @@ export interface components {
             comment?: string | null;
             /** Is Pinned */
             is_pinned?: boolean | null;
+            log?: components["schemas"]["EntryLogWrite"] | null;
         };
         /** UserBookImageRead */
         UserBookImageRead: {
@@ -2383,6 +2489,37 @@ export interface operations {
             };
         };
     };
+    remove_user_book_books_user_books__user_book_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                user_book_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     update_user_book_books_user_books__user_book_id__patch: {
         parameters: {
             query?: never;
@@ -2735,6 +2872,37 @@ export interface operations {
             header?: never;
             path: {
                 film_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    remove_user_film_films_user_films__user_film_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                user_film_id: string;
             };
             cookie?: never;
         };
@@ -3444,6 +3612,59 @@ export interface operations {
                 };
                 content: {
                     "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_companions_companions_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CompanionRead"][];
+                };
+            };
+        };
+    };
+    add_companion_companions_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CompanionCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CompanionRead"];
                 };
             };
             /** @description Validation Error */

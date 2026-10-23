@@ -8,6 +8,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, Field
 
+from app.schemas.entry_log import EntryLogRead, EntryLogWrite
 from app.schemas.user_book_image import UserBookImageRead
 from app.schemas.web import ShelfOwner
 
@@ -78,6 +79,8 @@ class FilmShelfEntry(BaseModel):
     comment: str | None = None
     created_at: datetime
     images: list[UserBookImageRead] = []
+    # The owner's diary log; None until they rate it.
+    log: EntryLogRead | None = None
     film: FilmRead
 
 
@@ -133,6 +136,8 @@ class UpdateUserFilmRequest(BaseModel):
     is_public: bool | None = None
     comment: str | None = None
     is_pinned: bool | None = None
+    # Replaces the diary log (creating it the first time).
+    log: EntryLogWrite | None = None
 
 
 class FilmListSearchRequest(BaseModel):

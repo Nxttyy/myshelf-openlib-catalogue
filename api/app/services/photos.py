@@ -99,6 +99,20 @@ async def delete(session: SessionDep, owner: Owner, entry_id: UUID, image_id: UU
     await session.commit()
 
 
+async def delete_all(session: SessionDep, owner: Owner, entry_id: UUID) -> None:
+    """Delete an entry's photo objects from the bucket, before the entry
+    itself is deleted (its photo rows go with it, ON DELETE CASCADE)."""
+    keys = (await session.exec(select(UserBookImage.s3_key).where(_column(owner) == entry_id))).all()
+    if not keys or not storage.storage_configured():
+        return
+    for key in keys:
+        try:
+            storage.delete_object(key)
+        except Exception:
+            # An orphaned object is not worth failing the removal over.
+            pass
+
+
 async def attach(session: SessionDep, owner: Owner, items: list[dict], entry_key: str) -> None:
     """Set item["images"] (uploaded photos, ordered) on each item, keyed off
     the id of item[entry_key] (a UserBook or UserFilm)."""
