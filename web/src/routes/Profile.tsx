@@ -13,6 +13,7 @@ import { useSetProfileVisibility, useSetUsername, useUpdateShelfEntry } from '..
 import type { FilmShelfCounts, FilmShelfEntry, Haul, ShelfCounts, ShelfEntry, ShelfOwner } from '../api/types'
 import { FilmList, FilmRows, FilmShelf } from '../components/FilmViews'
 import { Icon } from '../components/Icon'
+import { SharePanel, SharePopover } from '../components/Share'
 import { Hauls, ShelfGrid, ShelfList } from '../components/ShelfViews'
 import { useMedia } from '../lib/media'
 import { useOpenAdd, useOverlay } from '../lib/overlay'
@@ -44,12 +45,14 @@ export function MyProfile() {
 
 export function PublicProfile() {
   const { handle = '' } = useParams()
+  const location = useLocation()
   const films = useMedia() === 'films'
   const { data: me } = useMe()
   const { data, error } = usePublicProfile(handle, !films)
   const filmShelf = usePublicFilms(handle, films)
   const err = films ? filmShelf.error : error
-  if (me && me.handle === handle) return <Navigate to={films ? '/profile/films' : '/profile'} replace />
+  // a shared link to your own shelf keeps its ?book= / ?photo=
+  if (me && me.handle === handle) return <Navigate to={(films ? '/profile/films' : '/profile') + location.search} replace />
   if (err instanceof ApiError && err.status === 404) return <NotFound text="This shelf is private, or there's no one here by that name." />
   if (err) return <Message text="Couldn't load this shelf. Try again in a moment." />
   if (films) {
@@ -304,7 +307,7 @@ function DesktopHeader({ owner, mine }: { owner: ShelfOwner; mine: boolean }) {
         {mine && <VisibilityToggle isPublic={owner.is_profile_public} size="desktop" />}
         <div className="d-share-wrap">
           <button className="f-btn f-btn--ghost" onClick={() => setShare((s) => !s)} aria-expanded={share}><Icon name="share" size={16} /> Share</button>
-          {share && <SharePopover owner={owner} mine={mine} onClose={() => setShare(false)} />}
+          {share && <ProfileSharePopover owner={owner} mine={mine} onClose={() => setShare(false)} />}
         </div>
         {mine && <SignOutButton />}
       </div>
@@ -313,7 +316,6 @@ function DesktopHeader({ owner, mine }: { owner: ShelfOwner; mine: boolean }) {
 }
 
 function MobileHeader({ owner, mine, stats }: { owner: ShelfOwner; mine: boolean; stats: [string, number][] }) {
-  const toast = useToast()
   const [share, setShare] = useState(false)
   async function onShare() {
     // Phones get the system share sheet; the popover is the fallback.
@@ -327,7 +329,7 @@ function MobileHeader({ owner, mine, stats }: { owner: ShelfOwner; mine: boolean
         <>
           <div className="f-scrim" style={{ background: 'rgba(20,18,16,0.28)' }} onClick={() => setShare(false)} />
           <div className="f-share-pop m-share-pop">
-            <ShareBody owner={owner} mine={mine} onDone={() => { setShare(false) }} toast={toast} />
+            <ShareBody owner={owner} mine={mine} onDone={() => { setShare(false) }} />
           </div>
         </>
       )}
@@ -447,48 +449,16 @@ function HandleEditor({ handle }: { handle: string }) {
   )
 }
 
-function SharePopover({ owner, mine, onClose }: { owner: ShelfOwner; mine: boolean; onClose: () => void }) {
-  const ref = useRef<HTMLDivElement>(null)
-  const toast = useToast()
-  useEffect(() => {
-    const out = (e: MouseEvent) => { if (ref.current && !ref.current.contains(e.target as Node)) onClose() }
-    const key = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
-    document.addEventListener('mousedown', out)
-    document.addEventListener('keydown', key)
-    return () => { document.removeEventListener('mousedown', out); document.removeEventListener('keydown', key) }
-  }, [onClose])
-  return <div className="d-share-pop" ref={ref}><ShareBody owner={owner} mine={mine} onDone={onClose} toast={toast} channels /></div>
+function ProfileSharePopover({ owner, mine, onClose }: { owner: ShelfOwner; mine: boolean; onClose: () => void }) {
+  return <SharePopover onClose={onClose}><ShareBody owner={owner} mine={mine} onDone={onClose} channels /></SharePopover>
 }
 
-function ShareBody({ owner, mine, onDone, toast, channels }: {
-  owner: ShelfOwner; mine: boolean; onDone: () => void; toast: ReturnType<typeof useToast>; channels?: boolean
-}) {
-  const url = profileUrl(owner.handle)
+function ShareBody({ owner, mine, onDone, channels }: { owner: ShelfOwner; mine: boolean; onDone: () => void; channels?: boolean }) {
   const isPrivate = mine && !owner.is_profile_public
-  async function copy() {
-    try { await navigator.clipboard.writeText(url); toast('Link copied.') } catch { toast("Couldn't copy. Select the link instead.", 'err') }
-    onDone()
-  }
   return (
-    <>
-      <div className="f-label">{mine ? 'Share your shelf' : 'Share this shelf'}</div>
-      <div style={{ fontSize: 13.5, color: 'var(--ink-soft)', marginTop: 8, lineHeight: 1.5 }}>
-        {isPrivate ? 'Your shelf is private right now. Make it public so people with the link can see it.' : 'People with this link can see the public books and films.'}
-      </div>
-      <div className="row">
-        <div className="d-share-link">{shortUrl(owner.handle)}</div>
-        <button className="f-btn f-btn--ink" onClick={copy} style={{ padding: '0 16px', height: 40 }}><Icon name="copy" size={15} /> Copy</button>
-      </div>
-      {channels && (
-        <div className="d-share-channels">
-          <a title="Share by email" aria-label="Share by email" className="m-share-channel" onClick={onDone}
-            href={`mailto:?subject=${encodeURIComponent(`${displayName(owner)}'s shelf on Dora`)}&body=${encodeURIComponent(url)}`}><Icon name="send" size={16} /></a>
-          <button title="Copy link" aria-label="Copy link" onClick={copy}><Icon name="link" size={16} /></button>
-          <button title="More" aria-label="More ways to share" onClick={async () => {
-            if (navigator.share) { try { await navigator.share({ url }) } catch { /* dismissed */ } onDone() } else copy()
-          }}><Icon name="more" size={16} /></button>
-        </div>
-      )}
-    </>
+    <SharePanel heading={mine ? 'Share your shelf' : 'Share this shelf'}
+      note={isPrivate ? 'Your shelf is private right now. Make it public so people with the link can see it.' : 'People with this link can see the public books and films.'}
+      url={profileUrl(owner.handle)} short={shortUrl(owner.handle)} emailSubject={`${displayName(owner)}'s shelf on Dora`}
+      onDone={onDone} channels={channels} />
   )
 }

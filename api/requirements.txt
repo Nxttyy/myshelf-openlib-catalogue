@@ -16,3 +16,5 @@ authlib==1.6.9
 itsdangerous==2.2.0
 mcp==1.28.1
 boto3==1.43.50
+# Link-preview cards (services/og_card.py).
+pillow==12.3.0

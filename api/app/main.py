@@ -12,7 +12,7 @@ from starlette.middleware.sessions import SessionMiddleware
 
 from app.config import settings
 from app.mcp_server import mcp, rest_router, secured_mcp_app
-from app.routers import auth, book, companions, dora, film, pages, scan, web
+from app.routers import auth, book, companions, dora, film, og, pages, scan, web
 from app.spa import mount_web_app
 
 # Import models so SQLModel metadata registers all tables
@@ -90,6 +90,7 @@ app.include_router(auth.router)
 app.include_router(scan.router)
 app.include_router(dora.router)
 app.include_router(companions.router)
+app.include_router(og.router)
 
 
 @app.get("/health", tags=["Health"])

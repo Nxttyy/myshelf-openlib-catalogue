@@ -103,6 +103,17 @@ def delete_object(key: str) -> None:
     _client().delete_object(Bucket=settings.S3_BUCKET, Key=key)
 
 
+def get_bytes(key: str) -> bytes | None:
+    try:
+        return _client().get_object(Bucket=settings.S3_BUCKET, Key=key)["Body"].read()
+    except ClientError:
+        return None
+
+
+def put_bytes(key: str, data: bytes, content_type: str) -> None:
+    _client().put_object(Bucket=settings.S3_BUCKET, Key=key, Body=data, ContentType=content_type)
+
+
 def presigned_get_url(key: str, expires_in: int = GET_PRESIGN_EXPIRY_SECONDS) -> str:
     return _client().generate_presigned_url(
         "get_object",

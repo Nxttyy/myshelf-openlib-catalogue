@@ -15,11 +15,13 @@ import type { BookEntryRead, ShelfEntry } from '../api/types'
 import { coverFromBook } from '../lib/covers'
 import { editionLinks } from '../lib/links'
 import { useOverlay } from '../lib/overlay'
+import { shareTitle, usePhotoLinks, useShareLink, type ShareLink } from '../lib/share'
 import { useToast } from '../lib/toast'
 import { fromLog, showsLog, toWrite } from '../lib/diary'
 import { useIsDesktop } from '../lib/useMediaQuery'
 import { OnShelfBadge } from './CatalogGrid'
 import { PhotoNotes } from './PhotoNotes'
+import { ShareButton } from './Share'
 import { Cover } from './Cover'
 import { DiaryLog, LogSummary, SaveRow } from './DiaryLog'
 import { Icon } from './Icon'
@@ -81,19 +83,26 @@ function RecordBody({ entry, desktop, theirs, onSaved }: BodyProps) {
   ]
   const status = (mine ? draftStatus : theirs?.entry.status) as ReadingStatus | undefined
   const badge = status ? <StatusBadge status={status} animate={pop} /> : entry.on_shelf ? <OnShelfBadge /> : null
+  const link = useShareLink('book', b.id, theirs?.handle ?? null, mine)
+  const title = shareTitle(b.title, b.authors?.[0]?.name)
+  const theirPhotos = usePhotoLinks('book', b.id, theirs?.handle ?? null, null)
+  const myPhotos = usePhotoLinks('book', b.id, null, mine)
 
   return (
     <>
       {/* cover + title block */}
       <div style={{ display: 'flex', gap: desktop ? 22 : 16, marginBottom: desktop ? 24 : 18 }}>
         <Cover b={coverFromBook(b)} w={desktop ? 132 : 104} />
-        <div style={{ flex: 1, minWidth: 0, paddingTop: 4 }}>
+        <div style={{ flex: 1, minWidth: 0, paddingTop: 4, position: 'relative' }}>
           <h2 style={desktop
             ? { fontSize: 24, fontWeight: 600, letterSpacing: '-0.03em', lineHeight: 1.05, margin: '0 0 8px' }
             : { fontSize: 21, fontWeight: 600, letterSpacing: '-0.025em', lineHeight: 1.08, margin: '0 0 6px' }}>{b.title}</h2>
           {b.subtitle && <div style={{ fontSize: desktop ? 14 : 13.5, color: 'var(--ink-soft)', marginBottom: 6 }}>{b.subtitle}</div>}
           <div style={{ fontSize: desktop ? 14 : 13.5, color: 'var(--ink-soft)', marginBottom: desktop ? 14 : 12 }}>{authors}</div>
-          {badge}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+            {badge}
+            <ShareButton link={link} title={title} heading="Share this book" className="f-btn f-btn--ghost m-share-btn" label="Share" iconSize={14} inParent />
+          </div>
           {!desktop && entry.added_by && <div className="f-label" style={{ marginTop: 12 }}>Added by @{entry.added_by}</div>}
         </div>
       </div>
@@ -141,12 +150,12 @@ function RecordBody({ entry, desktop, theirs, onSaved }: BodyProps) {
         <div style={{ marginBottom: 22 }}>
           <div className="f-label" style={{ marginBottom: 9 }}>Note from @{theirs.handle}</div>
           {theirs.entry.comment && <p style={{ fontSize: 14, color: 'var(--ink)', lineHeight: 1.55, margin: 0, whiteSpace: 'pre-wrap' }}>{theirs.entry.comment}</p>}
-          {theirs.entry.images.length > 0 && <PhotoNotes photos={theirs.entry.images} editable={false} context={b.title} />}
+          {theirs.entry.images.length > 0 && <PhotoNotes photos={theirs.entry.images} editable={false} context={b.title} share={theirPhotos} shareTitle={title} />}
         </div>
       )}
 
       {mine
-        ? <ShelfEditor key={mine.id} mine={mine} title={b.title} onStatus={(s) => { setDraftStatus(s); setPop(true); setTimeout(() => setPop(false), 400) }} onSaved={onSaved} />
+        ? <ShelfEditor key={mine.id} mine={mine} title={b.title} sharePhoto={myPhotos} linkTitle={title} onStatus={(s) => { setDraftStatus(s); setPop(true); setTimeout(() => setPop(false), 400) }} onSaved={onSaved} />
         : <ShelfAction entry={entry} />}
     </>
   )
@@ -155,8 +164,9 @@ function RecordBody({ entry, desktop, theirs, onSaved }: BodyProps) {
 /** Your copy: log, status, visibility, note (saved with the button) and
     photos (saved as they upload, like before). The log is only sent once
     you've changed something in it. */
-function ShelfEditor({ mine, title, onStatus, onSaved }: {
-  mine: ShelfEntry; title: string; onStatus: (s: string) => void; onSaved: () => void
+function ShelfEditor({ mine, title, sharePhoto, linkTitle, onStatus, onSaved }: {
+  mine: ShelfEntry; title: string; sharePhoto?: (photoId: string) => ShareLink; linkTitle: string
+  onStatus: (s: string) => void; onSaved: () => void
 }) {
   const [status, setStatus] = useState(mine.status)
   const [isPublic, setIsPublic] = useState(mine.is_public)
@@ -201,7 +211,7 @@ function ShelfEditor({ mine, title, onStatus, onSaved }: {
       </div>
       <textarea className="f-textarea" rows={3} placeholder="Add a note about this book…" aria-label="Your note"
         value={comment} onChange={(e) => setComment(e.target.value)} />
-      <PhotoNotes photos={mine.images} entryId={mine.id} editable context={title} />
+      <PhotoNotes photos={mine.images} entryId={mine.id} editable context={title} share={sharePhoto} shareTitle={linkTitle} />
       <SaveRow title={title} onSave={save} saving={update.isPending} onRemove={removeIt} removing={remove.isPending} />
     </>
   )

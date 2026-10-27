@@ -14,6 +14,7 @@ import { useMe } from '../api/me'
 import type { Film, FilmEntryRead, FilmShelfEntry } from '../api/types'
 import { filmLinks, runtime } from '../lib/films'
 import { useOverlay } from '../lib/overlay'
+import { shareTitle, usePhotoLinks, useShareLink, type ShareLink } from '../lib/share'
 import { useToast } from '../lib/toast'
 import { fromLog, showsLog, toWrite } from '../lib/diary'
 import { useIsDesktop } from '../lib/useMediaQuery'
@@ -24,6 +25,7 @@ import { Icon } from './Icon'
 import { BottomSheet, Drawer } from './Overlay'
 import { PhotoNotes } from './PhotoNotes'
 import { Poster } from './Poster'
+import { ShareButton } from './Share'
 import { StatusBadge, SubjectPill, type ReadingStatus } from './StatusBadge'
 
 export function FilmOverlay() {
@@ -87,6 +89,10 @@ function RecordBody({ entry, desktop, theirs, onSaved }: BodyProps) {
   ] as [string, string | null | undefined][]).filter((m): m is [string, string] => !!m[1])
   const status = (mine ? draftStatus : theirs?.entry.status) as ReadingStatus | undefined
   const badge = status ? <StatusBadge status={status} animate={pop} film /> : entry.on_shelf ? <OnShelfBadge /> : null
+  const link = useShareLink('film', f.id, theirs?.handle ?? null, mine)
+  const title = shareTitle(f.title, f.director || f.writer?.split(',')[0], f.year)
+  const theirPhotos = usePhotoLinks('film', f.id, theirs?.handle ?? null, null)
+  const myPhotos = usePhotoLinks('film', f.id, null, mine)
   const line = [f.year, f.runtime_min ? runtime(f) : null, f.rated, f.type === 'series' ? 'Series' : null].filter(Boolean).join(' · ')
   const gap = desktop ? 20 : 16
 
@@ -94,13 +100,16 @@ function RecordBody({ entry, desktop, theirs, onSaved }: BodyProps) {
     <>
       <div style={{ display: 'flex', gap: desktop ? 22 : 16, marginBottom: gap }}>
         <Poster f={f} w={desktop ? 132 : 104} hover={false} />
-        <div style={{ flex: 1, minWidth: 0, paddingTop: 4 }}>
+        <div style={{ flex: 1, minWidth: 0, paddingTop: 4, position: 'relative' }}>
           <h2 style={desktop
             ? { fontSize: 24, fontWeight: 600, letterSpacing: '-0.03em', lineHeight: 1.05, margin: '0 0 8px' }
             : { fontSize: 21, fontWeight: 600, letterSpacing: '-0.025em', lineHeight: 1.08, margin: '0 0 6px' }}>{f.title}</h2>
           {line && <div style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--ink-faint)', marginBottom: 8 }}>{line}</div>}
           {(f.director || f.writer) && <div style={{ fontSize: desktop ? 14 : 13.5, color: 'var(--ink-soft)', marginBottom: desktop ? 14 : 12 }}>{f.director || f.writer}</div>}
-          {badge}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+            {badge}
+            <ShareButton link={link} title={title} heading="Share this film" className="f-btn f-btn--ghost m-share-btn" label="Share" iconSize={14} inParent />
+          </div>
         </div>
       </div>
 
@@ -153,21 +162,22 @@ function RecordBody({ entry, desktop, theirs, onSaved }: BodyProps) {
         <div style={{ marginBottom: 22 }}>
           <div className="f-label" style={{ marginBottom: 9 }}>Note from @{theirs.handle}</div>
           {theirs.entry.comment && <p style={{ fontSize: 14, color: 'var(--ink)', lineHeight: 1.55, margin: 0, whiteSpace: 'pre-wrap' }}>{theirs.entry.comment}</p>}
-          {theirs.entry.images.length > 0 && <PhotoNotes photos={theirs.entry.images} editable={false} context={f.title} owner="film" />}
+          {theirs.entry.images.length > 0 && <PhotoNotes photos={theirs.entry.images} editable={false} context={f.title} owner="film" share={theirPhotos} shareTitle={title} />}
         </div>
       )}
 
       {!entry.on_shelf && desktop && <div style={{ marginBottom: 14 }}><FilmAsk imdbId={f.imdb_id} /></div>}
 
       {mine
-        ? <ShelfEditor key={mine.id} mine={mine} title={f.title} onStatus={(s) => { setDraftStatus(s); setPop(true); setTimeout(() => setPop(false), 400) }} onSaved={onSaved} />
+        ? <ShelfEditor key={mine.id} mine={mine} title={f.title} sharePhoto={myPhotos} linkTitle={title} onStatus={(s) => { setDraftStatus(s); setPop(true); setTimeout(() => setPop(false), 400) }} onSaved={onSaved} />
         : <ShelfAction entry={entry} />}
     </>
   )
 }
 
-function ShelfEditor({ mine, title, onStatus, onSaved }: {
-  mine: FilmShelfEntry; title: string; onStatus: (s: string) => void; onSaved: () => void
+function ShelfEditor({ mine, title, sharePhoto, linkTitle, onStatus, onSaved }: {
+  mine: FilmShelfEntry; title: string; sharePhoto?: (photoId: string) => ShareLink; linkTitle: string
+  onStatus: (s: string) => void; onSaved: () => void
 }) {
   const [status, setStatus] = useState(mine.status)
   const [isPublic, setIsPublic] = useState(mine.is_public)
@@ -212,7 +222,7 @@ function ShelfEditor({ mine, title, onStatus, onSaved }: {
       </div>
       <textarea className="f-textarea" rows={3} placeholder="Add a note about this film…" aria-label="Your note"
         value={comment} onChange={(e) => setComment(e.target.value)} />
-      <PhotoNotes photos={mine.images} entryId={mine.id} editable context={title} owner="film" />
+      <PhotoNotes photos={mine.images} entryId={mine.id} editable context={title} owner="film" share={sharePhoto} shareTitle={linkTitle} />
       <SaveRow title={title} onSave={save} saving={update.isPending} onRemove={removeIt} removing={remove.isPending} />
     </>
   )

@@ -6,19 +6,35 @@
 import { useQueryClient } from '@tanstack/react-query'
 import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
+import { useSearchParams } from 'react-router'
 import { MAX_PHOTOS, uploadPhotos, useDeletePhoto, type PhotoOwner } from '../api/shelf'
 import type { UserBookImage } from '../api/types'
+import type { ShareLink } from '../lib/share'
 import { useToast } from '../lib/toast'
 import { useMediaQuery } from '../lib/useMediaQuery'
 import { Icon } from './Icon'
+import { ShareButton } from './Share'
 
-type Props = { photos: UserBookImage[]; entryId?: string; editable: boolean; context: string; owner?: PhotoOwner }
+type Props = {
+  photos: UserBookImage[]; entryId?: string; editable: boolean; context: string; owner?: PhotoOwner
+  /** a photo's share link, when the note is on a shelf people can see */
+  share?: (photoId: string) => ShareLink; shareTitle?: string
+}
 
-export function PhotoNotes({ photos, entryId, editable, context, owner = 'book' }: Props) {
+export function PhotoNotes({ photos, entryId, editable, context, owner = 'book', share, shareTitle = context }: Props) {
   const qc = useQueryClient()
   const toast = useToast()
   const del = useDeletePhoto(owner)
-  const [view, setView] = useState<number | null>(null)
+  // A shared photo link (?photo=<id>) opens straight onto that photo.
+  const [params, setParams] = useSearchParams()
+  const [view, setView] = useState<number | null>(() => {
+    const i = photos.findIndex((p) => p.id === params.get('photo'))
+    return i >= 0 ? i : null
+  })
+  function closeView() {
+    setView(null)
+    if (params.has('photo')) setParams((p) => { p.delete('photo'); return p }, { replace: true, preventScrollReset: true })
+  }
   const [camera, setCamera] = useState(false)
   const [uploading, setUploading] = useState(0)
 
@@ -48,7 +64,7 @@ export function PhotoNotes({ photos, entryId, editable, context, owner = 'book' 
         onOpen={setView} onRemove={remove} onUpload={upload} onCamera={() => setCamera(true)} />
       {view != null && photos.length > 0 && createPortal(
         <Lightbox photos={photos} index={Math.min(view, photos.length - 1)} setIndex={setView}
-          editable={editable} onRemove={remove} onClose={() => setView(null)} context={context} />,
+          editable={editable} onRemove={remove} onClose={closeView} context={context} share={share} shareTitle={shareTitle} />,
         document.body)}
       {camera && createPortal(
         <CameraSheet onCapture={(f) => upload([f])} onClose={() => setCamera(false)} />, document.body)}
@@ -114,9 +130,10 @@ function PhotoStrip({ photos, editable, uploading, full, onOpen, onRemove, onUpl
   )
 }
 
-function Lightbox({ photos, index, setIndex, editable, onRemove, onClose, context }: {
+function Lightbox({ photos, index, setIndex, editable, onRemove, onClose, context, share, shareTitle }: {
   photos: UserBookImage[]; index: number; setIndex: (i: number) => void; editable: boolean
   onRemove: (p: UserBookImage) => void; onClose: () => void; context: string
+  share?: (photoId: string) => ShareLink; shareTitle: string
 }) {
   useEffect(() => {
     // Capture phase + stopPropagation: Escape closes the lightbox only, not
@@ -145,6 +162,7 @@ function Lightbox({ photos, index, setIndex, editable, onRemove, onClose, contex
         <span className="f-label" style={{ color: 'rgba(237,230,214,0.6)' }}>{context}</span>
         <span className="lb-count">{index + 1} / {photos.length}</span>
         <div style={{ display: 'flex', gap: 6 }}>
+          {share && <ShareButton key={p.id} link={share(p.id)} title={shareTitle} heading="Share this photo" className="lb-btn" />}
           {editable && <button className="lb-btn" title="Remove from note" aria-label="Remove from note" onClick={removeCurrent}><Icon name="trash" size={15} /></button>}
           <button className="lb-btn" title="Close" aria-label="Close" onClick={onClose}><Icon name="close" size={16} /></button>
         </div>
