@@ -59,7 +59,7 @@ html::-webkit-scrollbar-track { background: var(--paper); }
 
 /* Overlays were absolute inside the frame; pin them to the viewport. */
 .d-scrim, .d-drawer, .d-dialog, .d-lightbox, .d-camsheet,
-.f-scrim, .f-sheet, .d-toastwrap, .f-toastwrap, .inst-scrim, .inst-sheet { position: fixed; }
+.f-scrim, .d-toastwrap, .inst-scrim, .inst-sheet { position: fixed; }
 
 /* ── Top: navbar + install banner ──────────────────────────── */
 /* In the design these sit above the scrolling body, so they never scroll
@@ -87,15 +87,9 @@ html::-webkit-scrollbar-track { background: var(--paper); }
 .th-night .mob-tabs a { color: var(--ink-faint); }
 .th-night .mob-tabs a.on { color: var(--ink); }
 .mob .d-scroll { padding-bottom: var(--tabbar-h); }
-/* Until the pages move to the shared layout, phone pages still carry their
-   own 18px gutters (as in the old mobile design), so strips like Recently
-   added run edge to edge. */
-.mob .d-wrap { padding: 0; }
-/* Pages already on the shared layout mark their root `.d-page` and get the
-   design's phone frame back (mobile.css `.mob .d-wrap`). */
-.mob .d-wrap:has(> .d-page) { padding: 22px 18px 40px; }
-/* below the nav and its Books / Films switch */
-.f-toastwrap { top: calc(env(safe-area-inset-top) + 118px); }
+/* Toasts: the design drops them 2px under its 54px status bar
+   (mobile.css `.mob .d-toastwrap{top:56px}`); a real phone has the inset. */
+.mob .d-toastwrap { top: calc(env(safe-area-inset-top) + 12px); }
 
 /* Router links styled as the design's buttons (the design uses <button>). */
 a.d-navlink, a.f-btn, a.f-iconbtn, a.d-avatar, a.home-link { text-decoration: none; }
@@ -120,19 +114,19 @@ a.d-navlink { display: flex; flex-direction: column; justify-content: center; li
   *, *::before, *::after { animation-duration: 1ms !important; transition-duration: 1ms !important; }
 }
 
-/* Bottom sheet: a taller touch target around the grip for drag-to-close. */
-.m-sheet-handle { padding: 2px 0 6px; cursor: grab; touch-action: none; flex-shrink: 0; }
-.f-sheet { padding-bottom: env(safe-area-inset-bottom); }
 
 /* ── Auth pages (folio/auth.jsx, styles in auth.css) ───────── */
 /* The design's frame was a fixed-size window; here it's the viewport. */
-.d-app.auth-page, .folio-screen.auth-page { position: fixed; inset: 0; min-height: 0; z-index: 5; }
+.d-app.auth-page { position: fixed; inset: 0; min-height: 0; z-index: 5; }
 .d-app.auth-page.f-grain::before { position: absolute; }
 /* The design caps the art panel at 540px of its 1280px frame; on a real
    screen that reads as narrow. 40/60 keeps the proportion at any width. */
 .au-d { grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); }
-.au-m-bar { top: calc(env(safe-area-inset-top) + 12px); }
-.au-m-sheet { padding-bottom: calc(env(safe-area-inset-bottom) + 40px); }
+/* Phones (.mob): the design's 58px top pad sits under its status bar; a real
+   phone gives the inset. 16px inputs, or iOS zooms the page on focus. */
+.mob .au-art-top { padding-top: calc(env(safe-area-inset-top) + 20px); }
+.mob .au-d-main { padding-bottom: calc(env(safe-area-inset-bottom) + 34px); }
+.mob .au-in { font-size: 16px; }
 .au-art-top a { color: inherit; }
 /* First + last name side by side (the design's form has no name fields). */
 .au-names { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
@@ -150,21 +144,8 @@ a.f-btn.au-submit { display: flex; align-items: center; justify-content: center;
 .d-photo .rm { opacity: 1; } /* touch has no hover: keep remove visible */
 @media (hover: hover) { .d-photo .rm { opacity: 0; } .d-photo:hover .rm { opacity: 1; } }
 
-/* Phone shelf rows: one-line note preview, pinned flag colour from the design. */
-.m-card-note {
-  margin-top: 8px; font-size: 12px; line-height: 1.4; color: var(--ink-soft);
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
-.m-card-photos {
-  display: inline-flex; align-items: center; gap: 3px; margin-right: 7px;
-  font-family: var(--font-mono); font-size: 10px; color: var(--ink-faint); vertical-align: -1px;
-}
-.f-card-idx.m-pinned { color: color-mix(in oklab, var(--amber), #000 40%); display: inline-flex; align-items: center; gap: 4px; }
-.f-card-idx.m-pinned svg { fill: currentColor; }
 /* touch has no hover: pins stay visible on the grid too */
 @media (hover: none) { .d-pin { opacity: 1; transform: none; } }
-/* hauls scroll sideways on narrow screens; give the rail less room */
-@media (max-width: 899.98px) { .d-haul { gap: 0 14px; } .d-haul .pile { padding-right: 18px; } }
 
 /* Profile header bits the design doesn't draw. */
 .m-handle-edit {
@@ -179,7 +160,6 @@ a.f-btn.au-submit { display: flex; align-items: center; justify-content: center;
 }
 .m-handle-input:focus { outline: none; border-color: var(--amber); }
 .m-share-btn { height: 30px; padding: 0 11px; font-size: 12.5px; gap: 6px; }
-.m-share-pop { position: fixed; top: calc(env(safe-area-inset-top) + 64px); }
 .d-share-channels a.m-share-channel {
   flex: 1; border: none; cursor: pointer; background: var(--paper-2); box-shadow: inset 0 0 0 1px var(--hair);
   border-radius: 8px; padding: 9px 0; display: grid; place-items: center; color: var(--ink-soft);
@@ -228,3 +208,14 @@ a.f-btn.au-submit { display: flex; align-items: center; justify-content: center;
 
 /* Record sheet on phones: room for the home indicator under the last button. */
 .mob .d-drawer-body { padding-bottom: calc(40px + env(safe-area-inset-bottom)); }
+/* Add dialog on phones: the design's 44px top pad sits under its status
+   bar; a real phone gives the inset. Room for the home indicator below. */
+.mob .d-dialog { padding-top: env(safe-area-inset-top); }
+.mob .d-dialog-right { padding-bottom: calc(22px + env(safe-area-inset-bottom)); }
+/* The phone hero's fan is 300px tall but its covers reach 354px (the lowest
+   sits 60px down and is 294px tall), so at zoom .62 they'd overlap the label
+   under it. Make the box as tall as its covers. */
+.mob .d-fan { height: 354px; }
+/* Stacked dialog columns: size to their content instead of splitting the
+   screen's height between them. */
+.mob .d-dialog-cols { align-content: start; }

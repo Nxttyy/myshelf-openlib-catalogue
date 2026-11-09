@@ -123,7 +123,7 @@ function ProfileView({ owner, counts, entries, hauls, mine }: ViewProps) {
   const label = mine ? 'Your books' : `@${owner.handle}'s books`
 
   return (
-    <div className="f-rise d-page">
+    <div className="f-rise">
       <ProfileHead owner={owner} mine={mine} value={flt} onChange={setFlt}
         placeholder={mine ? 'Search your books by title or author' : 'Search these books by title or author'} />
       <StatTiles stats={stats} on={flt.status} onPick={(status) => setFlt((f) => ({ ...f, status }))} />
@@ -220,7 +220,7 @@ function FilmProfileView({ owner, counts, entries, mine }: { owner: ShelfOwner; 
   const label = mine ? 'Your films' : `@${owner.handle}'s films`
 
   return (
-    <div className="f-rise d-page">
+    <div className="f-rise">
       <ProfileHead owner={owner} mine={mine} value={flt} onChange={setFlt}
         placeholder={mine ? 'Search your films by title, director or cast' : 'Search these films by title, director or cast'} />
       {entries.length > 0 && <TagFilter items={items} value={flt} onChange={setFlt} shown={shown.length} kindWord="films" mine={mine} />}

@@ -1,6 +1,5 @@
-/* "Add to library". Desktop: folio/desktop.jsx AddDialog (two columns,
-   queue on the right). Phone: folio/modal.jsx AddModal (full-height sheet,
-   save pinned at the bottom). Addressed by ?add=<tab>, so Back closes it;
+/* "Add to library": folio/desktop-v2.jsx AddDialog (two columns, queue on
+   the right), full screen and one column on phones (styles/mobile.css). Addressed by ?add=<tab>, so Back closes it;
    ?add=edit:<bookId> corrects a hand-typed book instead. */
 
 import { Link, useLocation, useNavigate } from 'react-router'
@@ -13,7 +12,7 @@ import { useToast } from '../../lib/toast'
 import { useIsDesktop } from '../../lib/useMediaQuery'
 import { Icon } from '../Icon'
 import type { IconName } from '../icons'
-import { BottomSheet, Dialog } from '../Overlay'
+import { Dialog } from '../Overlay'
 import { ScanTab } from './ScanTab'
 import { QueueChip } from './shared'
 import { IsbnTab, ManualTab, SearchTab } from './Tabs'
@@ -39,10 +38,10 @@ function AddDialog({ value, setTab, onClose }: { value: string; setTab: (t: stri
   const tab: Tab = editId ? 'manual' : (TABS.some((t) => t.id === tabRaw) ? tabRaw : 'scan') as Tab
 
   const header = (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: desktop ? '20px 28px 16px' : '8px 20px 14px' }}>
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '20px 28px 16px' }}>
       <div>
         <div className="f-label">{editId ? 'Your entry' : 'Add to library'}</div>
-        <div style={{ fontSize: desktop ? 21 : 18, fontWeight: 600, letterSpacing: '-0.025em', marginTop: desktop ? 4 : 3, whiteSpace: 'nowrap' }}>
+        <div style={{ fontSize: 21, fontWeight: 600, letterSpacing: '-0.025em', marginTop: 4, whiteSpace: 'nowrap' }}>
           {editId ? 'Edit book details' : 'Scan or enter a book'}
         </div>
       </div>
@@ -57,9 +56,10 @@ function AddDialog({ value, setTab, onClose }: { value: string; setTab: (t: stri
     : tab === 'search' ? <SearchTab desktop={desktop} onByHand={(title) => setTab('manual:' + title)} />
     : <ManualTab key={value} initialTitle={prefill} />
 
+  // four long labels don't fit a phone's width, so phones get the short ones
   const seg = !editId && (
-    <div style={{ padding: desktop ? '0 28px 18px' : '0 20px 14px' }}>
-      <div className="f-seg" role="tablist" style={desktop ? { maxWidth: 560 } : undefined}>
+    <div style={{ padding: '0 28px 18px' }}>
+      <div className="f-seg" role="tablist" style={{ maxWidth: 560 }}>
         {TABS.map((t) => (
           <button key={t.id} role="tab" aria-selected={tab === t.id} className={tab === t.id ? 'on' : ''} onClick={() => setTab(t.id)}>
             <Icon name={t.icon} size={desktop ? 16 : 14} /> {desktop ? t.long : t.short}
@@ -69,49 +69,25 @@ function AddDialog({ value, setTab, onClose }: { value: string; setTab: (t: stri
     </div>
   )
 
-  if (desktop) {
-    return (
-      <Dialog label="Add to library" onClose={onClose}>
-        {header}
-        {seg}
-        {editId ? (
-          <div style={{ padding: '0 28px 28px', overflowY: 'auto' }}>{content}</div>
-        ) : (
-          <div className="d-dialog-cols">
-            <div className="d-dialog-left">
-              {content}
-              <BatchSettings style={{ marginTop: 22 }} />
-            </div>
-            <div className="d-dialog-right">
-              <QueueList desktop />
-              <div style={{ marginTop: 16 }}><SaveFooter /></div>
-            </div>
-          </div>
-        )}
-      </Dialog>
-    )
-  }
-
   return (
-    <BottomSheet label="Add to library" onClose={onClose} maxHeight="94%">
+    <Dialog label="Add to library" onClose={onClose}>
       {header}
       {seg}
-      <div style={{ overflowY: 'auto', padding: '0 20px', scrollbarWidth: 'none', flex: 1, minHeight: 0 }}>
-        {content}
-        {!editId && (
-          <>
-            <BatchSettings style={{ margin: '16px 0 14px' }} />
-            <QueueList desktop={false} />
-          </>
-        )}
-        <div style={{ height: 16 }} />
-      </div>
-      {!editId && (
-        <div style={{ padding: '12px 20px 18px', borderTop: '1px solid var(--hair)', background: 'var(--paper)' }}>
-          <SaveFooter />
+      {editId ? (
+        <div style={{ padding: '0 28px 28px', overflowY: 'auto' }}>{content}</div>
+      ) : (
+        <div className="d-dialog-cols">
+          <div className="d-dialog-left">
+            {content}
+            <BatchSettings style={{ marginTop: 22 }} />
+          </div>
+          <div className="d-dialog-right">
+            <QueueList />
+            <div style={{ marginTop: 16 }}><SaveFooter /></div>
+          </div>
         </div>
       )}
-    </BottomSheet>
+    </Dialog>
   )
 }
 
@@ -137,19 +113,19 @@ function BatchSettings({ style }: { style: React.CSSProperties }) {
   )
 }
 
-function QueueList({ desktop }: { desktop: boolean }) {
+function QueueList() {
   const { items } = useQueue()
   const n = items.length
   return (
     <>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: desktop ? 12 : 10 }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
         <div className="f-label">Scan queue</div>
         <span aria-live="polite" style={{ fontFamily: 'var(--font-mono)', fontSize: 11, fontWeight: 600, background: n ? 'var(--amber)' : 'var(--paper-2)', color: n ? 'var(--accent-fg)' : 'var(--ink-faint)', borderRadius: 7, padding: '3px 9px', transition: 'all 180ms var(--ease-out)' }}>
           {n} {n === 1 ? 'book' : 'books'}
         </span>
       </div>
-      <div style={desktop ? { flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 8, minHeight: 120 } : { display: 'flex', flexDirection: 'column', gap: 8 }}>
-        {n === 0 && <div style={{ border: '1px dashed var(--hair-strong)', borderRadius: 9, padding: desktop ? 18 : 16, textAlign: 'center', fontSize: desktop ? 13 : 12.5, color: 'var(--ink-faint)' }}>Scanned books pile up here until you save.</div>}
+      <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 8, minHeight: 120 }}>
+        {n === 0 && <div style={{ border: '1px dashed var(--hair-strong)', borderRadius: 9, padding: 18, textAlign: 'center', fontSize: 13, color: 'var(--ink-faint)' }}>Scanned books pile up here until you save.</div>}
         {items.map((item) => <QueueChip key={item.key} item={item} onRemove={() => queue.remove(item.key)} />)}
       </div>
     </>

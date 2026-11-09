@@ -1,6 +1,5 @@
 import { useCallback, useRef, useState, type ReactNode } from 'react'
 import { ToastContext, type Push, type ToastKind } from '../lib/toast'
-import { useIsDesktop } from '../lib/useMediaQuery'
 
 type Toast = { id: number; msg: string; kind: ToastKind; leaving?: boolean }
 
@@ -8,7 +7,6 @@ type Toast = { id: number; msg: string; kind: ToastKind; leaving?: boolean }
 export function ToastProvider({ children }: { children: ReactNode }) {
   const [toasts, setToasts] = useState<Toast[]>([])
   const nextId = useRef(0)
-  const isDesktop = useIsDesktop()
 
   const push = useCallback<Push>((msg, kind = 'ok') => {
     const id = ++nextId.current
@@ -20,7 +18,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   return (
     <ToastContext.Provider value={push}>
       {children}
-      <div className={isDesktop ? 'd-toastwrap' : 'f-toastwrap'} role="status" aria-live="polite">
+      <div className="d-toastwrap" role="status" aria-live="polite">
         {toasts.map((t) => (
           <div key={t.id} className={`f-toast f-toast--${t.kind}${t.leaving ? ' out' : ''}`}>
             <span className="tdot" /><span>{t.msg}</span>

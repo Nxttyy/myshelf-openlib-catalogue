@@ -1,14 +1,11 @@
 /* Films on a shelf and in the catalogue (folio/films.jsx). FilmShelf: the
    poster grid with pin-on-hover and note bubbles. FilmList: the table
    (poster, title and status only on phones).
-   FilmCatalogGrid: Explore and Home, a grid on desktop and two columns on
-   phones. */
+   FilmCatalogGrid: Explore and Home. Grids run two across on phones. */
 
 import type { KeyboardEvent } from 'react'
 import type { FilmCatalogEntry, FilmShelfEntry } from '../api/types'
 import { credit, runtime } from '../lib/films'
-import { useIsDesktop } from '../lib/useMediaQuery'
-import { useViewportWidth } from '../lib/useViewportWidth'
 import { OnShelfBadge } from './CatalogGrid'
 import { Icon } from './Icon'
 import { Poster } from './Poster'
@@ -93,11 +90,7 @@ export function FilmList({ entries, onOpen }: ShelfProps) {
 
 type CatalogProps = { entries: FilmCatalogEntry[]; onOpen: (e: FilmCatalogEntry) => void }
 
-export function FilmCatalogGrid(props: CatalogProps) {
-  return useIsDesktop() ? <DesktopCatalog {...props} /> : <MobileCatalog {...props} />
-}
-
-function DesktopCatalog({ entries, onOpen }: CatalogProps) {
+export function FilmCatalogGrid({ entries, onOpen }: CatalogProps) {
   return (
     <div className="d-grid">
       {entries.map((e) => (
@@ -111,26 +104,6 @@ function DesktopCatalog({ entries, onOpen }: CatalogProps) {
             <div className="ttl">{e.film.title}</div>
             <div className="aut">{credit(e.film)}{e.film.year ? ' · ' + e.film.year : ''}</div>
           </div>
-        </div>
-      ))}
-    </div>
-  )
-}
-
-function MobileCatalog({ entries, onOpen }: CatalogProps) {
-  // two columns inside 18px gutters with an 18px gap, like the book grid
-  const w = Math.floor((Math.min(useViewportWidth(), 600) - 36 - 18) / 2)
-  return (
-    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px 18px', padding: '0 18px 30px' }}>
-      {entries.map((e) => (
-        <div key={e.film.id} style={{ cursor: 'pointer' }} aria-label={e.film.title} {...activate(() => onOpen(e))}>
-          <Poster f={e.film} w={w} hover={false} />
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginTop: 10 }}>
-            <div className="f-label" style={{ fontSize: 8 }}>{runtime(e.film)}</div>
-            {e.on_shelf && <OnShelfBadge />}
-          </div>
-          <div style={{ fontSize: 13.5, fontWeight: 600, letterSpacing: '-0.015em', lineHeight: 1.16, marginTop: 6, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{e.film.title}</div>
-          <div style={{ fontSize: 11.5, color: 'var(--ink-faint)', marginTop: 2 }}>{credit(e.film)}{e.film.year ? ' · ' + e.film.year : ''}</div>
         </div>
       ))}
     </div>

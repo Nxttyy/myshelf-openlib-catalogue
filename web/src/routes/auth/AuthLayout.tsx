@@ -1,25 +1,23 @@
-/* The frame around every auth page, from folio/auth.jsx: a split screen on
-   desktop (navy art panel with the drifting wall of covers, form on the
-   right), a navy band over a paper sheet on phones. It's a layout route, so
+/* The frame around every auth page, from folio/auth.jsx AuthPage: a split
+   screen (art panel with the drifting wall of covers, form on the right),
+   which phones reflow to a band of art over the form (styles/mobile.css). It's a layout route, so
    moving between sign in / create account / reset keeps the frame (and the
    wall's animation) in place and only the form fades. */
 
 import { useCallback, useEffect } from 'react'
-import { Link, Outlet, useLocation, useNavigate } from 'react-router'
+import { Link, Outlet, useNavigate } from 'react-router'
 import { useRecentFilms } from '../../api/films'
 import { useRecentBooks } from '../../api/queries'
 import { Icon } from '../../components/Icon'
 import { Logo } from '../../components/Logo'
 import { coverFromBook, jacketFor, PALETTES, type PaletteName } from '../../lib/covers'
 import { useSplashDone } from '../../lib/splash'
-import { themeClass, useTheme } from '../../lib/theme'
-import { useIsDesktop } from '../../lib/useMediaQuery'
+import { themeClass, useMobileShell, useTheme } from '../../lib/theme'
 
 export default function AuthLayout() {
-  const isDesktop = useIsDesktop()
   const [theme] = useTheme()
   useSplashDone()
-  const { pathname } = useLocation()
+  const mob = useMobileShell()
   const navigate = useNavigate()
   // Links between auth pages replace the history entry, so one step back
   // leaves the auth pages. A fresh tab (idx 0) has nowhere to go back to.
@@ -29,46 +27,30 @@ export default function AuthLayout() {
   }, [navigate])
 
   useEffect(() => {
-    if (!isDesktop) return
     const k = (e: KeyboardEvent) => { if (e.key === 'Escape') close() }
     window.addEventListener('keydown', k)
     return () => window.removeEventListener('keydown', k)
-  }, [isDesktop, close])
-
-  if (isDesktop) {
-    return (
-      <div className={'d-app f-grain kc ' + themeClass(theme) + ' v2 auth-page'}>
-        <div className="au-d">
-          <div className="au-art">
-            <AuthWall w={118} cols={5} /><div className="au-scrim" />
-            <div className="au-art-top"><Link to="/" aria-label="Dora home" style={{ display: 'inline-block' }}><Logo size={22} /></Link></div>
-            <div className="au-art-copy">
-              <h2>Your books and films, in one place.</h2>
-              <p>Keep track of what you own and what you've watched, write down what stayed with you, and see what friends are into.</p>
-            </div>
-          </div>
-          <div className="au-d-main">
-            <div className="au-d-top">
-              <button className="au-back" onClick={close}><Icon name="arrow_left" size={16} /> Back to Dora</button>
-              <span className="au-kbd">Esc</span>
-            </div>
-            <div className="au-d-center"><Outlet /></div>
-          </div>
-        </div>
-      </div>
-    )
-  }
+  }, [close])
 
   return (
-    <div className={'folio-screen au-m ' + themeClass(theme) + ' v2 auth-page'}>
-      <div className={'au-m-band' + (pathname === '/login' ? '' : ' sm')}>
-        <AuthWall w={70} cols={6} /><div className="au-scrim" />
-        <div className="au-m-bar">
-          <Link to="/" aria-label="Dora home"><Logo size={18} /></Link>
-          <button className="f-iconbtn au-m-close" onClick={close} aria-label="Close"><Icon name="close" size={20} /></button>
+    <div className={'d-app f-grain kc ' + themeClass(theme) + ' v2 auth-page' + (mob ? ' mob' : '')}>
+      <div className="au-d">
+        <div className="au-art">
+          <AuthWall w={118} cols={5} /><div className="au-scrim" />
+          <div className="au-art-top"><Link to="/" aria-label="Dora home" style={{ display: 'inline-block' }}><Logo size={22} /></Link></div>
+          <div className="au-art-copy">
+            <h2>Your books and films, in one place.</h2>
+            <p>Keep track of what you own and what you've watched, write down what stayed with you, and see what friends are into.</p>
+          </div>
+        </div>
+        <div className="au-d-main">
+          <div className="au-d-top">
+            <button className="au-back" onClick={close}><Icon name="arrow_left" size={16} /> Back to Dora</button>
+            <span className="au-kbd">Esc</span>
+          </div>
+          <div className="au-d-center"><Outlet /></div>
         </div>
       </div>
-      <div className="au-m-sheet"><Outlet /></div>
     </div>
   )
 }

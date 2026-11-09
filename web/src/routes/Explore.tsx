@@ -1,6 +1,6 @@
-/* Explore: newest books (or films) across Dora. Desktop: the explore view
-   in folio/desktop-app.jsx, and FilmExplore in folio/films.jsx. Phone:
-   folio/screens.jsx Explore. More pages load as you near the bottom. */
+/* Explore: newest books (or films) across Dora: the explore view in
+   folio/desktop-app-v2.jsx and FilmExplore in folio/films-v2.jsx, reflowed
+   for phones by styles/mobile.css. More pages load as you near the bottom. */
 
 import { useRecentFilms } from '../api/films'
 import { useRecentBooks } from '../api/queries'
@@ -10,7 +10,7 @@ import { FilmCatalogGrid } from '../components/FilmViews'
 import { useMedia } from '../lib/media'
 import { useOverlay } from '../lib/overlay'
 import { useInView } from '../lib/useInView'
-import { useIsDesktop } from '../lib/useMediaQuery'
+import { useTouch } from '../lib/useMediaQuery'
 
 export default function Explore() {
   const films = useMedia() === 'films'
@@ -53,23 +53,13 @@ function FilmExplore() {
 }
 
 function Masthead({ label, text, pick }: { label: string; text: string; pick: 'cover' | 'poster' }) {
-  const isDesktop = useIsDesktop()
-  return isDesktop ? (
+  return (
     <div className="d-masthead">
       <div>
         <div className="f-label" style={{ marginBottom: 12 }}>{label}</div>
         <h1 style={{ fontWeight: 600, fontSize: 44, letterSpacing: '-0.04em', margin: 0 }}>Recently added</h1>
-        <p style={{ fontSize: 15, color: 'var(--ink-soft)', marginTop: 10, maxWidth: 460 }}>{text} Click a {pick} for its record.</p>
+        <p style={{ fontSize: 15, color: 'var(--ink-soft)', marginTop: 10, maxWidth: 460 }}>{text} {useTouch() ? 'Tap' : 'Click'} a {pick} for its record.</p>
       </div>
     </div>
-  ) : (
-    <>
-      <div style={{ padding: '6px 18px 16px' }}>
-        <div className="f-label" style={{ marginBottom: 10 }}>{label}</div>
-        <h1 className="f-display" style={{ fontSize: 30, marginBottom: 8 }}>Recently added</h1>
-        <p style={{ fontSize: 13.5, color: 'var(--ink-soft)' }}>{text} Tap a {pick} for its record.</p>
-      </div>
-      <div className="hero-rule" style={{ margin: '0 18px 18px' }} />
-    </>
   )
 }

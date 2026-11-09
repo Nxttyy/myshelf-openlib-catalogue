@@ -13,3 +13,6 @@ export function useMediaQuery(query: string) {
 
 /** Matches the 900px breakpoint in styles/app.css. */
 export const useIsDesktop = () => useMediaQuery('(min-width: 900px)')
+
+/** A finger rather than a mouse: copy says "tap" instead of "click", "hover". */
+export const useTouch = () => useMediaQuery('(hover: none) and (pointer: coarse)')

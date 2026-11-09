@@ -7,7 +7,6 @@ import { useState, type InputHTMLAttributes, type KeyboardEvent, type ReactNode,
 import { Link, useLocation, useSearchParams } from 'react-router'
 import { Icon } from '../../components/Icon'
 import { MIN_PASSWORD } from '../../lib/auth'
-import { useIsDesktop } from '../../lib/useMediaQuery'
 
 /** Why the visitor was sent here, e.g. "Sign in to save 3 books". Set as
     router state by whoever links to /login. */
@@ -18,10 +17,9 @@ export type AuthState = { reason?: string } | null
 export function AuthCard({ title, sub, reason, children, footer }: {
   title: string; sub: ReactNode; reason?: boolean; children: ReactNode; footer?: ReactNode
 }) {
-  const compact = !useIsDesktop()
   const why = (useLocation().state as AuthState)?.reason
   return (
-    <div className={'au-form' + (compact ? ' m' : '')}>
+    <div className="au-form">
       <div className="au-swap">
         {reason && why && <div className="au-reason"><Icon name="lock" size={13} />{why}</div>}
         <h1 className="au-h f-display">{title}</h1>

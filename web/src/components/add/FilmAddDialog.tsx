@@ -2,10 +2,9 @@
    MFilmAdd). Search one title, paste a whole list (the server reads it and
    finds one film per line), or paste IMDb IDs or links. Ask Dora whether a
    film fits before adding it. Picks wait in the film queue until saved.
-   Desktop: two columns, queue on the right, and an IMDb ID tab. Phone: a
-   full-height sheet with save pinned at the bottom; the search box takes
-   IDs too, so it has no tabs. Addressed by ?addfilm=search|ids, so Back
-   closes it. */
+   Two columns with the queue on the right, and an IMDb ID tab
+   (folio/films-v2.jsx); full screen and one column on phones
+   (styles/mobile.css). Addressed by ?addfilm=search|ids, so Back closes it. */
 
 import { useEffect, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router'
@@ -21,7 +20,7 @@ import type { Batch } from '../../lib/queue'
 import { useToast } from '../../lib/toast'
 import { useIsDesktop } from '../../lib/useMediaQuery'
 import { Icon } from '../Icon'
-import { BottomSheet, Dialog } from '../Overlay'
+import { Dialog } from '../Overlay'
 import { Poster } from '../Poster'
 import { AskBtn, FilmAsk } from './AskDora'
 
@@ -39,10 +38,10 @@ export function FilmAddOverlay() {
 function FilmAddDialog({ tab, setTab, onClose }: { tab: Tab; setTab: (t: Tab) => void; onClose: () => void }) {
   const desktop = useIsDesktop()
   const header = (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: desktop ? '20px 28px 16px' : '8px 20px 14px' }}>
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '20px 28px 16px' }}>
       <div>
         <div className="f-label">Add to library · Films</div>
-        <div style={{ fontSize: desktop ? 21 : 18, fontWeight: 600, letterSpacing: '-0.025em', marginTop: desktop ? 4 : 3 }}>{desktop ? 'Find a film' : 'Find films'}</div>
+        <div style={{ fontSize: 21, fontWeight: 600, letterSpacing: '-0.025em', marginTop: 4 }}>Find a film</div>
       </div>
       <button className="f-iconbtn" onClick={onClose} aria-label="Close"><Icon name="close" size={20} /></button>
     </div>
@@ -59,39 +58,22 @@ function FilmAddDialog({ tab, setTab, onClose }: { tab: Tab; setTab: (t: Tab) =>
       </div>
     </div>
   )
-  const content = tab === 'ids' && desktop ? <IdsTab /> : <SearchTab desktop={desktop} />
 
-  if (desktop) {
-    return (
-      <Dialog label="Add films" onClose={onClose}>
-        {header}
-        {seg}
-        <div className="d-dialog-cols">
-          <div className="d-dialog-left">
-            {content}
-            <BatchSettings style={{ marginTop: 22 }} />
-          </div>
-          <div className="d-dialog-right">
-            <QueueList desktop />
-            <div style={{ marginTop: 16 }}><SaveFooter /></div>
-          </div>
-        </div>
-      </Dialog>
-    )
-  }
   return (
-    <BottomSheet label="Add films" onClose={onClose} maxHeight="94%">
+    <Dialog label="Add films" onClose={onClose}>
       {header}
-      <div style={{ overflowY: 'auto', padding: '0 20px', scrollbarWidth: 'none', flex: 1, minHeight: 0 }}>
-        {content}
-        <BatchSettings style={{ margin: '16px 0 14px' }} />
-        <QueueList desktop={false} />
-        <div style={{ height: 16 }} />
+      {seg}
+      <div className="d-dialog-cols">
+        <div className="d-dialog-left">
+          {tab === 'ids' ? <IdsTab /> : <SearchTab desktop={desktop} />}
+          <BatchSettings style={{ marginTop: 22 }} />
+        </div>
+        <div className="d-dialog-right">
+          <QueueList />
+          <div style={{ marginTop: 16 }}><SaveFooter /></div>
+        </div>
       </div>
-      <div style={{ padding: '12px 20px 18px', borderTop: '1px solid var(--hair)', background: 'var(--paper)' }}>
-        <SaveFooter />
-      </div>
-    </BottomSheet>
+    </Dialog>
   )
 }
 
@@ -401,19 +383,19 @@ function BatchSettings({ style }: { style: React.CSSProperties }) {
   )
 }
 
-function QueueList({ desktop }: { desktop: boolean }) {
+function QueueList() {
   const { items } = useFilmQueue()
   const n = items.length
   return (
     <>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: desktop ? 12 : 10 }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
         <div className="f-label">Queue</div>
         <span aria-live="polite" style={{ fontFamily: 'var(--font-mono)', fontSize: 11, fontWeight: 600, background: n ? 'var(--amber)' : 'var(--paper-2)', color: n ? 'var(--accent-fg)' : 'var(--ink-faint)', borderRadius: 7, padding: '3px 9px', transition: 'all 180ms var(--ease-out)' }}>
           {n} {n === 1 ? 'film' : 'films'}
         </span>
       </div>
-      <div style={desktop ? { flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 8, minHeight: 120 } : { display: 'flex', flexDirection: 'column', gap: 8 }}>
-        {n === 0 && <div style={{ border: '1px dashed var(--hair-strong)', borderRadius: 9, padding: desktop ? 18 : 16, textAlign: 'center', fontSize: 13, color: 'var(--ink-faint)' }}>Films stay here until you save.</div>}
+      <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 8, minHeight: 120 }}>
+        {n === 0 && <div style={{ border: '1px dashed var(--hair-strong)', borderRadius: 9, padding: 18, textAlign: 'center', fontSize: 13, color: 'var(--ink-faint)' }}>Films stay here until you save.</div>}
         {items.map((f) => (
           <div className="f-queue-chip t-qchip" key={f.imdb_id}>
             <div className="top">
