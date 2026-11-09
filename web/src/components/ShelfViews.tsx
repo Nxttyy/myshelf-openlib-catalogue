@@ -1,8 +1,7 @@
-/* A person's shelf, three ways. ShelfGrid: the design's desktop shelf
-   (folio/desktop.jsx Shelf) with pin-on-hover and note bubbles. ShelfList:
-   the mobile design's list rows (folio/components.jsx BookCard), which open
-   the book sheet instead of expanding inline. Hauls: the timeline
-   (folio/desktop.jsx Hauls), headed by date since hauls have no names. */
+/* A person's shelf, two ways. ShelfGrid: the design's shelf
+   (folio/desktop-v2.jsx Shelf) with pin-on-hover and note bubbles, two
+   across on phones. Hauls: the timeline (folio/desktop-v2.jsx Hauls),
+   headed by date since hauls have no names. */
 
 import type { KeyboardEvent } from 'react'
 import type { Haul, ShelfEntry } from '../api/types'
@@ -65,41 +64,6 @@ export function ShelfGrid({ entries, onOpen, onPin }: ViewProps) {
           </div>
         )
       })}
-    </div>
-  )
-}
-
-export function ShelfList({ entries, onOpen, onPin }: ViewProps) {
-  return (
-    <div>
-      {entries.map((e, i) => (
-        <div className="f-card" key={e.id} aria-label={e.book.title} {...activate(() => onOpen(e))}>
-          <Cover b={coverFromBook(e.book)} w={64} tilt={false} />
-          <div className="f-card-meta">
-            <div className="f-card-title">{e.book.title}</div>
-            <div className="f-card-author">{e.book.authors?.map((a) => a.name).join(', ') || 'Unknown'}{e.book.subtitle ? ' · ' + e.book.subtitle : ''}</div>
-            <StatusBadge status={status(e)} />
-            {(e.comment || e.images.length > 0) && (
-              <div className="m-card-note">
-                {e.images.length > 0 && <span className="m-card-photos"><Icon name="camera" size={12} sw={1.6} />{e.images.length}</span>}
-                {e.comment}
-              </div>
-            )}
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 8 }}>
-            {onPin && (
-              <button className={'f-pinbtn' + (e.is_pinned ? ' on' : '')} aria-label={e.is_pinned ? 'Remove from top' : 'Move to top'}
-                aria-pressed={e.is_pinned} onClick={(ev) => { ev.stopPropagation(); onPin(e) }}>
-                <Icon name="pin" size={15} sw={1.6} />
-              </button>
-            )}
-            {e.is_pinned
-              ? <span className="f-card-idx m-pinned"><Icon name="pin" size={9} sw={1.6} style={{ fill: 'currentColor' }} />On top</span>
-              : <span className="f-card-idx">{pad(i + 1)}</span>}
-            <Icon name="chevron_right" size={16} style={{ color: 'var(--ink-faint)' }} />
-          </div>
-        </div>
-      ))}
     </div>
   )
 }

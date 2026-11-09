@@ -1,6 +1,6 @@
 /* Films on a shelf and in the catalogue (folio/films.jsx). FilmShelf: the
-   poster grid with pin-on-hover and note bubbles. FilmList: the desktop
-   table. FilmRows: phone list rows (like ShelfList for books).
+   poster grid with pin-on-hover and note bubbles. FilmList: the table
+   (poster, title and status only on phones).
    FilmCatalogGrid: Explore and Home, a grid on desktop and two columns on
    phones. */
 
@@ -85,45 +85,6 @@ export function FilmList({ entries, onOpen }: ShelfProps) {
             <span><StatusBadge status={status(e)} film /></span>
             <span className="v" title={e.is_public ? 'Public' : 'Only me'}><Icon name={e.is_public ? 'eye' : 'lock'} size={14} /></span>
           </button>
-        )
-      })}
-    </div>
-  )
-}
-
-/** Phone rows, like the book list on phones. */
-export function FilmRows({ entries, onOpen, onPin }: ShelfProps) {
-  return (
-    <div>
-      {entries.map((e) => {
-        const f = e.film
-        return (
-          <div className="f-card" key={e.id} aria-label={f.title} {...activate(() => onOpen(e))}>
-            <Poster f={f} w={64} hover={false} />
-            <div className="f-card-meta">
-              <div className="f-card-title">{f.title}</div>
-              <div className="f-card-author">{credit(f)}{f.year ? ' · ' + f.year : ''} · {runtime(f)}</div>
-              <StatusBadge status={status(e)} film />
-              {(e.comment || e.images.length > 0) && (
-                <div className="m-card-note">
-                  {e.images.length > 0 && <span className="m-card-photos"><Icon name="camera" size={12} sw={1.6} />{e.images.length}</span>}
-                  {e.comment}
-                </div>
-              )}
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 8 }}>
-              {onPin && (
-                <button className={'f-pinbtn' + (e.is_pinned ? ' on' : '')} aria-label={e.is_pinned ? 'Remove from top' : 'Move to top'}
-                  aria-pressed={e.is_pinned} onClick={(ev) => { ev.stopPropagation(); onPin(e) }}>
-                  <Icon name="pin" size={15} sw={1.6} />
-                </button>
-              )}
-              {e.is_pinned
-                ? <span className="f-card-idx m-pinned"><Icon name="pin" size={9} sw={1.6} style={{ fill: 'currentColor' }} />On top</span>
-                : f.imdb_rating != null && <span className="f-card-idx">{f.imdb_rating.toFixed(1)}</span>}
-              <Icon name="chevron_right" size={16} style={{ color: 'var(--ink-faint)' }} />
-            </div>
-          </div>
         )
       })}
     </div>

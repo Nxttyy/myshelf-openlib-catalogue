@@ -1,9 +1,9 @@
-/* Profiles. /profile is your own (folio/desktop-app.jsx profile view on
-   desktop, folio/screens.jsx Profile on phones); /u/:handle is someone
-   else's, the same layout read-only. The /films twins show films instead
-   (folio/films.jsx FilmProfile) under the same header. */
+/* Profiles. /profile is your own (folio/desktop-app-v2.jsx profile view,
+   reflowed for phones by styles/mobile.css); /u/:handle is someone else's,
+   the same layout read-only. The /films twins show films instead
+   (folio/films-v2.jsx FilmProfile) under the same header. */
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Navigate, useLocation, useParams } from 'react-router'
 import { ApiError } from '../api/client'
 import { initials, useMe } from '../api/me'
@@ -11,17 +11,17 @@ import { useMyFilms, usePublicFilms, useUpdateFilmEntry } from '../api/films'
 import { useMyShelf, usePublicProfile } from '../api/queries'
 import { useSetUsername, useUpdateShelfEntry } from '../api/shelf'
 import type { FilmShelfCounts, FilmShelfEntry, Haul, ShelfCounts, ShelfEntry, ShelfOwner } from '../api/types'
-import { FilmList, FilmRows, FilmShelf } from '../components/FilmViews'
+import { FilmList, FilmShelf } from '../components/FilmViews'
 import { Icon } from '../components/Icon'
 import { SharePanel, SharePopover } from '../components/Share'
-import { Hauls, ShelfGrid, ShelfList } from '../components/ShelfViews'
+import { Hauls, ShelfGrid } from '../components/ShelfViews'
+import { TagFilter, TagSearch } from '../components/TagFilter'
 import { useMedia } from '../lib/media'
 import { useOpenAdd, useOverlay } from '../lib/overlay'
+import { EMPTY_FILTER, matches, taggableBook, taggableFilm, type ShelfFilter } from '../lib/tagFilter'
 import { useToast } from '../lib/toast'
-import { useIsDesktop } from '../lib/useMediaQuery'
 import NotFound from './NotFound'
 
-type Filter = 'all' | 'reading' | 'unread' | 'read'
 type Mode = 'shelf' | 'hauls'
 
 export function MyProfile() {
@@ -69,18 +69,25 @@ function Message({ text }: { text: string }) {
 
 type ViewProps = { owner: ShelfOwner; counts: ShelfCounts; entries: ShelfEntry[]; hauls: Haul[]; mine: boolean }
 
+/** Search, tags and status for the shelf. A tag picked in a record
+    (navigate state `tag`) arrives already applied. */
+function useShelfFilter() {
+  const tag = (useLocation().state as { tag?: string } | null)?.tag
+  return useState<ShelfFilter>(tag ? { ...EMPTY_FILTER, tags: [tag] } : EMPTY_FILTER)
+}
+
 function ProfileView({ owner, counts, entries, hauls, mine }: ViewProps) {
-  const isDesktop = useIsDesktop()
-  const [filter, setFilter] = useState<Filter>('all')
   // After saving the add dialog we land here showing the new haul.
   const location = useLocation()
   const [mode, setMode] = useState<Mode>((location.state as { mode?: Mode } | null)?.mode ?? 'shelf')
+  const [flt, setFlt] = useShelfFilter()
   const { open } = useOverlay('book')
   const update = useUpdateShelfEntry()
   const toast = useToast()
   const onAdd = useOpenAdd()
 
-  const shown = filter === 'all' ? entries : entries.filter((e) => e.status === filter)
+  const items = useMemo(() => entries.map(taggableBook), [entries])
+  const shown = entries.filter((_, i) => matches(items[i], flt))
   const onOpen = (e: ShelfEntry) => open(e.book.id)
   const onPin = mine ? (e: ShelfEntry) => {
     const pin = !e.is_pinned
@@ -90,90 +97,26 @@ function ProfileView({ owner, counts, entries, hauls, mine }: ViewProps) {
     })
   } : undefined
 
-  const stats: [string, number][] = [['Books', counts.all], ['Reading now', counts.reading], ['Read', counts.read], ['Not read', counts.unread]]
-  const hint = mode === 'hauls'
-    ? 'Books you added at one time · New first'
-    : mine ? (isDesktop ? 'Your notes show above the books' : 'Tap the pin to move a book to the top') : null
+  const stats: Stat[] = [['Books', counts.all, null], ['Reading now', counts.reading, 'reading'], ['Read', counts.read, 'read'], ['Not read', counts.unread, 'unread']]
   const label = mine ? 'Your books' : `@${owner.handle}'s books`
 
-  const empty = entries.length === 0 && (
-    <div style={{ padding: '60px 18px', textAlign: 'center', color: 'var(--ink-faint)' }}>
-      <div className="f-label" style={{ marginBottom: 8 }}>Nothing here yet</div>
-      {mine
-        ? <><div style={{ fontSize: 14, marginBottom: 18 }}>Scan a barcode to add your first book.</div>
-            <button className="f-btn f-btn--amber" onClick={onAdd}><Icon name="scan" size={18} sw={1.8} /> Scan a book</button></>
-        : <div style={{ fontSize: 14 }}>No public books on this shelf yet.</div>}
-    </div>
-  )
-  const filteredEmpty = entries.length > 0 && shown.length === 0 && (
-    <div style={{ padding: '50px 0', textAlign: 'center', color: 'var(--ink-faint)' }}>
-      <div className="f-label" style={{ marginBottom: 6 }}>Nothing here yet</div>
-      <div style={{ fontSize: 14 }}>No {filter === 'unread' ? 'unread' : filter} books on this shelf.</div>
-    </div>
-  )
-
-  if (isDesktop) {
-    return (
-      <div className="f-rise">
-        <DesktopHeader owner={owner} mine={mine} />
-        <div className="d-pf-stats" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 1, background: 'var(--hair)', border: '1px solid var(--hair)', borderRadius: 12, overflow: 'hidden', marginBottom: 36 }}>
-          {stats.map(([k, v]) => (
-            <div key={k} className="d-pf-stat" style={{ background: 'var(--paper)', padding: '18px 20px' }}>
-              <div className="d-bignum" style={{ fontSize: 46 }}>{v}</div>
-              <div className="f-label" style={{ marginTop: 8 }}>{k}</div>
-            </div>
-          ))}
-        </div>
-        {empty || (
-          <>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6, gap: 16, flexWrap: 'wrap' }}>
-              <div className="f-label">{label}</div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-                {hint && <div className="f-label" style={{ color: 'var(--ink-faint)' }}>{hint}</div>}
-                <ModeToggle mode={mode} setMode={setMode} />
-              </div>
-            </div>
-            {mode === 'shelf' ? (
-              <>
-                <div className="d-filters" style={{ marginTop: 14 }}>
-                  {(['all', 'reading', 'unread', 'read'] as Filter[]).map((f) => (
-                    <button key={f} className={'d-chip' + (filter === f ? ' on' : '')} aria-pressed={filter === f} onClick={() => setFilter(f)}>
-                      {f}<span>{counts[f]}</span>
-                    </button>
-                  ))}
-                </div>
-                {filteredEmpty || <ShelfGrid entries={shown} onOpen={onOpen} onPin={onPin} />}
-              </>
-            ) : <Hauls hauls={hauls} entries={entries} onOpen={onOpen} />}
-          </>
-        )}
-      </div>
-    )
-  }
-
   return (
-    <div className="f-rise">
-      <MobileHeader owner={owner} mine={mine} stats={stats} />
-      {empty || (
+    <div className="f-rise d-page">
+      <ProfileHead owner={owner} mine={mine} value={flt} onChange={setFlt}
+        placeholder={mine ? 'Search your books by title or author' : 'Search these books by title or author'} />
+      <StatTiles stats={stats} on={flt.status} onPick={(status) => setFlt((f) => ({ ...f, status }))} />
+      {entries.length === 0 ? (
+        <Empty mine={mine} what="books" onAdd={onAdd} />
+      ) : (
         <>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 18px 10px', gap: 12 }}>
+          <TagFilter items={items} value={flt} onChange={setFlt} shown={shown.length} kindWord="books" mine={mine} />
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
             <div className="f-label">{label}</div>
             <ModeToggle mode={mode} setMode={setMode} />
           </div>
-          {mode === 'shelf' ? (
-            <>
-              <FilterRow active={filter} setActive={setFilter} counts={counts} />
-              <div className="hero-rule" style={{ margin: '14px 18px 0' }} />
-              <div style={{ padding: '0 18px 30px' }}>
-                {filteredEmpty || <ShelfList entries={shown} onOpen={onOpen} onPin={onPin} />}
-              </div>
-            </>
-          ) : (
-            <div style={{ padding: '0 0 0 18px' }}>
-              {hint && <div className="f-label" style={{ color: 'var(--ink-faint)', marginTop: 4 }}>{hint}</div>}
-              <Hauls hauls={hauls} entries={entries} onOpen={onOpen} coverW={96} />
-            </div>
-          )}
+          {mode === 'shelf'
+            ? <ShelfGrid entries={shown} onOpen={onOpen} onPin={onPin} />
+            : <Hauls hauls={hauls} entries={entries} onOpen={onOpen} />}
         </>
       )}
     </div>
@@ -190,18 +133,56 @@ function ModeToggle<M extends string>({ mode, setMode, modes = ['shelf', 'hauls'
   )
 }
 
+function Empty({ mine, what, onAdd }: { mine: boolean; what: 'books' | 'films'; onAdd: () => void }) {
+  return (
+    <div style={{ padding: '60px 18px', textAlign: 'center', color: 'var(--ink-faint)' }}>
+      <div className="f-label" style={{ marginBottom: 8 }}>Nothing here yet</div>
+      {!mine ? <div style={{ fontSize: 14 }}>No public {what} on this shelf yet.</div> : what === 'books'
+        ? <><div style={{ fontSize: 14, marginBottom: 18 }}>Scan a barcode to add your first book.</div>
+            <button className="f-btn f-btn--amber" onClick={onAdd}><Icon name="scan" size={18} sw={1.8} /> Scan a book</button></>
+        : <><div style={{ fontSize: 14, marginBottom: 18 }}>Search a title or paste an IMDb ID to add your first film.</div>
+            <button className="f-btn f-btn--amber" onClick={onAdd}><Icon name="plus" size={18} sw={1.8} /> Add films</button></>}
+    </div>
+  )
+}
+
+/** label, number, and the status it filters to (null: everything; false: not a filter) */
+type Stat = [string, number, string | null | false]
+
+/** The four numbers under the header, which double as status filters. */
+function StatTiles({ stats, on, onPick }: { stats: Stat[]; on: string | null; onPick: (status: string | null) => void }) {
+  return (
+    <div className="d-pf-stats" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 1, background: 'var(--hair)', border: '1px solid var(--hair)', borderRadius: 12, overflow: 'hidden', marginBottom: 36 }}>
+      {stats.map(([k, v, key]) => key === false ? (
+        <div key={k} className="d-pf-stat" style={{ background: 'var(--paper)', padding: '18px 20px' }}>
+          <div className="d-bignum" style={{ fontSize: 46 }}>{v}</div>
+          <div className="f-label" style={{ marginTop: 8 }}>{k}</div>
+        </div>
+      ) : (
+        <button key={k} className={'d-pf-stat d-pf-stat--btn' + (on === key ? ' on' : '')} aria-pressed={on === key}
+          onClick={() => onPick(key)} style={{ background: 'var(--paper)', padding: '18px 20px' }}>
+          <div className="d-bignum" style={{ fontSize: 46 }}>{v}</div>
+          <div className="f-label" style={{ marginTop: 8 }}>{k}</div>
+        </button>
+      ))}
+    </div>
+  )
+}
+
 // ── Films ─────────────────────────────────────────────────────────────────
 
 type FilmMode = 'shelf' | 'list'
 
 function FilmProfileView({ owner, counts, entries, mine }: { owner: ShelfOwner; counts: FilmShelfCounts; entries: FilmShelfEntry[]; mine: boolean }) {
-  const isDesktop = useIsDesktop()
   const [mode, setMode] = useState<FilmMode>('shelf')
+  const [flt, setFlt] = useShelfFilter()
   const { open } = useOverlay('film')
   const update = useUpdateFilmEntry()
   const toast = useToast()
   const onAdd = useOpenAdd()
 
+  const items = useMemo(() => entries.map(taggableFilm), [entries])
+  const shown = entries.filter((_, i) => matches(items[i], flt))
   const onOpen = (e: FilmShelfEntry) => open(e.film.id)
   const onPin = mine ? (e: FilmShelfEntry) => {
     const pin = !e.is_pinned
@@ -210,148 +191,60 @@ function FilmProfileView({ owner, counts, entries, mine }: { owner: ShelfOwner; 
       onError: () => toast("Couldn't change that. Try again.", 'err'),
     })
   } : undefined
-  const stats: [string, number][] = [
-    ['Films', counts.all], ['Watched', counts.read], ['Not watched', counts.unread], ['Hours watched', Math.round(counts.minutes_watched / 60)],
+  const stats: Stat[] = [
+    ['Films', counts.all, null], ['Watched', counts.read, 'read'], ['Not watched', counts.unread, 'unread'],
+    ['Hours watched', Math.round(counts.minutes_watched / 60), false],
   ]
   const label = mine ? 'Your films' : `@${owner.handle}'s films`
-  const empty = entries.length === 0 && (
-    <div style={{ padding: '60px 18px', textAlign: 'center', color: 'var(--ink-faint)' }}>
-      <div className="f-label" style={{ marginBottom: 8 }}>Nothing here yet</div>
-      {mine
-        ? <><div style={{ fontSize: 14, marginBottom: 18 }}>Search a title or paste an IMDb ID to add your first film.</div>
-            <button className="f-btn f-btn--amber" onClick={onAdd}><Icon name="plus" size={18} sw={1.8} /> Add films</button></>
-        : <div style={{ fontSize: 14 }}>No public films on this shelf yet.</div>}
-    </div>
-  )
-
-  if (isDesktop) {
-    return (
-      <div className="f-rise">
-        <DesktopHeader owner={owner} mine={mine} />
-        <div className="f-swap">
-          <div className="d-pf-stats" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 1, background: 'var(--hair)', border: '1px solid var(--hair)', borderRadius: 12, overflow: 'hidden', marginBottom: 36 }}>
-            {stats.map(([k, v]) => (
-              <div key={k} className="d-pf-stat" style={{ background: 'var(--paper)', padding: '18px 20px' }}>
-                <div className="d-bignum" style={{ fontSize: 46 }}>{v}</div>
-                <div className="f-label" style={{ marginTop: 8 }}>{k}</div>
-              </div>
-            ))}
-          </div>
-          {empty || (
-            <>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6, gap: 16 }}>
-                <div className="f-label">{label}</div>
-                <ModeToggle mode={mode} setMode={setMode} modes={['shelf', 'list']} />
-              </div>
-              {mode === 'shelf' ? <FilmShelf entries={entries} onOpen={onOpen} onPin={onPin} /> : <FilmList entries={entries} onOpen={onOpen} />}
-            </>
-          )}
-        </div>
-      </div>
-    )
-  }
 
   return (
-    <div className="f-rise">
-      <MobileHeader owner={owner} mine={mine} stats={stats} />
-      {empty || (
+    <div className="f-rise d-page">
+      <ProfileHead owner={owner} mine={mine} value={flt} onChange={setFlt}
+        placeholder={mine ? 'Search your films by title, director or cast' : 'Search these films by title, director or cast'} />
+      {entries.length > 0 && <TagFilter items={items} value={flt} onChange={setFlt} shown={shown.length} kindWord="films" mine={mine} />}
+      <StatTiles stats={stats} on={flt.status} onPick={(status) => setFlt((f) => ({ ...f, status }))} />
+      {entries.length === 0 ? <Empty mine={mine} what="films" onAdd={onAdd} /> : (
         <>
-          <div style={{ padding: '0 18px 4px' }}><div className="f-label">{label}</div></div>
-          <div style={{ padding: '0 18px 30px' }}><FilmRows entries={entries} onOpen={onOpen} onPin={onPin} /></div>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+            <div className="f-label">{label}</div>
+            <ModeToggle mode={mode} setMode={setMode} modes={['shelf', 'list']} />
+          </div>
+          {mode === 'shelf' ? <FilmShelf entries={shown} onOpen={onOpen} onPin={onPin} /> : <FilmList entries={shown} onOpen={onOpen} />}
         </>
       )}
     </div>
   )
 }
 
-/** The mobile design's filter chips (folio/screens.jsx FilterRow). */
-function FilterRow({ active, setActive, counts }: { active: Filter; setActive: (f: Filter) => void; counts: ShelfCounts }) {
-  const labels: [Filter, string][] = [['all', 'All'], ['reading', 'Reading'], ['unread', 'Unread'], ['read', 'Read']]
-  return (
-    <div style={{ display: 'flex', gap: 7, overflowX: 'auto', padding: '0 18px 4px', scrollbarWidth: 'none' }}>
-      {labels.map(([id, label]) => {
-        const on = active === id
-        return (
-          <button key={id} onClick={() => setActive(id)} aria-pressed={on} style={{
-            flexShrink: 0, border: 'none', cursor: 'pointer', fontFamily: 'var(--font-mono)', fontSize: 11, letterSpacing: '0.04em',
-            textTransform: 'uppercase', padding: '7px 12px', borderRadius: 7,
-            background: on ? 'var(--ink)' : 'transparent', color: on ? 'var(--paper)' : 'var(--ink-soft)',
-            boxShadow: on ? 'none' : 'inset 0 0 0 1px var(--hair-strong)', transition: 'all 120ms var(--ease-out)',
-          }}>
-            {label}<span style={{ opacity: 0.55, marginLeft: 6 }}>{counts[id]}</span>
-          </button>
-        )
-      })}
-    </div>
-  )
-}
-
-// ── Headers ───────────────────────────────────────────────────────────────
+// ── Header ────────────────────────────────────────────────────────────────
 
 const displayName = (o: ShelfOwner) => [o.firstname, o.lastname].filter((s) => s.trim()).join(' ') || '@' + o.handle
 const profileUrl = (handle: string) => `${window.location.origin}/u/${handle}`
 const shortUrl = (handle: string) => `${window.location.host}/u/${handle}`
 
-function DesktopHeader({ owner, mine }: { owner: ShelfOwner; mine: boolean }) {
+/** Avatar, name, handle, and the shelf search (folio/desktop-app-v2.jsx
+    pfHead). Your own visibility, share link and sign out live in the
+    account menu; someone else's shelf keeps a Share button. */
+function ProfileHead({ owner, mine, value, onChange, placeholder }: {
+  owner: ShelfOwner; mine: boolean; value: ShelfFilter; onChange: (f: ShelfFilter) => void; placeholder: string
+}) {
   const [share, setShare] = useState(false)
   return (
-    <div style={{ display: 'flex', gap: 24, alignItems: 'center', marginBottom: 28, flexWrap: 'wrap' }}>
+    <div className="d-pf-head" style={{ display: 'flex', gap: 24, alignItems: 'center', marginBottom: 28 }}>
       <div className="d-pf-av" style={{ width: 96, height: 96, borderRadius: 12, background: 'var(--ink-blue)', color: 'var(--paper)', display: 'grid', placeItems: 'center', fontWeight: 600, fontSize: 38, letterSpacing: '-0.03em', flexShrink: 0 }}>{initials(owner)}</div>
-      <div style={{ flex: 1, minWidth: 240 }}>
-        <h1 style={{ fontSize: 32, fontWeight: 600, letterSpacing: '-0.03em', margin: 0 }}>{displayName(owner)}</h1>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <h1 style={{ fontSize: 32, fontWeight: 600, letterSpacing: '-0.03em', margin: 0, overflowWrap: 'anywhere' }}>{displayName(owner)}</h1>
         <div style={{ fontFamily: 'var(--font-mono)', fontSize: 13, color: 'var(--ink-faint)', marginTop: 4 }}>
           {mine ? <HandleEditor handle={owner.handle} /> : <>@{owner.handle}</>} · {shortUrl(owner.handle)}
         </div>
       </div>
-      {/* your own visibility, share link and sign out live in the account menu */}
       {!mine && (
         <div className="d-share-wrap">
           <button className="f-btn f-btn--ghost" onClick={() => setShare((s) => !s)} aria-expanded={share}><Icon name="share" size={16} /> Share</button>
           {share && <ProfileSharePopover owner={owner} mine={mine} onClose={() => setShare(false)} />}
         </div>
       )}
-    </div>
-  )
-}
-
-function MobileHeader({ owner, mine, stats }: { owner: ShelfOwner; mine: boolean; stats: [string, number][] }) {
-  const [share, setShare] = useState(false)
-  async function onShare() {
-    // Phones get the system share sheet; the popover is the fallback.
-    if (navigator.share && (owner.is_profile_public || !mine)) {
-      try { await navigator.share({ title: `${displayName(owner)} on Dora`, url: profileUrl(owner.handle) }) } catch { /* dismissed */ }
-    } else setShare(true)
-  }
-  return (
-    <div style={{ padding: '6px 18px 20px' }}>
-      {share && (
-        <>
-          <div className="f-scrim" style={{ background: 'rgba(20,18,16,0.28)' }} onClick={() => setShare(false)} />
-          <div className="f-share-pop m-share-pop">
-            <ShareBody owner={owner} mine={mine} onDone={() => { setShare(false) }} />
-          </div>
-        </>
-      )}
-      <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
-        <div className="d-pf-av" style={{ width: 76, height: 76, borderRadius: 10, background: 'var(--ink-blue)', color: 'var(--paper)', display: 'grid', placeItems: 'center', fontWeight: 600, fontSize: 30, letterSpacing: '-0.03em', flexShrink: 0 }}>{initials(owner)}</div>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <h1 style={{ fontSize: 24, fontWeight: 600, letterSpacing: '-0.03em', margin: 0, overflowWrap: 'anywhere' }}>{displayName(owner)}</h1>
-          <div style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--ink-faint)', marginTop: 3 }}>
-            {mine ? <HandleEditor handle={owner.handle} /> : <>@{owner.handle}</>}
-          </div>
-        </div>
-        {!mine && <button className="f-iconbtn" aria-label="Share profile" onClick={onShare}><Icon name="share" size={20} sw={1.7} /></button>}
-      </div>
-
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 1, background: 'var(--hair)', border: '1px solid var(--hair)', borderRadius: 10, overflow: 'hidden', marginTop: 20 }}>
-        {stats.map(([k, v]) => (
-          <div key={k} className="d-pf-stat" style={{ background: 'var(--paper)', padding: '14px 10px' }}>
-            <div className="d-bignum" style={{ fontSize: 32 }}>{v}</div>
-            <div className="f-label" style={{ marginTop: 5, fontSize: 8.5, letterSpacing: '0.12em' }}>{k}</div>
-          </div>
-        ))}
-      </div>
-
+      <div className="d-pf-search"><TagSearch value={value} onChange={onChange} placeholder={placeholder} /></div>
     </div>
   )
 }

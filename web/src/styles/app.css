@@ -91,6 +91,9 @@ html::-webkit-scrollbar-track { background: var(--paper); }
    own 18px gutters (as in the old mobile design), so strips like Recently
    added run edge to edge. */
 .mob .d-wrap { padding: 0; }
+/* Pages already on the shared layout mark their root `.d-page` and get the
+   design's phone frame back (mobile.css `.mob .d-wrap`). */
+.mob .d-wrap:has(> .d-page) { padding: 22px 18px 40px; }
 /* below the nav and its Books / Films switch */
 .f-toastwrap { top: calc(env(safe-area-inset-top) + 118px); }
 
