@@ -18,7 +18,7 @@ import { Hauls, ShelfGrid } from '../components/ShelfViews'
 import { TagFilter, TagSearch } from '../components/TagFilter'
 import { useMedia } from '../lib/media'
 import { useOpenAdd, useOverlay } from '../lib/overlay'
-import { EMPTY_FILTER, matches, taggableBook, taggableFilm, type ShelfFilter } from '../lib/tagFilter'
+import { EMPTY_FILTER, matches, publishTags, taggableBook, taggableFilm, type ShelfFilter } from '../lib/tagFilter'
 import { useToast } from '../lib/toast'
 import NotFound from './NotFound'
 
@@ -38,9 +38,7 @@ export function MyProfile() {
   }
   if (isError) return <Message text="Couldn't load your shelf. Try again in a moment." />
   if (!data) return <Message text="Loading your shelf…" />
-  // Keyed by navigation, so arriving from the add dialog (state.mode =
-  // 'hauls') applies even when you were already on /profile.
-  return <ProfileView key={location.key} owner={data.owner} counts={data.counts} entries={data.entries} hauls={data.hauls} mine />
+  return <ProfileView owner={data.owner} counts={data.counts} entries={data.entries} hauls={data.hauls} mine />
 }
 
 export function PublicProfile() {
@@ -69,17 +67,41 @@ function Message({ text }: { text: string }) {
 
 type ViewProps = { owner: ShelfOwner; counts: ShelfCounts; entries: ShelfEntry[]; hauls: Haul[]; mine: boolean }
 
-/** Search, tags and status for the shelf. A tag picked in a record
-    (navigate state `tag`) arrives already applied. */
+type Intent = { mode?: Mode; tag?: string } | null
+
+/** Search, tags and status for the shelf. Arriving with a tag picked in a
+    record (navigate state `tag`) applies it, even when you were already on
+    the page; opening a record over the page (a ?book= change) keeps them.
+    The picked tags are published for the record to highlight. */
 function useShelfFilter() {
-  const tag = (useLocation().state as { tag?: string } | null)?.tag
-  return useState<ShelfFilter>(tag ? { ...EMPTY_FILTER, tags: [tag] } : EMPTY_FILTER)
+  const location = useLocation()
+  const tag = (location.state as Intent)?.tag
+  const [flt, setFlt] = useState<ShelfFilter>(tag ? { ...EMPTY_FILTER, tags: [tag] } : EMPTY_FILTER)
+  const [seen, setSeen] = useState(location.key)
+  if (seen !== location.key) {
+    setSeen(location.key)
+    if (tag) setFlt({ ...EMPTY_FILTER, tags: [tag] })
+  }
+  useEffect(() => { publishTags(flt.tags) }, [flt.tags])
+  useEffect(() => () => publishTags([]), [])
+  return [flt, setFlt] as const
+}
+
+/** Shelf or Hauls; saving the add dialog lands here with state.mode 'hauls'. */
+function useMode<M extends string>(initial: M) {
+  const location = useLocation()
+  const asked = (location.state as Intent)?.mode as M | undefined
+  const [mode, setMode] = useState<M>(asked ?? initial)
+  const [seen, setSeen] = useState(location.key)
+  if (seen !== location.key) {
+    setSeen(location.key)
+    if (asked) setMode(asked)
+  }
+  return [mode, setMode] as const
 }
 
 function ProfileView({ owner, counts, entries, hauls, mine }: ViewProps) {
-  // After saving the add dialog we land here showing the new haul.
-  const location = useLocation()
-  const [mode, setMode] = useState<Mode>((location.state as { mode?: Mode } | null)?.mode ?? 'shelf')
+  const [mode, setMode] = useMode<Mode>('shelf')
   const [flt, setFlt] = useShelfFilter()
   const { open } = useOverlay('book')
   const update = useUpdateShelfEntry()

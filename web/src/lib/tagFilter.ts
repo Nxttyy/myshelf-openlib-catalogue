@@ -93,3 +93,14 @@ export function collectTags(items: Taggable[]): TagCount[] {
   }
   return [...m.values()].sort((a, b) => b.n - a.n || (a.g === b.g ? 0 : a.g === 'p' ? -1 : 1) || a.t.localeCompare(b.t))
 }
+
+// The tags filtering the profile on screen, so a record opened over it can
+// show which of its own tags are already on (the design's DoraCurrentTags).
+let current: string[] = []
+const listeners = new Set<() => void>()
+export function publishTags(tags: string[]) {
+  current = tags
+  listeners.forEach((l) => l())
+}
+export const subscribeTags = (l: () => void) => { listeners.add(l); return () => { listeners.delete(l) } }
+export const currentTags = () => current

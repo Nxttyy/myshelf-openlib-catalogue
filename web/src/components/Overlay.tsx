@@ -1,7 +1,8 @@
-/* Overlay shells. Desktop: the design's right-hand drawer (d-drawer).
-   Phone: the mobile design's bottom sheet (f-sheet), which can also be
-   dragged down by its grip to close. Both close on Escape and the scrim,
-   lock the page behind them, and move focus inside. */
+/* Overlay shells: the design's drawer (d-drawer; a full-screen sheet that
+   slides up on phones, styles/mobile.css), its centered dialog, and the
+   older mobile bottom sheet (f-sheet), which can also be dragged down by its
+   grip to close. All close on Escape and the scrim, lock the page behind
+   them, and move focus inside. */
 
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode, type PointerEvent } from 'react'
 import { Icon } from './Icon'
@@ -27,18 +28,24 @@ function useOverlayBehaviour(onClose: () => void) {
   }, [])
 }
 
-export function Drawer({ label, onClose, children }: { label: string; onClose: () => void; children: ReactNode }) {
+/** With `hero`, the body brings its own header (DetailHero) and close
+    button, so the drawer's plain head is left out, as in the design. */
+export function Drawer({ label, onClose, hero, children }: { label: string; onClose: () => void; hero?: boolean; children: ReactNode }) {
   useOverlayBehaviour(onClose)
-  const closeBtn = useRef<HTMLButtonElement>(null)
-  useEffect(() => { closeBtn.current?.focus({ preventScroll: true }) }, [])
+  const panel = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    panel.current?.querySelector<HTMLElement>('[data-autofocus]')?.focus({ preventScroll: true })
+  }, [hero])
   return (
     <>
       <div className="d-scrim" onClick={onClose} />
-      <div className="d-drawer" role="dialog" aria-modal="true" aria-label={label}>
-        <div className="d-drawer-head">
-          <span className="f-label">{label}</span>
-          <button ref={closeBtn} className="f-iconbtn" onClick={onClose} aria-label="Close"><Icon name="close" size={20} /></button>
-        </div>
+      <div ref={panel} className="d-drawer" role="dialog" aria-modal="true" aria-label={label}>
+        {!hero && (
+          <div className="d-drawer-head">
+            <span className="f-label">{label}</span>
+            <button data-autofocus className="f-iconbtn" onClick={onClose} aria-label="Close"><Icon name="close" size={20} /></button>
+          </div>
+        )}
         <div className="d-drawer-body">{children}</div>
       </div>
     </>

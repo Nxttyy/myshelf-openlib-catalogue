@@ -1,7 +1,8 @@
 /* A film's record, opened from any poster via ?film=<id>. From
    folio/films.jsx FilmDrawer: poster and title, IMDb / Rotten Tomatoes /
-   Metacritic scores, plot, genres, details, cast, awards and links. A right
-   drawer on desktop, a bottom sheet on phones. On your own copy you get
+   Metacritic scores, plot, tags, details, cast, awards and links, under the
+   blurred-poster header (folio/films-v2.jsx). A right drawer on desktop, a
+   full-screen sheet on phones. On your own copy you get
    your log (once you're watching or have watched it), status, visibility,
    note and photos, with an explicit Save and Remove like books; on someone's
    public profile, their log, note and photos show read-only; on a film you
@@ -17,16 +18,18 @@ import { useOverlay } from '../lib/overlay'
 import { shareTitle, usePhotoLinks, useShareLink, type ShareLink } from '../lib/share'
 import { useToast } from '../lib/toast'
 import { fromLog, showsLog, toWrite } from '../lib/diary'
-import { useIsDesktop } from '../lib/useMediaQuery'
+import { filmTags } from '../lib/tagFilter'
 import { FilmAsk } from './add/AskDora'
 import { OnShelfBadge } from './CatalogGrid'
 import { DiaryLog, LogSummary, SaveRow } from './DiaryLog'
 import { Icon } from './Icon'
-import { BottomSheet, Drawer } from './Overlay'
+import { DetailHero } from './DetailHero'
+import { Drawer } from './Overlay'
 import { PhotoNotes } from './PhotoNotes'
 import { Poster } from './Poster'
 import { ShareButton } from './Share'
-import { StatusBadge, SubjectPill, type ReadingStatus } from './StatusBadge'
+import { RecordTags } from './RecordTags'
+import { StatusBadge, type ReadingStatus } from './StatusBadge'
 
 export function FilmOverlay() {
   const { value: id, close } = useOverlay('film')
@@ -35,19 +38,17 @@ export function FilmOverlay() {
 }
 
 function FilmRecord({ id, onClose }: { id: string; onClose: () => void }) {
-  const isDesktop = useIsDesktop()
   const { data, isError } = useFilmEntry(id)
   const theirs = useProfileEntry(id)
-  const body = data
-    ? <RecordBody entry={data} desktop={isDesktop} theirs={theirs} onSaved={onClose} />
-    : <div style={{ padding: '40px 0', textAlign: 'center', color: 'var(--ink-faint)', fontSize: 14 }}>
-        {isError ? "We couldn't find that film." : 'Loading…'}
-      </div>
-  return isDesktop
-    ? <Drawer label="Film record" onClose={onClose}>{body}</Drawer>
-    : <BottomSheet label="Film record" onClose={onClose}>
-        <div style={{ overflowY: 'auto', padding: '14px 20px 30px', scrollbarWidth: 'none' }}>{body}</div>
-      </BottomSheet>
+  return (
+    <Drawer label="Film record" onClose={onClose} hero={!!data}>
+      {data
+        ? <RecordBody entry={data} theirs={theirs} onClose={onClose} />
+        : <div style={{ padding: '40px 0', textAlign: 'center', color: 'var(--ink-faint)', fontSize: 14 }}>
+            {isError ? "We couldn't find that film." : 'Loading…'}
+          </div>}
+    </Drawer>
+  )
 }
 
 /** On /u/:handle/films, that person's entry for this film (note, photos). */
@@ -70,11 +71,11 @@ function released(f: Film) {
 }
 
 type BodyProps = {
-  entry: FilmEntryRead; desktop: boolean
-  theirs: { handle: string; entry: FilmShelfEntry } | null; onSaved: () => void
+  entry: FilmEntryRead
+  theirs: { handle: string; entry: FilmShelfEntry } | null; onClose: () => void
 }
 
-function RecordBody({ entry, desktop, theirs, onSaved }: BodyProps) {
+function RecordBody({ entry, theirs, onClose }: BodyProps) {
   const f = entry.film
   const mine = entry.shelf
   const [draftStatus, setDraftStatus] = useState(mine?.status)
@@ -94,24 +95,21 @@ function RecordBody({ entry, desktop, theirs, onSaved }: BodyProps) {
   const theirPhotos = usePhotoLinks('film', f.id, theirs?.handle ?? null, null)
   const myPhotos = usePhotoLinks('film', f.id, null, mine)
   const line = [f.year, f.runtime_min ? runtime(f) : null, f.rated, f.type === 'series' ? 'Series' : null].filter(Boolean).join(' · ')
-  const gap = desktop ? 20 : 16
 
   return (
     <>
-      <div style={{ display: 'flex', gap: desktop ? 22 : 16, marginBottom: gap }}>
-        <Poster f={f} w={desktop ? 132 : 104} hover={false} />
+      <DetailHero onClose={onClose} cover={<Poster f={f} w={208} hover={false} />}
+        blur={f.poster_url ? <img src={f.poster_url} alt="" /> : <Poster f={f} w={640} hover={false} />}>
         <div style={{ flex: 1, minWidth: 0, paddingTop: 4, position: 'relative' }}>
-          <h2 style={desktop
-            ? { fontSize: 24, fontWeight: 600, letterSpacing: '-0.03em', lineHeight: 1.05, margin: '0 0 8px' }
-            : { fontSize: 21, fontWeight: 600, letterSpacing: '-0.025em', lineHeight: 1.08, margin: '0 0 6px' }}>{f.title}</h2>
+          <h2 style={{ fontSize: 24, fontWeight: 600, letterSpacing: '-0.03em', lineHeight: 1.05, margin: '0 0 8px' }}>{f.title}</h2>
           {line && <div style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--ink-faint)', marginBottom: 8 }}>{line}</div>}
-          {(f.director || f.writer) && <div style={{ fontSize: desktop ? 14 : 13.5, color: 'var(--ink-soft)', marginBottom: desktop ? 14 : 12 }}>{f.director || f.writer}</div>}
+          {(f.director || f.writer) && <div style={{ fontSize: 14, color: 'var(--ink-soft)', marginBottom: 14 }}>{f.director || f.writer}</div>}
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
             {badge}
             <ShareButton link={link} title={title} heading="Share this film" className="f-btn f-btn--ghost m-share-btn" label="Share" iconSize={14} inParent />
           </div>
         </div>
-      </div>
+      </DetailHero>
 
       {scores.length > 0 && (
         <div className="d-scores" style={{ gridTemplateColumns: `repeat(${scores.length},1fr)` }}>
@@ -121,16 +119,8 @@ function RecordBody({ entry, desktop, theirs, onSaved }: BodyProps) {
         </div>
       )}
 
-      {/* Not on your shelf yet: should you add it? Phones ask right under
-          the scores, as in films-mobile.jsx; desktop asks at the end. */}
-      {!entry.on_shelf && !desktop && <div style={{ marginBottom: 16 }}><FilmAsk imdbId={f.imdb_id} /></div>}
-
       {f.plot && <p style={{ fontSize: 14, lineHeight: 1.55, color: 'var(--ink-soft)', margin: '0 0 16px', textWrap: 'pretty' }}>{f.plot}</p>}
-      {f.genres.length > 0 && (
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7, marginBottom: gap }}>
-          {f.genres.map((g) => <SubjectPill key={g}>{g}</SubjectPill>)}
-        </div>
-      )}
+      <RecordTags tags={filmTags(f)} kind="film" />
 
       <div className="f-metagrid" style={{ marginBottom: 14 }}>
         {meta.map(([k, v], i) => (
@@ -166,10 +156,10 @@ function RecordBody({ entry, desktop, theirs, onSaved }: BodyProps) {
         </div>
       )}
 
-      {!entry.on_shelf && desktop && <div style={{ marginBottom: 14 }}><FilmAsk imdbId={f.imdb_id} /></div>}
+      {!entry.on_shelf && <div style={{ marginBottom: 14 }}><FilmAsk imdbId={f.imdb_id} /></div>}
 
       {mine
-        ? <ShelfEditor key={mine.id} mine={mine} title={f.title} sharePhoto={myPhotos} linkTitle={title} onStatus={(s) => { setDraftStatus(s); setPop(true); setTimeout(() => setPop(false), 400) }} onSaved={onSaved} />
+        ? <ShelfEditor key={mine.id} mine={mine} title={f.title} sharePhoto={myPhotos} linkTitle={title} onStatus={(s) => { setDraftStatus(s); setPop(true); setTimeout(() => setPop(false), 400) }} onSaved={onClose} />
         : <ShelfAction entry={entry} />}
     </>
   )

@@ -109,9 +109,14 @@ function Spine({ b, w, thickness, ink }: { b: CoverData; w: number; thickness: n
   )
 }
 
-type Props = { b: CoverData; w?: number; tilt?: boolean; style?: CSSProperties }
+/** `flat`: a plain 2D jacket, no 3D object (no perspective, preserve-3d or
+    backface). For the record header's blurred band: Chrome draws 3D content
+    on its own layer and can drop an ancestor's blur filter when that area
+    repaints (e.g. hovering the close button), showing the cover unblurred. */
+type Props = { b: CoverData; w?: number; tilt?: boolean; flat?: boolean; style?: CSSProperties }
 
-export function Cover({ b, w = 120, tilt = true, style = {} }: Props) {
+export function Cover({ b, w = 120, tilt: tiltProp = true, flat = false, style = {} }: Props) {
+  const tilt = tiltProp && !flat
   const [bg, ink, rule] = PALETTES[b.palette]
   const h = w * 1.5
   const ref = useRef<HTMLDivElement>(null)
@@ -149,11 +154,11 @@ export function Cover({ b, w = 120, tilt = true, style = {} }: Props) {
 
   return (
     <div ref={ref} onPointerMove={onMove} onPointerLeave={onLeave}
-      style={{ width: w, height: h, perspective: w * 6, flexShrink: 0, ...style }}>
+      style={{ width: w, height: h, perspective: flat ? undefined : w * 6, flexShrink: 0, ...style }}>
       <div style={{
         position: 'relative', width: '100%', height: '100%',
-        transformStyle: 'preserve-3d',
-        transform: `rotateX(${t.rx}deg) rotateY(${t.ry + baseRevealY}deg) translateZ(${t.hover ? 6 : 0}px)`,
+        transformStyle: flat ? undefined : 'preserve-3d',
+        transform: flat ? undefined : `rotateX(${t.rx}deg) rotateY(${t.ry + baseRevealY}deg) translateZ(${t.hover ? 6 : 0}px)`,
         transition: t.hover ? 'transform 80ms linear' : 'transform 420ms var(--ease-out)',
       }}>
         {tilt && <Spine b={b} w={w} thickness={thickness} ink={ink} />}
@@ -164,7 +169,7 @@ export function Cover({ b, w = 120, tilt = true, style = {} }: Props) {
             ? '0 22px 40px rgba(0,0,0,0.32), inset 0 0 0 1px rgba(255,255,255,0.06)'
             : '0 6px 16px rgba(0,0,0,0.18), inset 0 0 0 1px rgba(255,255,255,0.04)',
           transition: 'box-shadow 300ms var(--ease-out)',
-          overflow: 'hidden', backfaceVisibility: 'hidden',
+          overflow: 'hidden', backfaceVisibility: flat ? undefined : 'hidden',
         }}>
           {/* Open Library covers can take seconds (two redirects to archive.org),
               so the jacket stands in until the image arrives, then it fades over. */}

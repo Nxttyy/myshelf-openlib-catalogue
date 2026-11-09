@@ -225,3 +225,6 @@ a.f-btn.au-submit { display: flex; align-items: center; justify-content: center;
 .m-create-more summary { cursor: pointer; font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-soft); padding: 6px 0 10px; }
 .m-create-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 
+
+/* Record sheet on phones: room for the home indicator under the last button. */
+.mob .d-drawer-body { padding-bottom: calc(40px + env(safe-area-inset-bottom)); }

@@ -1,6 +1,6 @@
-/* A book's catalogue record, opened from any cover via ?book=<id>.
-   Desktop: the design's DetailDrawer (folio/desktop.jsx), non-editable
-   branch. Phone: the mobile design's DetailSheet (folio/screens.jsx).
+/* A book's catalogue record, opened from any cover via ?book=<id>: the
+   design's DetailDrawer (folio/desktop-v2.jsx), a right-hand drawer on
+   desktop and a full-screen sheet on phones, headed by the blurred cover.
    On your own copy the editable branch adds your log (once you're reading
    or have read it), status, visibility, note and photos, with an explicit
    Save (photos save as they upload) and Remove from library. On someone's
@@ -18,15 +18,17 @@ import { useOverlay } from '../lib/overlay'
 import { shareTitle, usePhotoLinks, useShareLink, type ShareLink } from '../lib/share'
 import { useToast } from '../lib/toast'
 import { fromLog, showsLog, toWrite } from '../lib/diary'
-import { useIsDesktop } from '../lib/useMediaQuery'
+import { bookTags } from '../lib/tagFilter'
 import { OnShelfBadge } from './CatalogGrid'
 import { PhotoNotes } from './PhotoNotes'
 import { ShareButton } from './Share'
 import { Cover } from './Cover'
 import { DiaryLog, LogSummary, SaveRow } from './DiaryLog'
 import { Icon } from './Icon'
-import { BottomSheet, Drawer } from './Overlay'
-import { StatusBadge, SubjectPill, type ReadingStatus } from './StatusBadge'
+import { DetailHero } from './DetailHero'
+import { Drawer } from './Overlay'
+import { RecordTags } from './RecordTags'
+import { StatusBadge, type ReadingStatus } from './StatusBadge'
 
 export function BookOverlay() {
   const { value: id, close } = useOverlay('book')
@@ -35,20 +37,17 @@ export function BookOverlay() {
 }
 
 function BookRecord({ id, onClose }: { id: string; onClose: () => void }) {
-  const isDesktop = useIsDesktop()
   const { data, isError } = useBookEntry(id)
   const theirs = useProfileEntry(id)
-  const body = data
-    ? <RecordBody entry={data} desktop={isDesktop} theirs={theirs} onSaved={onClose} />
-    : <div style={{ padding: '40px 0', textAlign: 'center', color: 'var(--ink-faint)', fontSize: 14 }}>
-        {isError ? "We couldn't find that book." : 'Loading…'}
-      </div>
-
-  return isDesktop
-    ? <Drawer label="Catalog record" onClose={onClose}>{body}</Drawer>
-    : <BottomSheet label="Catalog record" onClose={onClose}>
-        <div style={{ overflowY: 'auto', padding: '14px 20px 30px', scrollbarWidth: 'none' }}>{body}</div>
-      </BottomSheet>
+  return (
+    <Drawer label="Catalog record" onClose={onClose} hero={!!data}>
+      {data
+        ? <RecordBody entry={data} theirs={theirs} onClose={onClose} />
+        : <div style={{ padding: '40px 0', textAlign: 'center', color: 'var(--ink-faint)', fontSize: 14 }}>
+            {isError ? "We couldn't find that book." : 'Loading…'}
+          </div>}
+    </Drawer>
+  )
 }
 
 /** On /u/:handle, that person's shelf entry for this book (note, photos). */
@@ -64,17 +63,18 @@ const notSet = 'Not set'
 const clip = (s: string, n: number) => (s.length > n ? s.slice(0, n).trimEnd() + '…' : s)
 
 type BodyProps = {
-  entry: BookEntryRead; desktop: boolean
-  theirs: { handle: string; entry: ShelfEntry } | null; onSaved: () => void
+  entry: BookEntryRead
+  theirs: { handle: string; entry: ShelfEntry } | null; onClose: () => void
 }
 
-function RecordBody({ entry, desktop, theirs, onSaved }: BodyProps) {
+function RecordBody({ entry, theirs, onClose }: BodyProps) {
   const b = entry.book
   const mine = entry.shelf
   // The badge follows the status select live, as in the design.
   const [draftStatus, setDraftStatus] = useState(mine?.status)
   const [pop, setPop] = useState(false)
   const authors = b.authors?.map((a) => a.name).join(', ') || 'Unknown'
+  const cover = coverFromBook(b)
   const meta: [string, string][] = [
     ['Published', b.publish_date || notSet],
     ['Pages', b.number_of_pages ? b.number_of_pages.toLocaleString() : notSet],
@@ -90,30 +90,21 @@ function RecordBody({ entry, desktop, theirs, onSaved }: BodyProps) {
 
   return (
     <>
-      {/* cover + title block */}
-      <div style={{ display: 'flex', gap: desktop ? 22 : 16, marginBottom: desktop ? 24 : 18 }}>
-        <Cover b={coverFromBook(b)} w={desktop ? 132 : 104} />
+      <DetailHero onClose={onClose} cover={<Cover b={cover} w={208} />} blur={<Cover b={cover} w={640} flat />}>
         <div style={{ flex: 1, minWidth: 0, paddingTop: 4, position: 'relative' }}>
-          <h2 style={desktop
-            ? { fontSize: 24, fontWeight: 600, letterSpacing: '-0.03em', lineHeight: 1.05, margin: '0 0 8px' }
-            : { fontSize: 21, fontWeight: 600, letterSpacing: '-0.025em', lineHeight: 1.08, margin: '0 0 6px' }}>{b.title}</h2>
-          {b.subtitle && <div style={{ fontSize: desktop ? 14 : 13.5, color: 'var(--ink-soft)', marginBottom: 6 }}>{b.subtitle}</div>}
-          <div style={{ fontSize: desktop ? 14 : 13.5, color: 'var(--ink-soft)', marginBottom: desktop ? 14 : 12 }}>{authors}</div>
+          <h2 style={{ fontSize: 24, fontWeight: 600, letterSpacing: '-0.03em', lineHeight: 1.05, margin: '0 0 8px' }}>{b.title}</h2>
+          {b.subtitle && <div style={{ fontSize: 14, color: 'var(--ink-soft)', marginBottom: 6 }}>{b.subtitle}</div>}
+          <div style={{ fontSize: 14, color: 'var(--ink-soft)', marginBottom: 14 }}>{authors}</div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
             {badge}
             <ShareButton link={link} title={title} heading="Share this book" className="f-btn f-btn--ghost m-share-btn" label="Share" iconSize={14} inParent />
           </div>
-          {!desktop && entry.added_by && <div className="f-label" style={{ marginTop: 12 }}>Added by @{entry.added_by}</div>}
         </div>
-      </div>
+      </DetailHero>
 
-      {!!b.subjects?.length && (
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: desktop ? 7 : 6, marginBottom: desktop ? 22 : 16 }}>
-          {b.subjects.slice(0, 8).map((s) => <SubjectPill key={s.name}>{s.name}</SubjectPill>)}
-        </div>
-      )}
+      <RecordTags tags={bookTags(b)} kind="book" />
 
-      <div className="f-metagrid" style={desktop ? { marginBottom: 22 } : undefined}>
+      <div className="f-metagrid" style={{ marginBottom: 22 }}>
         {meta.map(([k, v]) => (
           <div className="f-metacell" key={k}>
             <div className="k">{k}</div>
@@ -124,19 +115,19 @@ function RecordBody({ entry, desktop, theirs, onSaved }: BodyProps) {
 
       {b.description && (
         <>
-          <div className="f-label" style={{ marginBottom: desktop ? 9 : 8 }}>About</div>
-          <p style={{ fontSize: 13.5, color: 'var(--ink-soft)', lineHeight: 1.55, margin: `0 0 ${desktop ? 22 : 16}px`, textWrap: 'pretty' }}>{clip(b.description, 600)}</p>
+          <div className="f-label" style={{ marginBottom: 9 }}>About</div>
+          <p style={{ fontSize: 13.5, color: 'var(--ink-soft)', lineHeight: 1.55, margin: '0 0 22px', textWrap: 'pretty' }}>{clip(b.description, 600)}</p>
         </>
       )}
 
-      <div className="f-label" style={{ margin: desktop ? '0 0 9px' : '4px 0 8px' }}>Find this edition</div>
-      <div className="f-links" style={desktop ? { marginBottom: 24 } : undefined}>
+      <div className="f-label" style={{ marginBottom: 9 }}>Find this edition</div>
+      <div className="f-links" style={{ marginBottom: 24 }}>
         {editionLinks(b).map((l) => (
           <a key={l.label} href={l.href} target="_blank" rel="noreferrer" className="f-link">{l.label}<Icon name="external" size={11} /></a>
         ))}
       </div>
 
-      {desktop && entry.added_by && <div className="f-label" style={{ marginBottom: entry.can_edit ? 8 : 18 }}>Added by @{entry.added_by}</div>}
+      {entry.added_by && <div className="f-label" style={{ marginBottom: entry.can_edit ? 8 : 18 }}>Added by @{entry.added_by}</div>}
       {entry.can_edit && <EditDetailsLink bookId={b.id} />}
 
       {theirs && !mine && theirs.entry.log && showsLog(theirs.entry.status) && (
@@ -155,7 +146,7 @@ function RecordBody({ entry, desktop, theirs, onSaved }: BodyProps) {
       )}
 
       {mine
-        ? <ShelfEditor key={mine.id} mine={mine} title={b.title} sharePhoto={myPhotos} linkTitle={title} onStatus={(s) => { setDraftStatus(s); setPop(true); setTimeout(() => setPop(false), 400) }} onSaved={onSaved} />
+        ? <ShelfEditor key={mine.id} mine={mine} title={b.title} sharePhoto={myPhotos} linkTitle={title} onStatus={(s) => { setDraftStatus(s); setPop(true); setTimeout(() => setPop(false), 400) }} onSaved={onClose} />
         : <ShelfAction entry={entry} />}
     </>
   )
