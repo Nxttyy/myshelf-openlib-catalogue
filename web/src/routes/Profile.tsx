@@ -4,12 +4,12 @@
    (folio/films.jsx FilmProfile) under the same header. */
 
 import { useEffect, useRef, useState } from 'react'
-import { Navigate, useLocation, useNavigate, useParams } from 'react-router'
+import { Navigate, useLocation, useParams } from 'react-router'
 import { ApiError } from '../api/client'
 import { initials, useMe } from '../api/me'
 import { useMyFilms, usePublicFilms, useUpdateFilmEntry } from '../api/films'
-import { useLogout, useMyShelf, usePublicProfile } from '../api/queries'
-import { useSetProfileVisibility, useSetUsername, useUpdateShelfEntry } from '../api/shelf'
+import { useMyShelf, usePublicProfile } from '../api/queries'
+import { useSetUsername, useUpdateShelfEntry } from '../api/shelf'
 import type { FilmShelfCounts, FilmShelfEntry, Haul, ShelfCounts, ShelfEntry, ShelfOwner } from '../api/types'
 import { FilmList, FilmRows, FilmShelf } from '../components/FilmViews'
 import { Icon } from '../components/Icon'
@@ -303,14 +303,13 @@ function DesktopHeader({ owner, mine }: { owner: ShelfOwner; mine: boolean }) {
           {mine ? <HandleEditor handle={owner.handle} /> : <>@{owner.handle}</>} · {shortUrl(owner.handle)}
         </div>
       </div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-        {mine && <VisibilityToggle isPublic={owner.is_profile_public} size="desktop" />}
+      {/* your own visibility, share link and sign out live in the account menu */}
+      {!mine && (
         <div className="d-share-wrap">
           <button className="f-btn f-btn--ghost" onClick={() => setShare((s) => !s)} aria-expanded={share}><Icon name="share" size={16} /> Share</button>
           {share && <ProfileSharePopover owner={owner} mine={mine} onClose={() => setShare(false)} />}
         </div>
-        {mine && <SignOutButton />}
-      </div>
+      )}
     </div>
   )
 }
@@ -341,7 +340,7 @@ function MobileHeader({ owner, mine, stats }: { owner: ShelfOwner; mine: boolean
             {mine ? <HandleEditor handle={owner.handle} /> : <>@{owner.handle}</>}
           </div>
         </div>
-        <button className="f-iconbtn" aria-label="Share profile" onClick={onShare}><Icon name="share" size={20} sw={1.7} /></button>
+        {!mine && <button className="f-iconbtn" aria-label="Share profile" onClick={onShare}><Icon name="share" size={20} sw={1.7} /></button>}
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 1, background: 'var(--hair)', border: '1px solid var(--hair)', borderRadius: 10, overflow: 'hidden', marginTop: 20 }}>
@@ -353,61 +352,7 @@ function MobileHeader({ owner, mine, stats }: { owner: ShelfOwner; mine: boolean
         ))}
       </div>
 
-      {mine && (
-        <>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 18, gap: 12 }}>
-            <div>
-              <div style={{ fontSize: 14, fontWeight: 600, letterSpacing: '-0.01em' }}>Shelf visibility</div>
-              <div style={{ fontSize: 12, color: 'var(--ink-faint)', marginTop: 1 }}>
-                {owner.is_profile_public ? 'Anyone with the link can see your public books and films' : 'Only you can see your shelf'}
-              </div>
-            </div>
-            <VisibilityToggle isPublic={owner.is_profile_public} size="mobile" />
-          </div>
-          <SignOutButton block />
-        </>
-      )}
     </div>
-  )
-}
-
-function VisibilityToggle({ isPublic, size }: { isPublic: boolean; size: 'desktop' | 'mobile' }) {
-  const set = useSetProfileVisibility()
-  const toast = useToast()
-  const pad = size === 'desktop' ? '8px 13px' : '7px 11px'
-  return (
-    <div role="group" aria-label="Shelf visibility" style={{ display: 'flex', background: 'var(--paper-2)', borderRadius: 8, padding: 3, gap: 2, flexShrink: 0 }}>
-      {([['public', true], ['only me', false]] as const).map(([label, v]) => {
-        const on = isPublic === v
-        return (
-          <button key={label} aria-pressed={on} onClick={() => !on && set.mutate(v, {
-            onSuccess: () => toast(v ? 'Your shelf is public.' : 'Your shelf is private.'),
-            onError: () => toast("Couldn't change that. Try again.", 'err'),
-          })} style={{
-            border: 'none', cursor: 'pointer', borderRadius: 6, padding: pad, fontFamily: 'var(--font-mono)',
-            fontSize: size === 'desktop' ? 10.5 : 10, letterSpacing: '0.06em', textTransform: 'uppercase',
-            background: on ? 'var(--ink)' : 'transparent', color: on ? 'var(--paper)' : 'var(--ink-soft)',
-            transition: 'all 120ms var(--ease-out)',
-          }}>{label}</button>
-        )
-      })}
-    </div>
-  )
-}
-
-function SignOutButton({ block }: { block?: boolean }) {
-  const logout = useLogout()
-  const toast = useToast()
-  const navigate = useNavigate()
-  return (
-    <button className={'f-btn f-btn--ghost' + (block ? ' f-btn--block' : '')} style={block ? { marginTop: 18 } : undefined}
-      disabled={logout.isPending}
-      onClick={() => logout.mutate(undefined, {
-        onSuccess: () => { toast('Signed out.'); navigate('/', { replace: true }) },
-        onError: () => toast("Couldn't sign out. Try again.", 'err'),
-      })}>
-      <Icon name="logout" size={17} /> Sign out
-    </button>
   )
 }
 

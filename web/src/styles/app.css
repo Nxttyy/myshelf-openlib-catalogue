@@ -22,9 +22,9 @@
   --ink-blue-2: #2A2822;
   --ink-blue-3: #3D3A32;
 
-  /* bottom tab bar: 7px top pad + 55px of tab + the bottom pad */
-  --tabbar-pad-b: max(22px, env(safe-area-inset-bottom));
-  --tabbar-h: calc(62px + var(--tabbar-pad-b));
+  /* bottom tabs (.mob-tabs): 1px rule + 8px top pad + 55.5px of tab + the bottom pad */
+  --tabbar-pad-b: max(26px, env(safe-area-inset-bottom));
+  --tabbar-h: calc(64.5px + var(--tabbar-pad-b));
 }
 :root.th-night {
   --accent: #F0714D;
@@ -59,42 +59,43 @@ html::-webkit-scrollbar-track { background: var(--paper); }
 
 /* Overlays were absolute inside the frame; pin them to the viewport. */
 .d-scrim, .d-drawer, .d-dialog, .d-lightbox, .d-camsheet,
-.f-scrim, .f-sheet, .d-toastwrap, .f-toastwrap { position: fixed; }
+.f-scrim, .f-sheet, .d-toastwrap, .f-toastwrap, .inst-scrim, .inst-sheet { position: fixed; }
 
-/* ── Desktop ───────────────────────────────────────────────── */
-.d-nav { position: sticky; top: 0; }
+/* ── Top: navbar + install banner ──────────────────────────── */
+/* In the design these sit above the scrolling body, so they never scroll
+   away; with the window scrolling, they stick, on an opaque paper strip so
+   the page doesn't show through the gap under the banner. */
+.app-top { position: sticky; top: 0; z-index: 30; background: var(--paper); padding-bottom: 1px; }
+.app-top .d-nav { position: relative; }
+.app-top:has(.inst) { padding-bottom: 0; }
 
-/* ── Phone ─────────────────────────────────────────────────── */
-.m-header {
-  position: sticky; top: 0; z-index: 30;
-  padding-top: calc(env(safe-area-inset-top) + 8px);
-  background: color-mix(in srgb, var(--paper) 92%, transparent); backdrop-filter: blur(8px);
-}
-.m-avatar {
-  width: 30px; height: 30px; border-radius: 6px; background: var(--ink-blue);
-  color: var(--paper); display: grid; place-items: center;
-  font-family: var(--font-mono); font-size: 11px; font-weight: 600; letter-spacing: 0.02em;
-}
-.f-tabbar {
-  position: fixed; left: 0; right: 0; bottom: 0; z-index: 30;
+/* ── Phone (.mob) ──────────────────────────────────────────── */
+/* The design's phone frame has a 54px status bar above the nav and a home
+   indicator under the tabs; a real phone gives us safe-area insets instead. */
+.mob .d-nav { padding-top: calc(env(safe-area-inset-top) + 12px); }
+.mob-tabs {
+  position: fixed; left: 0; right: 0; bottom: 0;
   padding-bottom: var(--tabbar-pad-b);
 }
-/* below the header and its Books / Films switch */
-.f-toastwrap { top: calc(env(safe-area-inset-top) + 114px); }
-
-@media (max-width: 899.98px) {
-  .d-nav { display: none; }
-  /* phone screens carry their own 18px gutters, as in the mobile design,
-     so strips like Recently added can run edge to edge */
-  .d-wrap { padding: 0; }
-  .d-scroll { padding-bottom: var(--tabbar-h); }
+.mob-tabs a {
+  display: flex; flex-direction: column; align-items: center; gap: 5px; padding: 6px 0;
+  color: var(--ink-faint); text-decoration: none; -webkit-tap-highlight-color: transparent;
+  font: 500 9.5px/1 var(--font-mono); letter-spacing: .08em; text-transform: uppercase;
 }
-@media (min-width: 900px) {
-  .m-header, .f-tabbar { display: none; }
-}
+.mob-tabs a.on { color: var(--ink); }
+.mob-tabs a.on::after { content: ""; width: 16px; height: 2px; border-radius: 1px; background: var(--amber); margin-top: 1px; }
+.th-night .mob-tabs a { color: var(--ink-faint); }
+.th-night .mob-tabs a.on { color: var(--ink); }
+.mob .d-scroll { padding-bottom: var(--tabbar-h); }
+/* Until the pages move to the shared layout, phone pages still carry their
+   own 18px gutters (as in the old mobile design), so strips like Recently
+   added run edge to edge. */
+.mob .d-wrap { padding: 0; }
+/* below the nav and its Books / Films switch */
+.f-toastwrap { top: calc(env(safe-area-inset-top) + 118px); }
 
 /* Router links styled as the design's buttons (the design uses <button>). */
-a.d-navlink, a.f-btn, a.f-iconbtn, a.f-tab, a.d-avatar, a.home-link { text-decoration: none; }
+a.d-navlink, a.f-btn, a.f-iconbtn, a.d-avatar, a.home-link { text-decoration: none; }
 a.f-btn { display: inline-flex; line-height: normal; } /* as <button>: no inherited line-height */
 /* The design's nav links are <button>s, which centre their content
    vertically; as links they'd sit at the top of the stretched flex item. */
@@ -102,8 +103,8 @@ a.d-navlink { display: flex; flex-direction: column; justify-content: center; li
 /* The dark theme colours every <a> with the accent (v2.css `.th-night a`),
    which outranks these classes. Give back the colours of the ones that are
    buttons in the design. */
-.th-night a.d-navlink, .th-night a.f-tab { color: var(--ink-faint); }
-.th-night a.d-navlink:is(:hover, .on), .th-night a.f-tab.active { color: var(--ink); }
+.th-night a.d-navlink { color: var(--ink-faint); }
+.th-night a.d-navlink:is(:hover, .on) { color: var(--ink); }
 .th-night a.f-btn--ink { color: var(--paper); }
 .th-night a:is(.f-btn--ghost, .f-iconbtn, .au-google, .au-link) { color: var(--ink); }
 .th-night a.t-linkbtn { color: var(--ink-blue); }

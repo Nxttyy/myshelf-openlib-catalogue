@@ -1,4 +1,5 @@
-import { useSyncExternalStore } from 'react'
+import { useEffect, useSyncExternalStore } from 'react'
+import { useIsDesktop } from './useMediaQuery'
 
 // Light or dark, from the design's account menu ("Theme: Light / Dark"):
 // "Dora brand: light" is `th-brand`, "Dora brand: dark" adds `th-night`.
@@ -45,3 +46,12 @@ export function useTheme(): [Theme, (t: Theme) => void] {
 }
 
 apply(current)
+
+/** Phone layout (below 900px): the design's `.mob` class, which the caller
+    puts on its shell. It goes on <html> too, for anything rendered outside
+    the shell (toasts, portals). */
+export function useMobileShell() {
+  const mob = !useIsDesktop()
+  useEffect(() => { document.documentElement.classList.toggle('mob', mob) }, [mob])
+  return mob
+}

@@ -1,10 +1,13 @@
-/* App shell. Desktop (>=900px) gets the design's top navbar; phones get the
-   mobile design's header and bottom tab bar. Both render, CSS picks one
-   (see styles/app.css), so a resize never remounts the page underneath. */
+/* App shell, from the design's desktop-app-v2.jsx: one navbar for every
+   screen size, with the install banner under it. Below 900px the shell gets
+   the design's `.mob` class (styles/mobile.css reflows the same components
+   for a phone) and the bottom tabs. */
 
 import { lazy, Suspense, useEffect } from 'react'
-import { Link, NavLink, Outlet, ScrollRestoration, useLocation, useMatches, useSearchParams } from 'react-router'
-import { initials, useMe, type Me } from '../api/me'
+import { Link, NavLink, Outlet, ScrollRestoration, useLocation, useSearchParams } from 'react-router'
+import { useMe, type Me } from '../api/me'
+import { AccountMenu } from '../components/AccountMenu'
+import { InstallBanner, InstallSheet } from '../components/InstallApp'
 import { Icon } from '../components/Icon'
 import type { IconName } from '../components/icons'
 import { BookOverlay } from '../components/BookRecord'
@@ -15,7 +18,7 @@ import { Logo } from '../components/Logo'
 import { MediaTabs } from '../components/MediaTabs'
 import { useOpenAdd } from '../lib/overlay'
 import { useSplashDone } from '../lib/splash'
-import { themeClass, useTheme } from '../lib/theme'
+import { themeClass, useMobileShell, useTheme } from '../lib/theme'
 import { pageImports } from '../router'
 
 // The add dialog (scanner, search, by-hand form) loads on first open, or
@@ -41,11 +44,14 @@ type ShellProps = { me: Me | null | undefined; queueCount: number; onAdd: () => 
 
 const NAV: [string, string][] = [['/', 'Home'], ['/explore', 'Explore'], ['/guide', 'Guide']]
 
+/** The design's navbar. On phones (.mob, styles/mobile.css) the same bar
+    wraps: logo, add, avatar, then Books / Films full width; the page links
+    move to the bottom tabs. */
 function Navbar({ me, queueCount, onAdd, media }: ShellProps) {
   const links = me ? [...NAV, ['/profile', 'Profile'] as [string, string]] : NAV
   return (
     <div className="d-nav">
-      <Link to="/" aria-label="Dora home" className="home-link"><Logo size={21} /></Link>
+      <Link to={mediaPath('/', media)} aria-label="Dora home" className="home-link"><Logo size={21} /></Link>
       <nav className="d-navlinks">
         {links.map(([to, label]) => (
           <NavLink key={to} to={to === '/guide' ? to : mediaPath(to, media)} end={to === '/'} className={({ isActive }) => 'd-navlink' + (isActive ? ' on' : '')}>
@@ -60,53 +66,25 @@ function Navbar({ me, queueCount, onAdd, media }: ShellProps) {
         {queueCount > 0 && <span className="badge">{queueCount}</span>}
       </button>
       {me
-        ? <Link to={mediaPath('/profile', media)} className="d-avatar" aria-label="Your profile">{initials(me)}</Link>
+        ? <AccountMenu me={me} media={media} />
         : <Link to="/login" className="f-btn f-btn--ink">Sign in</Link>}
     </div>
   )
 }
 
-function MobileHeader({ me, queueCount, onAdd, media }: ShellProps) {
-  const noSwitch = useMatches().some((m) => (m.handle as { noMediaSwitch?: boolean } | undefined)?.noMediaSwitch)
-  return (
-    <div className="m-header">
-      <div className="f-header">
-        <Link to="/" aria-label="Dora home" className="home-link"><Logo /></Link>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-          <button className="f-iconbtn" onClick={onAdd} aria-label={media === 'films' ? 'Add film' : 'Add book'}>
-            <Icon name="plus" size={22} sw={1.8} />
-            {queueCount > 0 && <span className="badge">{queueCount}</span>}
-          </button>
-          {me
-            ? <Link to={mediaPath('/profile', media)} className="f-iconbtn" aria-label="Your profile"><span className="m-avatar">{initials(me)}</span></Link>
-            : <Link to="/login" className="f-btn f-btn--ink">Sign in</Link>}
-        </div>
-      </div>
-      {!noSwitch && <div className="m-switchbar"><MediaTabs wide /></div>}
-    </div>
-  )
-}
-
-const TABS: { id: string; to: string; label: string; icon: IconName }[] = [
-  { id: 'home', to: '/', label: 'Home', icon: 'home' },
-  { id: 'explore', to: '/explore', label: 'Explore', icon: 'compass' },
-  { id: 'profile', to: '/profile', label: 'Profile', icon: 'user' },
-]
-
-function TabBar({ me, media }: { me: Me | null | undefined; media: Media }) {
+/** Phones: Home, Explore, and Profile once you're signed in. */
+function MobileTabs({ me, media }: { me: Me | null | undefined; media: Media }) {
   const { pathname } = useLocation()
-  // Pages without a tab of their own (guide, 404, ...) light up Home, as in the design.
-  const active = pathname.startsWith('/explore') ? 'explore' : pathname.startsWith('/profile') ? 'profile' : 'home'
+  const active = pathname === '/' ? 'home' : pathname.startsWith('/explore') ? 'explore' : pathname.startsWith('/profile') ? 'profile' : null
+  const tabs: [string, string, string, IconName][] = [['home', '/', 'Home', 'home'], ['explore', '/explore', 'Explore', 'compass']]
+  if (me) tabs.push(['profile', '/profile', 'Profile', 'user'])
   return (
-    <nav className="f-tabbar">
-      {TABS.map((t) => {
-        const on = active === t.id
-        const to = t.id === 'profile' && !me ? '/login' : mediaPath(t.to, media)
+    <nav className="mob-tabs">
+      {tabs.map(([id, to, label, icon]) => {
+        const on = active === id
         return (
-          <Link key={t.id} to={to} className={'f-tab' + (on ? ' active' : '')} aria-current={on ? 'page' : undefined}>
-            <Icon name={t.icon} size={22} sw={on ? 2 : 1.6} />
-            <span>{t.label}</span>
-            <span className="dot" />
+          <Link key={id} to={mediaPath(to, media)} className={on ? 'on' : ''} aria-current={on ? 'page' : undefined}>
+            <Icon name={icon} size={21} sw={on ? 2 : 1.6} /><span>{label}</span>
           </Link>
         )
       })}
@@ -126,13 +104,17 @@ export default function AppLayout() {
   const queueCount = media === 'films' ? filmQueue : bookQueue
   const [theme] = useTheme()
   useSplashDone()
+  const mob = useMobileShell()
 
   return (
-    <div className={'d-app f-grain kc ' + themeClass(theme) + ' v2'}>
-      <Navbar me={me} queueCount={queueCount} onAdd={onAdd} media={media} />
-      <MobileHeader me={me} queueCount={queueCount} onAdd={onAdd} media={media} />
+    <div className={'d-app f-grain kc ' + themeClass(theme) + ' v2' + (mob ? ' mob' : '')}>
+      <header className="app-top">
+        <Navbar me={me} queueCount={queueCount} onAdd={onAdd} media={media} />
+        <InstallBanner mobile={mob} />
+      </header>
       <main className="d-scroll"><div className="d-wrap"><Outlet /></div></main>
-      <TabBar me={me} media={media} />
+      {mob && <MobileTabs me={me} media={media} />}
+      <InstallSheet mobile={mob} />
       <BookOverlay />
       {params.has('add') && <Suspense fallback={null}><AddOverlay /></Suspense>}
       {params.has('film') && <Suspense fallback={null}><FilmOverlay /></Suspense>}
