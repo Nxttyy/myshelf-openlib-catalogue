@@ -11,10 +11,14 @@ import { useRecentBooks } from '../../api/queries'
 import { Icon } from '../../components/Icon'
 import { Logo } from '../../components/Logo'
 import { coverFromBook, jacketFor, PALETTES, type PaletteName } from '../../lib/covers'
+import { useSplashDone } from '../../lib/splash'
+import { themeClass, useTheme } from '../../lib/theme'
 import { useIsDesktop } from '../../lib/useMediaQuery'
 
 export default function AuthLayout() {
   const isDesktop = useIsDesktop()
+  const [theme] = useTheme()
+  useSplashDone()
   const { pathname } = useLocation()
   const navigate = useNavigate()
   // Links between auth pages replace the history entry, so one step back
@@ -33,7 +37,7 @@ export default function AuthLayout() {
 
   if (isDesktop) {
     return (
-      <div className="d-app f-grain kc th-navy auth-page">
+      <div className={'d-app f-grain kc ' + themeClass(theme) + ' v2 auth-page'}>
         <div className="au-d">
           <div className="au-art">
             <AuthWall w={118} cols={5} /><div className="au-scrim" />
@@ -56,7 +60,7 @@ export default function AuthLayout() {
   }
 
   return (
-    <div className="folio-screen au-m th-navy auth-page">
+    <div className={'folio-screen au-m ' + themeClass(theme) + ' v2 auth-page'}>
       <div className={'au-m-band' + (pathname === '/login' ? '' : ' sm')}>
         <AuthWall w={70} cols={6} /><div className="au-scrim" />
         <div className="au-m-bar">

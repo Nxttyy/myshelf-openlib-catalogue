@@ -14,6 +14,8 @@ import { useQueue } from '../lib/queue'
 import { Logo } from '../components/Logo'
 import { MediaTabs } from '../components/MediaTabs'
 import { useOpenAdd } from '../lib/overlay'
+import { useSplashDone } from '../lib/splash'
+import { themeClass, useTheme } from '../lib/theme'
 import { pageImports } from '../router'
 
 // The add dialog (scanner, search, by-hand form) loads on first open, or
@@ -122,9 +124,11 @@ export default function AppLayout() {
   const bookQueue = useQueue().items.length
   const filmQueue = useFilmQueue().items.length
   const queueCount = media === 'films' ? filmQueue : bookQueue
+  const [theme] = useTheme()
+  useSplashDone()
 
   return (
-    <div className="d-app f-grain kc th-navy">
+    <div className={'d-app f-grain kc ' + themeClass(theme) + ' v2'}>
       <Navbar me={me} queueCount={queueCount} onAdd={onAdd} media={media} />
       <MobileHeader me={me} queueCount={queueCount} onAdd={onAdd} media={media} />
       <main className="d-scroll"><div className="d-wrap"><Outlet /></div></main>

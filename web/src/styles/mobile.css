@@ -1,0 +1,103 @@
+/* Dora · mobile layout of the desktop v2 app (same components, reflowed for 402px).
+   Scoped to .d-app.mob — desktop is untouched. */
+
+/* nav: logo · add · avatar, then Books/Films full width; page links move to the bottom tab bar */
+.mob .d-nav{flex-wrap:wrap;height:auto;padding:54px 16px 12px;gap:12px 10px;backdrop-filter:none}
+.mob .d-navlinks{display:none}
+.mob .d-nav .m-switch,.mob .d-nav .d-mtabs,.mob .d-nav .d-media{order:10;flex:1 1 100%;display:grid;margin:0}
+.mob .d-nav .m-switch button{height:38px}
+.mob .d-addbtn{padding:9px 13px!important;font-size:13px}
+.mob .d-acct{right:-4px;width:272px}
+.mob .d-share-pop{right:-4px;width:300px}
+
+/* bottom tabs */
+.mob-tabs{flex-shrink:0;display:grid;grid-auto-flow:column;grid-auto-columns:1fr;padding:8px 10px 26px;border-top:1px solid var(--hair);background:var(--paper);position:relative;z-index:30}
+.mob-tabs button{display:flex;flex-direction:column;align-items:center;gap:5px;border:0;background:none;cursor:pointer;padding:6px 0;color:var(--ink-faint);font:500 9.5px/1 var(--font-mono);letter-spacing:.08em;text-transform:uppercase}
+.mob-tabs button.on{color:var(--ink)}
+.mob-tabs button.on::after{content:"";width:16px;height:2px;border-radius:1px;background:var(--amber);margin-top:1px}
+
+/* page frame */
+.mob .d-wrap{padding:22px 18px 40px}
+.mob .d-bignum{font-size:84px}
+.mob .d-masthead{flex-direction:column;align-items:flex-start;gap:18px}
+.mob .d-masthead h1{font-size:32px!important}
+.mob .d-filters{flex-wrap:wrap}
+
+/* shelf: two across, covers sized to the column */
+.mob.v2 .d-grid,.mob .d-grid{grid-template-columns:repeat(2,minmax(0,1fr));justify-content:stretch;gap:30px 14px}
+.mob.v2 .d-cell>:not(.meta):not(.d-bubble):not(.d-pin){zoom:1.04}
+.mob .d-cell .ttl{font-size:14px}
+.mob .d-pin{opacity:1;transform:none;width:30px;height:30px}
+.mob .d-bubble{display:none}
+
+/* profile */
+.mob .d-pf-head{flex-wrap:wrap;gap:14px!important;margin-bottom:18px!important}
+.mob .d-pf-av{width:60px!important;height:60px!important;font-size:24px!important}
+.mob .d-pf-head h1{font-size:22px!important}
+.mob .d-pf-head h1+div{font-size:11.5px!important}
+.mob .d-pf-search{flex:1 1 100%}
+.mob .d-pf-stats{grid-template-columns:repeat(2,1fr)!important;margin-bottom:20px!important}
+.mob .d-pf-stat{padding:14px 14px!important}
+.mob .d-pf-stat .d-bignum{font-size:34px!important}
+.mob .tf{margin-bottom:22px}
+.mob .tf-top{flex-wrap:wrap;gap:8px}
+.mob .d-viewseg button{padding:7px 10px}
+
+/* film list view: poster · title · status */
+.mob .d-flist .hd,.mob .d-flist .rw{grid-template-columns:34px minmax(0,1fr) auto;gap:12px}
+.mob .d-flist .hd>:nth-child(3),.mob .d-flist .hd>:nth-child(4),.mob .d-flist .hd>:nth-child(5),.mob .d-flist .hd>:nth-child(7),
+.mob .d-flist .rw>:nth-child(3),.mob .d-flist .rw>:nth-child(4),.mob .d-flist .rw>:nth-child(5),.mob .d-flist .rw>:nth-child(7){display:none}
+
+/* hauls */
+.mob .d-haul{gap:0 12px}
+.mob .d-haul .pile{padding-right:40px}
+
+/* record drawer → full-screen sheet */
+.mob .d-drawer{width:100%;min-width:0;animation:mob-up var(--duration-slow) var(--ease-out)}
+@keyframes mob-up{from{transform:translateY(100%)}}
+.mob .d-drawer-head{padding:52px 18px 12px}
+.mob .d-drawer-body{padding:20px 18px 40px}
+.mob .dh{margin:-20px -18px 22px;padding:0 18px 4px}
+.mob .dh .band{height:250px}
+.mob .dh .head{height:96px;align-items:flex-end;padding-bottom:10px}
+.mob .dh .row{grid-template-columns:136px minmax(0,1fr);gap:16px}
+.mob .dh .cov{zoom:.654}
+.mob .dh .row h2{font-size:23px!important}
+.mob .f-metagrid{grid-template-columns:1fr 1fr}
+.mob .d-scores .d-bignum{font-size:30px}
+
+/* add dialog → full screen, single column */
+.mob .d-dialog{top:0;left:0;transform:none;width:100%;max-width:100%;height:100%;max-height:100%;border-radius:0;padding-top:44px;animation:mob-up var(--duration-slow) var(--ease-out)}
+.mob .d-dialog-cols{grid-template-columns:1fr;overflow-y:auto}
+.mob .d-dialog-left{border-right:0;border-bottom:1px solid var(--hair);overflow:visible}
+.mob .d-dialog-right{overflow:visible;min-height:auto}
+.mob .d-dialog .f-seg{max-width:none!important}
+.mob .d-dialog>div:first-child{padding:16px 18px 12px!important}
+.mob .d-dialog-left,.mob .d-dialog-right{padding:8px 18px 22px}
+.mob .d-camsheet{width:calc(100% - 28px)}
+
+/* landing, guide, colophon, footer */
+.mob .d-hero{grid-template-columns:1fr;gap:12px;min-height:0}
+.mob .d-hero>.d-fan{order:-1}
+.mob .d-hero h1{font-size:40px}
+.mob .d-fan{height:300px;zoom:.62;margin:0 auto;width:420px}
+.mob .d-colophon{grid-template-columns:1fr;gap:20px;padding:36px 0}
+.mob .d-colophon .aside .mark{font-size:56px}
+.mob .d-footer{flex-direction:column;gap:28px}
+.mob .d-footer .cols{gap:36px}
+.mob .d-guide-hd h1{font-size:36px}
+.mob .d-guide-grid{grid-template-columns:1fr}
+.mob .d-guide-step{padding:22px 20px}
+.mob .d-404-min .big{font-size:72px}
+.mob .d-toastwrap{top:56px;width:calc(100% - 28px)}
+
+/* auth: desktop split reflows to a band + form on phones */
+.mob .au-d{display:flex;flex-direction:column;padding:0;overflow-y:auto}
+.mob .au-art{flex:none;height:230px;border-radius:0}
+.mob .au-art-top{padding:58px 20px 0}
+.mob .au-art-copy{padding:0 20px 18px}
+.mob .au-art-copy h2{font-size:28px!important}
+.mob .au-art-copy p{display:none}
+.mob .au-d-main{flex:1;min-width:0;padding:16px 20px 34px}
+.mob .au-d-center{align-items:flex-start;overflow:visible;padding:8px 0 0}
+.mob .au-kbd{display:none}

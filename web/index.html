@@ -1,12 +1,59 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="th-brand">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="theme-color" content="#F5F0E6" />
+    <meta name="theme-color" content="#0E0D0B" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Dora" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32.png" />
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+    <link rel="preload" href="/fonts/big-shoulders-display-latin.woff2" as="font" type="font/woff2" crossorigin />
     <title>Dora</title>
+    <script>
+      // Light or dark before first paint (lib/theme.ts owns it after that).
+      try { if (localStorage.getItem('dora-theme') === 'dark') document.documentElement.classList.add('th-night') } catch (e) {}
+    </script>
+    <style>
+      html { background: #F3EDE0; }
+      html.th-night { background: #0E0D0B; }
+    </style>
   </head>
   <body>
+    <script>
+      // Dora launch splash, from the design's folio/splash.js: the book opens
+      // into the D, the lit page pops, it closes, repeat. It covers the page
+      // while the app downloads; the app calls DoraSplashDone() once it has
+      // drawn (lib/splash.ts), and the splash fades after at least 1.5s.
+      (function () {
+        const N = 9, GAP = 6, R0 = 14, R1 = 38, DA = (180 - GAP * (N - 1)) / N, LIT = 4;
+        const P = (r, a) => { const t = a * Math.PI / 180; return (32 + r * Math.cos(t)).toFixed(2) + ' ' + (50 + r * Math.sin(t)).toFixed(2); };
+        const wedge = a => `M${P(R0, a)} L${P(R1, a)} A${R1} ${R1} 0 0 1 ${P(R1, a + DA)} L${P(R0, a + DA)} A${R0} ${R0} 0 0 0 ${P(R0, a)} Z`;
+        function mark(size) {
+          let a = -90, pages = '';
+          for (let i = 0; i < N; i++) { const c = a + DA / 2; pages += `<path class="pg${i === LIT ? ' lit' : ''}" style="--r:${(-c * .93).toFixed(1)}deg;--d:${i * 45}ms" d="${wedge(a)}"/>`; a += DA + GAP; }
+          return `<svg width="${size}" height="${size}" viewBox="-8 -2 104 104" aria-hidden="true"><rect class="sp" x="17.8" y="12.8" width="15" height="74.4" rx="1.5"/>${pages}</svg>`;
+        }
+        const css = `@font-face{font-family:'Big Shoulders Display';font-style:normal;font-weight:500 800;font-display:swap;src:url('/fonts/big-shoulders-display-latin.woff2') format('woff2')}
+.dsp{position:fixed;inset:0;z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;background:#F3EDE0;color:#0E0D0B;transition:opacity 320ms cubic-bezier(.2,0,0,1)}
+.dsp.out{opacity:0;pointer-events:none}
+.dsp svg{overflow:visible}
+.dsp .sp,.dsp .pg{fill:currentColor;stroke:currentColor;stroke-width:1.6;stroke-linejoin:round}
+.dsp .pg{transform-box:view-box;transform-origin:32px 50px;animation:dsp-open 2.4s cubic-bezier(.65,0,.35,1) infinite;animation-delay:var(--d)}
+.dsp .pg.lit{fill:#E8673F;stroke:#E8673F;animation-name:dsp-lit}
+.dsp .wm{font:700 22px/1 'Big Shoulders Display',system-ui,sans-serif;letter-spacing:.22em;text-transform:uppercase;padding-left:.22em;opacity:.9}
+@keyframes dsp-open{0%,8%{transform:rotate(var(--r))}42%,86%{transform:rotate(0)}100%{transform:rotate(var(--r))}}
+@keyframes dsp-lit{0%,8%{transform:rotate(var(--r))}42%{transform:rotate(0)}54%,78%{transform:translate(6px,-1px) rotate(-8deg)}86%{transform:rotate(0)}100%{transform:rotate(var(--r))}}
+@media (prefers-reduced-motion:reduce){.dsp .pg{animation:none}.dsp .pg.lit{transform:translate(6px,-1px) rotate(-8deg)}}`;
+        const st = document.createElement('style'); st.textContent = css; document.head.appendChild(st);
+        const el = document.createElement('div'); el.className = 'dsp'; el.id = 'dora-splash'; el.setAttribute('role', 'status'); el.setAttribute('aria-label', 'Loading Dora');
+        el.innerHTML = mark(120) + '<span class="wm">Dora</span>'; document.body.appendChild(el);
+        const t0 = performance.now();
+        window.DoraSplashDone = () => { window.DoraSplashDone = () => {}; const wait = Math.max(0, 1500 - (performance.now() - t0)); setTimeout(() => { el.classList.add('out'); setTimeout(() => el.remove(), 360); }, wait); };
+      })();
+    </script>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

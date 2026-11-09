@@ -6,34 +6,47 @@
    collapses, and overlays stay put. Everything here exists to make that
    switch, plus the phone/desktop split. Breakpoint: 900px. */
 
-/* Theme: the design's default tweaks are "Navy + orange", which its app
-   shell applies to :root at runtime. The rest of the navy palette lives on
-   .th-navy in desktop.css. */
+/* Theme: the design's default tweaks are "Dora brand: light" with the
+   Schibsted font, which its app shell applies to :root at runtime; "Dora
+   brand: dark" swaps in the second set. The paper/ink palette lives on
+   .th-brand / .th-night.th-brand in v2.css; lib/theme.ts puts those classes
+   on <html> and on the app shell. */
 :root {
-  --accent: #F2842F;
-  --accent-hover: #E57722;
-  --accent-press: #D96E1C;
-  --accent-fg: #141B2E;
-  --ink-blue: #253C6D;
-  --ink-blue-deep: #1A2B52;
-  --ink-blue-2: #30497D;
-  --ink-blue-3: #455B8A;
+  --font-sans: 'Schibsted Grotesk', 'Inter Tight', system-ui, sans-serif;
+  --accent: #E8673F;
+  --accent-hover: #DC5C35;
+  --accent-press: #C9512D;
+  --accent-fg: #0E0D0B;
+  --ink-blue: #1E1D18;
+  --ink-blue-deep: #0E0D0B;
+  --ink-blue-2: #2A2822;
+  --ink-blue-3: #3D3A32;
 
   /* bottom tab bar: 7px top pad + 55px of tab + the bottom pad */
   --tabbar-pad-b: max(22px, env(safe-area-inset-bottom));
   --tabbar-h: calc(62px + var(--tabbar-pad-b));
 }
+:root.th-night {
+  --accent: #F0714D;
+  --accent-hover: #F38463;
+  --accent-press: #DE6240;
+  --accent-fg: #0E0D0B;
+  --ink-blue: #1E1D18;
+  --ink-blue-deep: #080807;
+  --ink-blue-2: #2A2822;
+  --ink-blue-3: #3D3A32;
+}
 
-html, body { margin: 0; background: #F5F0E6; }
+html, body { margin: 0; background: var(--paper); }
 #root { min-height: 100vh; min-height: 100dvh; }
 select.f-select { background-image: none; }
 
 /* The design scrolls inside the app (.d-scroll) with a slim 10px scrollbar;
    the real page scrolls the window, so give the window the same one. */
-html { scrollbar-width: thin; scrollbar-color: var(--hair-strong, rgba(37,60,109,0.3)) transparent; }
+html { scrollbar-width: thin; scrollbar-color: var(--hair-strong) transparent; }
 html::-webkit-scrollbar { width: 10px; }
-html::-webkit-scrollbar-thumb { background: rgba(37,60,109,0.3); border-radius: 6px; border: 3px solid #F5F0E6; }
-html::-webkit-scrollbar-track { background: #F5F0E6; }
+html::-webkit-scrollbar-thumb { background: var(--hair-strong); border-radius: 6px; border: 3px solid var(--paper); }
+html::-webkit-scrollbar-track { background: var(--paper); }
 
 /* ── Page scroll instead of the frame's inner scroll ───────── */
 .d-app {
@@ -55,7 +68,7 @@ html::-webkit-scrollbar-track { background: #F5F0E6; }
 .m-header {
   position: sticky; top: 0; z-index: 30;
   padding-top: calc(env(safe-area-inset-top) + 8px);
-  background: rgba(245,240,230,0.92); backdrop-filter: blur(8px);
+  background: color-mix(in srgb, var(--paper) 92%, transparent); backdrop-filter: blur(8px);
 }
 .m-avatar {
   width: 30px; height: 30px; border-radius: 6px; background: var(--ink-blue);
@@ -86,6 +99,14 @@ a.f-btn { display: inline-flex; line-height: normal; } /* as <button>: no inheri
 /* The design's nav links are <button>s, which centre their content
    vertically; as links they'd sit at the top of the stretched flex item. */
 a.d-navlink { display: flex; flex-direction: column; justify-content: center; line-height: normal; }
+/* The dark theme colours every <a> with the accent (v2.css `.th-night a`),
+   which outranks these classes. Give back the colours of the ones that are
+   buttons in the design. */
+.th-night a.d-navlink, .th-night a.f-tab { color: var(--ink-faint); }
+.th-night a.d-navlink:is(:hover, .on), .th-night a.f-tab.active { color: var(--ink); }
+.th-night a.f-btn--ink { color: var(--paper); }
+.th-night a:is(.f-btn--ghost, .f-iconbtn, .au-google, .au-link) { color: var(--ink); }
+.th-night a.t-linkbtn { color: var(--ink-blue); }
 
 /* Visible keyboard focus everywhere (the design only styles inputs). */
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
