@@ -41,7 +41,9 @@ def mount_web_app(app: FastAPI) -> bool:
         # Files at the root of dist (favicon and the like), never outside it.
         candidate = (dist / path).resolve()
         if path and candidate.is_file() and dist.resolve() in candidate.parents:
-            return FileResponse(candidate)
+            # Fonts are loaded cross-origin by the emails (their heading face).
+            cors = {"Access-Control-Allow-Origin": "*"} if candidate.suffix == ".woff2" else None
+            return FileResponse(candidate, headers=cors)
         # A real title and link-preview tags for shared profiles, books,
         # films and note photos (services/share.py).
         page = index

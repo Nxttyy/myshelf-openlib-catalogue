@@ -1,43 +1,55 @@
+/* Phone scanning page (templates/mobile_scan.html), in the app's "Dora
+   brand: light" look (web/src/styles/v2.css): bone paper, near-black ink,
+   vermilion accent, Big Shoulders Display for the title, Schibsted Grotesk
+   for text. Fonts load from the web app's public /fonts. */
+@font-face { font-family: 'Schibsted Grotesk'; font-style: normal; font-weight: 400 700; font-display: swap; src: url('/fonts/schibsted-grotesk-latin.woff2') format('woff2'); }
+@font-face { font-family: 'Big Shoulders Display'; font-style: normal; font-weight: 500 800; font-display: swap; src: url('/fonts/big-shoulders-display-latin.woff2') format('woff2'); }
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: #f4f4f5;
-            color: #18181b;
+            font-family: 'Schibsted Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            background: #F3EDE0;
+            color: #0E0D0B;
             height: 100dvh;
             display: flex;
             flex-direction: column;
             overflow: hidden;
         }
         .header {
-            background: #fff;
-            border-bottom: 1px solid #e4e4e7;
-            padding: 16px 20px;
+            background: #F3EDE0;
+            border-bottom: 3px double rgba(14,13,11,0.24);
+            padding: calc(env(safe-area-inset-top) + 14px) 18px 12px;
             display: flex;
             align-items: center;
             justify-content: space-between;
             flex-shrink: 0;
             z-index: 10;
         }
-        .header h1 { font-size: 1.1rem; font-weight: 600; }
+        .header h1 {
+            display: flex; align-items: center; gap: 10px;
+            font: 700 28px/1 'Big Shoulders Display', 'Arial Narrow', sans-serif;
+            text-transform: uppercase; letter-spacing: .02em;
+        }
+        .header .mark { flex-shrink: 0; }
         .count-badge {
-            background: #18181b;
-            color: #fff;
-            border-radius: 50%;
+            background: #E8673F;
+            color: #0E0D0B;
+            border-radius: 4px;
             width: 30px;
             height: 30px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.85rem;
-            font-weight: 700;
+            font: 700 22px/1 'Big Shoulders Display', 'Arial Narrow', sans-serif;
+            font-variant-numeric: tabular-nums;
         }
         #reader-wrap { padding: 16px; flex-shrink: 0; }
         #reader {
             width: 100%;
             height: min(42vh, 300px);
-            border-radius: 12px;
+            border-radius: 6px;
             overflow: hidden;
-            background: #000;
+            background: #0E0D0B;
             position: relative;
         }
         /* Keep the camera feed (native <video> or Quagga's injected video/canvas)
@@ -50,8 +62,8 @@
         }
         .hint {
             text-align: center;
-            font-size: 0.85rem;
-            color: #71717a;
+            font-size: 13.5px;
+            color: #787266;
             margin-top: 10px;
         }
         .scanned-list {
@@ -61,9 +73,9 @@
             padding: 0 16px 16px;
         }
         .scanned-item {
-            background: #fff;
-            border: 1px solid #e4e4e7;
-            border-radius: 10px;
+            background: #FBF7EE;
+            border: 1px solid rgba(14,13,11,0.11);
+            border-radius: 4px;
             padding: 12px 14px;
             margin-bottom: 8px;
             display: flex;
@@ -75,12 +87,12 @@
             width: 32px;
             height: 48px;
             object-fit: cover;
-            border-radius: 4px;
+            border-radius: 2px;
             flex-shrink: 0;
-            background: #eee;
+            background: #E8E0CF;
         }
-        .scanned-item .title { font-size: 0.9rem; font-weight: 600; }
-        .scanned-item .isbn { font-size: 0.78rem; color: #71717a; margin-top: 2px; }
+        .scanned-item .title { font-size: 14px; font-weight: 600; letter-spacing: -0.01em; }
+        .scanned-item .isbn { font-size: 11px; letter-spacing: .04em; color: #787266; margin-top: 2px; font-variant-numeric: tabular-nums; }
         @keyframes slideIn {
             from { opacity: 0; transform: translateY(-8px); }
             to { opacity: 1; transform: translateY(0); }
@@ -90,12 +102,13 @@
             top: 80px;
             left: 50%;
             transform: translateX(-50%);
-            background: #22c55e;
-            color: #fff;
-            padding: 10px 22px;
-            border-radius: 24px;
-            font-size: 0.9rem;
-            font-weight: 600;
+            background: rgba(40,52,40,0.94);
+            color: #DCEAD8;
+            padding: 11px 15px;
+            border-radius: 4px;
+            font-size: 13.5px;
+            font-weight: 500;
+            letter-spacing: -0.01em;
             opacity: 0;
             transition: opacity 0.2s;
             pointer-events: none;
@@ -103,15 +116,15 @@
             z-index: 100;
         }
         .toast.show { opacity: 1; }
-        .toast.error { background: #ef4444; }
+        .toast.error { background: rgba(52,32,30,0.95); color: #F2D8D2; }
         .done-bar {
             flex-shrink: 0;
-            background: #fff;
-            border-top: 1px solid #e4e4e7;
+            background: #F3EDE0;
+            border-top: 1px solid rgba(14,13,11,0.11);
             padding: 14px 20px;
             padding-bottom: calc(14px + env(safe-area-inset-bottom));
             text-align: center;
-            font-size: 0.9rem;
-            color: #71717a;
+            font-size: 13.5px;
+            color: #787266;
         }
-        .done-bar strong { display: block; color: #18181b; font-size: 1rem; margin-bottom: 2px; }
+        .done-bar strong { display: block; color: #0E0D0B; font-size: 15px; font-weight: 600; margin-bottom: 2px; }

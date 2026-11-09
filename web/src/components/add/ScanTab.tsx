@@ -77,7 +77,9 @@ function PhoneHandoff({ onCamera }: { onCamera: () => void }) {
         setSession(s)
         setReceived(0)
         const QR = await import('qrcode') // only desktops showing the QR download it
-        const out = await QR.toString(s.scan_url, { type: 'svg', margin: 0, errorCorrectionLevel: 'M', color: { dark: '#141B2E', light: '#00000000' } })
+        // Always ink on paper, with its own quiet zone: phone cameras read
+        // dark-on-light codes, and in the dark theme the box around is dark.
+        const out = await QR.toString(s.scan_url, { type: 'svg', margin: 2, errorCorrectionLevel: 'M', color: { dark: '#0E0D0B', light: '#F3EDE0' } })
         if (alive) setSvg(out)
       })
       .catch(() => { if (alive) { toast("Couldn't start a phone session. Use this computer's camera instead.", 'err'); onCamera() } })

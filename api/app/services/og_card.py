@@ -1,8 +1,10 @@
 """
 Link-preview cards: the 1200×630 image chat apps and social sites show
-under a shared link. Drawn with Pillow in the app's paper-and-ink look: the
-cover (or the typographic jacket the app draws when there's none), title,
-author or director, and the Dora logo.
+under a shared link. Drawn with Pillow in the app's "Dora brand: light"
+look: bone paper, near-black ink, vermilion accent, the title in Big
+Shoulders Display, labels and text in Schibsted Grotesk. Shows the cover (or
+the typographic jacket the app draws when there's none), title, author or
+director, and the Dora logo (the book-spine mark beside DORA).
 
 Pure drawing: callers hand in plain data and image bytes (routers/og.py
 fetches them), and get JPEG bytes back.
@@ -19,16 +21,15 @@ from PIL import Image, ImageDraw, ImageFilter, ImageFont, ImageOps
 W, H = 1200, 630
 # Part of every card's fingerprint (services/share.py). Bump it when the
 # drawing changes, so cached cards and the URLs pointing at them renew.
-DESIGN_VERSION = 2
+DESIGN_VERSION = 3
 
-PAPER = "#F4EEE2"
-PAPER_2 = "#EAE4D8"
-INK = "#1A1714"
-INK_SOFT = "#4A443B"
-INK_FAINT = "#8C8473"
-INK_BLUE = "#253C6D"
-LOGO_ACCENT = "#F2842F"
-HAIR = (37, 60, 109, 46)
+# web/src/styles/v2.css .th-brand:not(.th-night)
+PAPER = "#F3EDE0"
+INK = "#0E0D0B"
+INK_SOFT = "#4F4A40"
+INK_FAINT = "#787266"
+ACCENT = "#E8673F"
+HAIR = (14, 13, 11, 61)  # --hair-strong, rgba(14,13,11,.24)
 
 FONTS = Path(__file__).resolve().parents[1] / "static" / "fonts"
 
@@ -91,11 +92,17 @@ def _font(name: str, size: int, weight: int) -> ImageFont.FreeTypeFont:
 
 
 def sans(size: int, weight: int = 400) -> ImageFont.FreeTypeFont:
-    return _font("InterTight.ttf", size, weight)
+    return _font("SchibstedGrotesk.ttf", size, weight)
 
 
-def mono(size: int, weight: int = 400) -> ImageFont.FreeTypeFont:
-    return _font("JetBrainsMono.ttf", size, weight)
+def mono(size: int, weight: int = 500) -> ImageFont.FreeTypeFont:
+    """The label face. The brand theme sets --font-mono to Schibsted too."""
+    return _font("SchibstedGrotesk.ttf", size, max(400, weight))
+
+
+def display(size: int) -> ImageFont.FreeTypeFont:
+    """Big Shoulders Display 700: every title in the brand theme, uppercase."""
+    return _font("BigShouldersDisplay.ttf", size, 700)
 
 
 # ── Text ────────────────────────────────────────────────────────────────
@@ -121,15 +128,19 @@ def wrap(text: str, font: ImageFont.FreeTypeFont, max_w: float, max_lines: int) 
     return lines
 
 
+TITLE_LH = 0.92  # .th-brand display line-height
+
+
 def fit_title(text: str, max_w: float, max_h: float, sizes: range, max_lines: int = 3):
-    """Largest size whose wrapped title fits the box without an ellipsis,
-    else the smallest size, clipped."""
+    """Largest size whose wrapped (uppercase, display) title fits the box
+    without an ellipsis, else the smallest size, clipped."""
+    text = text.upper()
     for size in sizes:
-        font = sans(size, 600)
+        font = display(size)
         lines = wrap(text, font, max_w, max_lines)
-        if not lines[-1].endswith("…") and len(lines) * size * 1.04 <= max_h:
+        if not lines[-1].endswith("…") and len(lines) * size * TITLE_LH <= max_h:
             return font, lines, size
-    font = sans(sizes[-1], 600)
+    font = display(sizes[-1])
     return font, wrap(text, font, max_w, max_lines), sizes[-1]
 
 
@@ -275,59 +286,80 @@ def paste_cover(base: Image.Image, cover: Image.Image, x: int, y: int, radius: i
 
 # ── Logo ────────────────────────────────────────────────────────────────
 
-# The stacked DORA from components/Logo.tsx, in its 100-unit-high glyph
-# space: polylines and (centre, rx, ry, start°, end°) arcs per letter.
-_GLYPHS = [
-    (0, [[(40, 0), (0, 0), (0, 100), (40, 100)]], [((40, 50), 50, 50, -90, 90)]),       # D
-    (136, [], [((45, 50), 45, 50, 0, 360)]),                                               # O
-    (272, [[(0, 100), (0, 0), (45, 0)], [(45, 50), (0, 50)], [(40, 50), (75, 100)]],
-     [((45, 25), 25, 25, -90, 90)]),                                                       # R
-    (393, [[(0, 100), (37.5, 0), (75, 100)], [(17, 58), (58, 58)]], []),                   # A
-]
+# BrandMark from web/src/components/Logo.tsx (9 pages), in its
+# "-8 -2 104 104" viewBox: a spine, a fan of page wedges around (32, 50), and
+# the middle page in the accent, nudged out and tipped as if being turned.
+def _mark_shapes():
+    import math
+    n, gap, r0, r1, stem, sw = 9, 6, 14, 38, 15, 1.6
+    da = (180 - gap * (n - 1)) / n
+
+    def pt(r, a):
+        t = math.radians(a)
+        return (32 + r * math.cos(t), 50 + r * math.sin(t))
+
+    def wedge(a):
+        steps = 12
+        outer = [pt(r1, a + da * i / steps) for i in range(steps + 1)]
+        inner = [pt(r0, a + da - da * i / steps) for i in range(steps + 1)]
+        return outer + inner
+
+    pages, lit, a = [], None, -90
+    for i in range(n):
+        if i == n // 2:
+            lit = wedge(a)
+        else:
+            pages.append(wedge(a))
+        a += da + gap
+    # the lit page: rotate(-8° about 32,50), then translate(6, -1)
+    c, s_ = math.cos(math.radians(-8)), math.sin(math.radians(-8))
+    lit = [(32 + (x - 32) * c - (y - 50) * s_ + 6, 50 + (x - 32) * s_ + (y - 50) * c - 1) for x, y in lit]
+    spine = (32 - stem + sw / 2, 12 + sw / 2, 32 + 0.8, 12 + 76 - sw / 2)
+    return spine, pages, lit, sw
 
 
-def draw_logo(height: int) -> Image.Image:
-    """The logo at `height` px, drawn 4× and scaled down for smooth edges."""
+def draw_mark(size: int, ink: str = INK, acc: str = ACCENT) -> Image.Image:
+    """The mark at size×size px (overflow included), 4× supersampled."""
     ss = 4
-    s = height * ss / 140
-    img = Image.new("RGBA", (round(508 * s), round(140 * s)), (0, 0, 0, 0))
+    k = size * ss / 104
+    img = Image.new("RGBA", (size * ss, size * ss), (0, 0, 0, 0))
     d = ImageDraw.Draw(img)
+    spine, pages, lit, sw = _mark_shapes()
+    tr = lambda pts: [((x + 8) * k, (y + 2) * k) for x, y in pts]  # noqa: E731
+    w = max(1, round(sw * k))
+    x0, y0, x1, y1 = spine
+    d.rounded_rectangle([(x0 + 8) * k, (y0 + 2) * k, (x1 + 8) * k, (y1 + 2) * k], radius=1.5 * k, fill=ink)
+    for poly, color in [*((p, ink) for p in pages), (lit, acc)]:
+        pts = tr(poly)
+        d.polygon(pts, fill=color)
+        d.line(pts + pts[:1], fill=color, width=w, joint="curve")
+    return img.resize((size, size), Image.LANCZOS)
 
-    def stroke(ox, oy, lines, arcs, width, color):
-        wpx = max(1, round(width * s))
-        pt = lambda x, y: ((x + ox + 10) * s, (y + oy + 10) * s)  # noqa: E731
-        dots = []
-        for line in lines:
-            pts = [pt(*p) for p in line]
-            d.line(pts, fill=color, width=wpx, joint="curve")
-            dots += pts
-        for (cx, cy), rx, ry, a0, a1 in arcs:
-            r = wpx / 2
-            (x0, y0), (x1, y1) = pt(cx - rx, cy - ry), pt(cx + rx, cy + ry)
-            d.arc([x0 - r, y0 - r, x1 + r, y1 + r], a0, a1, fill=color, width=wpx)
-            if a1 - a0 < 360:
-                dots += [pt(cx, cy - ry), pt(cx, cy + ry)]
-        for x, y in dots:  # round caps and joins
-            r = wpx / 2
-            d.ellipse([x - r, y - r, x + r, y + r], fill=color)
 
-    for o in (20, 10, 0):
-        for x, lines, arcs in _GLYPHS:
-            ox, oy = x + 20 - o, 20 - o
-            stroke(ox, oy, lines, arcs, 16, INK_BLUE)
-            stroke(ox, oy, lines, arcs, 10, PAPER)
-            if o == 0:
-                stroke(ox, oy, lines, arcs, 2.6, LOGO_ACCENT)
-    return img.resize((round(img.width / ss), round(img.height / ss)), Image.LANCZOS)
+def draw_logo(size: int, ink: str = INK, acc: str = ACCENT) -> Image.Image:
+    """Logo.tsx at `size`: the mark at 1.5×size beside DORA in Big Shoulders
+    Display 700, 1.3×size, letter-spaced .04em, gap .32×size."""
+    mark = draw_mark(round(size * 1.5), ink, acc)
+    font = display(round(size * 1.3))
+    word, track = "DORA", size * 1.3 * 0.04
+    tw = _width(word, font, track)
+    gap = round(size * 0.32)
+    img = Image.new("RGBA", (mark.width + gap + round(tw) + 2, mark.height), (0, 0, 0, 0))
+    img.paste(mark, (0, 0), mark)
+    asc, desc = font.getmetrics()
+    top, bottom = font.getbbox("DORA")[1], font.getbbox("DORA")[3]
+    y = (mark.height - (bottom - top)) / 2 - top
+    tracked(ImageDraw.Draw(img), (mark.width + gap, y), word, font, ink, track)
+    return img
 
 
 def _footer(base: Image.Image, x: int, y: int, right: int, site: str) -> None:
     """Hairline, logo on the left, the site's address on the right."""
     d = ImageDraw.Draw(base, "RGBA")
     d.line([(x, y), (right, y)], fill=HAIR, width=2)
-    logo = draw_logo(38)
-    base.paste(logo, (x - 2, y + 24), logo)
-    tracked(d, (right, y + 33), site.upper(), mono(17, 500), INK_FAINT, 1.6, anchor_right=True)
+    logo = draw_logo(26)
+    base.paste(logo, (x - 2, y + 20), logo)
+    tracked(d, (right, y + 30), site.upper(), mono(17, 500), INK_FAINT, 1.6, anchor_right=True)
 
 
 def _encode(img: Image.Image) -> bytes:
@@ -355,17 +387,17 @@ def entry_card(card: Card, site: str) -> bytes:
     byline_font = sans(31)
     byline = wrap(card.byline, byline_font, max_w, 1)[0] if card.byline else ""
     room = footer_y - top - 50 - (60 if byline else 20) - 30
-    font, lines, size = fit_title(card.title, max_w, room, range(76, 43, -4))
+    font, lines, size = fit_title(card.title, max_w, room, range(104, 55, -4))
     # label, title and byline sit as one block, centred above the footer
-    block = 50 + len(lines) * size * 1.04 + (16 + 38 if byline else 0)
+    block = 50 + len(lines) * size * TITLE_LH + (22 + 38 if byline else 0)
     y = top + max(0, (footer_y - 30 - top - block) / 2)
     tracked(d, (x, y), card.label.upper(), mono(19, 500), INK_FAINT, 2.2)
     y += 50
     for line in lines:
-        d.text((x - size * 0.04, y), line, font=font, fill=INK)
-        y += size * 1.04
+        d.text((x, y), line, font=font, fill=INK)
+        y += size * TITLE_LH
     if byline:
-        d.text((x, y + 16), byline, font=byline_font, fill=INK_SOFT)
+        d.text((x, y + 22), byline, font=byline_font, fill=INK_SOFT)
 
     _footer(base, x, footer_y, right, site)
     return _encode(base)
@@ -393,13 +425,13 @@ def photo_card(photo: bytes, card: Card, site: str) -> bytes | None:
     byline = wrap(card.byline, byline_font, max_w, 1)[0] if card.byline else ""
     title_top = 58 + ch + 72
     room = footer_y - title_top - (48 if byline else 16)
-    font, lines, size = fit_title(card.title, max_w, room, range(46, 27, -3), max_lines=3)
+    font, lines, size = fit_title(card.title, max_w, room, range(64, 35, -3), max_lines=3)
     y = title_top
     for line in lines:
-        d.text((x - size * 0.04, y), line, font=font, fill=INK)
-        y += size * 1.04
+        d.text((x, y), line, font=font, fill=INK)
+        y += size * TITLE_LH
     if byline:
-        d.text((x, y + 10), byline, font=byline_font, fill=INK_SOFT)
+        d.text((x, y + 14), byline, font=byline_font, fill=INK_SOFT)
 
     _footer(base, x, footer_y, right, site)
     return _encode(base)

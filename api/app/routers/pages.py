@@ -12,7 +12,7 @@ templates = Jinja2Templates(directory="app/templates")
 
 # Cache-busting suffix for /static/* links (see main.py's Cache-Control
 # middleware). Bump this string whenever CSS/JS under app/static changes.
-templates.env.globals["static_version"] = "1"
+templates.env.globals["static_version"] = "2"
 
 
 @router.get("/mobile-scan/{token}")
